@@ -1,0 +1,86 @@
+services:
+  garage:
+    image: dxflrs/garage:latest
+    container_name: garage
+    restart: unless-stopped
+    command: >
+      server
+      --single-node
+      --default-access-key=${GARAGE_DEFAULT_ACCESS_KEY}
+      --default-secret-key=${GARAGE_DEFAULT_SECRET_KEY}
+      --default-bucket=${GARAGE_DEFAULT_BUCKET}
+    environment:
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET}
+      GARAGE_ADMIN_TOKEN: ${GARAGE_ADMIN_TOKEN}
+      GARAGE_METRICS_TOKEN: ${GARAGE_METRICS_TOKEN}
+    volumes:
+      - ./garage.toml:/etc/garage.toml:ro
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
+    ports:
+      - "3900:3900"  # S3 API
+      - "3903:3903"  # admin API
+    networks:
+      - cloud
+
+  db:
+    image: postgres:16-alpine
+    container_name: nextcloud-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - cloud
+
+  redis:
+    image: redis:7-alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+    networks:
+      - cloud
+
+  nextcloud:
+    image: nextcloud:30-apache
+    container_name: nextcloud
+    restart: unless-stopped
+    depends_on:
+      - garage
+      - db
+      - redis
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USER}
+      NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD}
+      OBJECTSTORE_S3_HOST: garage
+      OBJECTSTORE_S3_PORT: "3900"
+      OBJECTSTORE_S3_BUCKET: ${GARAGE_DEFAULT_BUCKET}
+      OBJECTSTORE_S3_KEY: ${GARAGE_DEFAULT_ACCESS_KEY}
+      OBJECTSTORE_S3_SECRET: ${GARAGE_DEFAULT_SECRET_KEY}
+      OBJECTSTORE_S3_REGION: garage
+      OBJECTSTORE_S3_USEPATH_STYLE: "true"
+      OBJECTSTORE_S3_SSL: "false"
+      OBJECTSTORE_S3_AUTOCREATE: "false"
+    volumes:
+      - nc_data:/var/www/html
+    ports:
+      - "8080:80"
+    networks:
+      - cloud
+
+volumes:
+  garage_meta:
+  garage_data:
+  db_data:
+  nc_data:
+
+networks:
+  cloud:
+    driver: bridge
