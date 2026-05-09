@@ -1,0 +1,33 @@
+[Unit]
+Description=mdadm RAID array monitor
+Documentation=man:mdadm(8)
+After=network.target local-fs.target
+
+[Service]
+Type=simple
+# mdadm --monitor scans all arrays and writes events to syslog.
+# Configure MAILADDR in /etc/mdadm/mdadm.conf for email alerts.
+ExecStart=/sbin/mdadm --monitor --scan --syslog --delay=60
+Restart=always
+RestartSec=30
+# Redirect stderr to journal for visibility
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
+# ─── mdadm.conf snippet ────────────────────────────────────────────────────
+# Add the following lines to /etc/mdadm/mdadm.conf:
+#
+# MAILADDR your-email@example.com
+# PROGRAM /usr/share/mdadm/mdadm-cmdline-runner
+#
+# Events that trigger alerts:
+#   Fail, FailSpare, DegradedArray, SparesMissing
+#   RebuildStarted, RebuildFinished, DeviceDisappeared
+#
+# After editing mdadm.conf, reload the unit:
+#   systemctl daemon-reload && systemctl restart mdadm-monitor.service
+#
+# Test with:
+#   mdadm --monitor --scan --test -1
