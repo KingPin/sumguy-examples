@@ -1,0 +1,65 @@
+# /etc/mdadm/mdadm.conf — Example for a nested RAID 50 array
+#
+# This example shows how mdadm.conf should look after running:
+#   mdadm --detail --scan >> /etc/mdadm/mdadm.conf
+#
+# For a RAID 50 built as:
+#   /dev/md0  — RAID 5 sub-array A (drives 0-5)
+#   /dev/md1  — RAID 5 sub-array B (drives 6-11)
+#   /dev/md10 — RAID 0 top-level stripe across md0 and md1
+#
+# IMPORTANT: Replace the UUID values below with the real UUIDs from your system.
+# Get them with: mdadm --detail --scan
+#
+# On boot, mdadm assembles sub-arrays first (md0, md1), then the top-level
+# stripe (md10). The ordering in this file matters — list sub-arrays before
+# the top-level device.
+
+# ── Global configuration ────────────────────────────────────────────────────
+
+# Inform mdadm which user to notify on array events
+MAILADDR root
+
+# ── Sub-array A — RAID 5 (drives 0-5) ──────────────────────────────────────
+ARRAY /dev/md0 \
+  level=raid5 \
+  num-devices=6 \
+  UUID=aaaaaaaa:bbbbbbbb:cccccccc:dddddddd \
+  name=homeserver:0 \
+  devices=/dev/sdb,/dev/sdc,/dev/sdd,/dev/sde,/dev/sdf,/dev/sdg
+
+# ── Sub-array B — RAID 5 (drives 6-11) ─────────────────────────────────────
+ARRAY /dev/md1 \
+  level=raid5 \
+  num-devices=6 \
+  UUID=eeeeeeee:ffffffff:00000000:11111111 \
+  name=homeserver:1 \
+  devices=/dev/sdh,/dev/sdi,/dev/sdj,/dev/sdk,/dev/sdl,/dev/sdm
+
+# ── Top-level stripe — RAID 0 across md0 and md1 ───────────────────────────
+ARRAY /dev/md10 \
+  level=raid0 \
+  num-devices=2 \
+  UUID=22222222:33333333:44444444:55555555 \
+  name=homeserver:10 \
+  devices=/dev/md0,/dev/md1
+
+# ── Notes ───────────────────────────────────────────────────────────────────
+#
+# After editing this file, regenerate initramfs so the boot environment
+# can assemble the arrays before the root filesystem mounts:
+#
+#   sudo update-initramfs -u          # Debian/Ubuntu
+#   sudo dracut --force               # Fedora/RHEL
+#
+# To verify assembly on next boot:
+#   cat /proc/mdstat
+#
+# If an array fails to assemble, check:
+#   mdadm --examine /dev/sdb          # inspect individual drive superblock
+#   mdadm --assemble --scan --verbose # verbose assembly attempt
+#
+# For RAID 60, the structure is the same but:
+#   - Sub-arrays use level=raid6
+#   - Each sub-array has at least 4 devices
+#   - Replace UUID placeholders with actual UUIDs from mdadm --detail --scan
