@@ -1,0 +1,45 @@
+# /etc/fstab — MergerFS union mount for SnapRAID data drives
+#
+# See: https://sumguy.com/posts/snapraid-parity-without-realtime/
+# MergerFS docs: https://github.com/trapexit/mergerfs
+#
+# This line unions all data drive mountpoints into a single /mnt/storage path.
+# Files still live on individual drives underneath — MergerFS just makes it look like one.
+# The parity drive is NOT included in the pool — it's parity-only.
+#
+# IMPORTANT: Replace /mnt/data1:/mnt/data2:/mnt/data3:/mnt/data4 with your actual
+# drive mountpoints. Add or remove drives separated by colons.
+#
+# Prerequisites:
+#   - mergerfs installed: sudo apt install mergerfs
+#   - Each /mnt/dataX already mounted (those entries are separate in fstab)
+#   - /mnt/storage directory exists: sudo mkdir -p /mnt/storage
+
+/mnt/data1:/mnt/data2:/mnt/data3:/mnt/data4  /mnt/storage  fuse.mergerfs  defaults,allow_other,use_ino,cache.files=off,dropcacheonclose=true,category.create=mfs,moveonenospc=true,minfreespace=4G,fsname=mergerfs  0  0
+
+# Option explanations:
+#
+# allow_other         — Allows non-root users to access the mount (needed for Plex/Jellyfin)
+# use_ino             — Use actual inode numbers from underlying drives (improves NFS/SMB compat)
+# cache.files=off     — Disable file caching; avoids stale reads when files change on underlying drives
+# dropcacheonclose=true — Drop kernel cache when files are closed; pairs with cache.files=off
+# category.create=mfs — "Most Free Space" — new files land on the drive with the most free space
+# moveonenospc=true   — If a drive fills mid-write, move the file to another drive automatically
+# minfreespace=4G     — Don't write to a drive with less than 4 GB free
+# fsname=mergerfs     — Friendly name shown in df / mount output
+
+# ---------------------------------------------------------------------------
+# EXAMPLE: Full fstab section (data drives + mergerfs pool)
+# ---------------------------------------------------------------------------
+# Replace UUIDs with your actual values from: sudo blkid
+#
+# UUID=aaaa-1111  /mnt/data1   ext4  defaults,nofail  0  2
+# UUID=bbbb-2222  /mnt/data2   ext4  defaults,nofail  0  2
+# UUID=cccc-3333  /mnt/data3   ext4  defaults,nofail  0  2
+# UUID=dddd-4444  /mnt/data4   ext4  defaults,nofail  0  2
+# UUID=eeee-5555  /mnt/parity  ext4  defaults,nofail  0  2
+#
+# /mnt/data1:/mnt/data2:/mnt/data3:/mnt/data4  /mnt/storage  fuse.mergerfs  defaults,allow_other,use_ino,cache.files=off,dropcacheonclose=true,category.create=mfs,moveonenospc=true,minfreespace=4G,fsname=mergerfs  0  0
+#
+# Note: 'nofail' on data drives prevents boot failure if a drive is missing.
+# SnapRAID can still recover from one missing drive — but your system needs to boot first.

@@ -1,0 +1,83 @@
+# /etc/snapraid.conf — Example configuration for 4 data drives + 1 parity drive
+#
+# See: https://sumguy.com/posts/snapraid-parity-without-realtime/
+# Docs: https://www.snapraid.it/manual
+#
+# IMPORTANT: Edit all paths to match your actual drive mountpoints before use.
+# Use UUIDs in /etc/fstab for reliable mountpoints across reboots.
+
+# ---------------------------------------------------------------------------
+# PARITY DRIVE
+# ---------------------------------------------------------------------------
+# Must be on a dedicated drive. Must be >= size of your largest data drive.
+# Use a full drive path, not a mountpoint — SnapRAID writes directly to a file.
+# Add "parity2 /mnt/parity2/snapraid.parity" for two-drive failure tolerance.
+
+parity /mnt/parity/snapraid.parity
+
+# ---------------------------------------------------------------------------
+# CONTENT FILES
+# ---------------------------------------------------------------------------
+# SnapRAID writes metadata (file list, checksums) to content files.
+# Keep one on each data drive plus one off the array (e.g. /var/snapraid/).
+# All content files are identical — SnapRAID picks the most recent one on startup.
+# You need at least as many content files as parity drives + 1.
+
+content /var/snapraid/snapraid.content
+content /mnt/data1/snapraid.content
+content /mnt/data2/snapraid.content
+content /mnt/data3/snapraid.content
+
+# ---------------------------------------------------------------------------
+# DATA DRIVES
+# ---------------------------------------------------------------------------
+# Each data drive gets a label (d1, d2, etc.) and a mountpoint.
+# Labels are arbitrary — they're used in 'snapraid fix -d dX' commands.
+# Data drives can be any size — they contribute their full capacity.
+# Format each with ext4 or XFS before mounting.
+
+data d1 /mnt/data1
+data d2 /mnt/data2
+data d3 /mnt/data3
+data d4 /mnt/data4
+
+# ---------------------------------------------------------------------------
+# EXCLUSIONS
+# ---------------------------------------------------------------------------
+# Tell SnapRAID to ignore these files/directories.
+# Rules use glob patterns. Paths starting with / are relative to each data drive root.
+
+# Temp and backup files
+exclude *.bak
+exclude *.tmp
+exclude *.swp
+exclude *~
+
+# OS noise
+exclude /lost+found/
+exclude .Trash-*/
+exclude .recycle/
+exclude .AppleDouble/
+exclude .DS_Store
+
+# Thumbnail/cache directories (Plex, Jellyfin, etc.)
+exclude .nfs*
+exclude Thumbs.db
+
+# SnapRAID's own content files (avoid recursion)
+exclude snapraid.content
+exclude snapraid.content.lock
+
+# ---------------------------------------------------------------------------
+# OPTIONAL TUNING
+# ---------------------------------------------------------------------------
+
+# Number of threads for hashing (default: 1 per CPU)
+# hashsize 128
+
+# Block size in KB — larger = faster sync, slightly more overhead per block
+# blocksize 256
+
+# Autosave interval — save content file every N GB processed during sync
+# Prevents losing all progress if sync is interrupted on a huge library
+autosave 500
