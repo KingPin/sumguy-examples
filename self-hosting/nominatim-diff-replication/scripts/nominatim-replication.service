@@ -1,0 +1,13 @@
+[Unit]
+Description=Nominatim OSM replication update
+After=docker.service
+Requires=docker.service
+OnFailure=nominatim-replication-failure@%n.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/bin/docker exec nominatim \
+  sudo -u nominatim nominatim replication --once
+StandardOutput=journal
+StandardError=journal
