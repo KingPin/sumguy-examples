@@ -1,0 +1,16 @@
+services:
+  ors:
+    image: openrouteservice/openrouteservice:latest
+    container_name: ors
+    ports:
+      - "8080:8082"
+    volumes:
+      - ./ors-data:/home/ors
+    environment:
+      ORS_URL: http://localhost:8080/ors
+      JAVA_OPTS: "-Xms2g -Xmx6g"
+      ors.engine.source_file: /home/ors/files/region.osm.pbf
+      ors.engine.profiles.car.enabled: "true"
+      ors.engine.profiles.bike-regular.enabled: "true"
+      ors.engine.profiles.foot-walking.enabled: "true"
+    restart: unless-stopped
