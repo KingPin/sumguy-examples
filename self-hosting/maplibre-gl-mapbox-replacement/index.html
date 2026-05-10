@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MapLibre GL Demo</title>
+  <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    html, body, #map { margin: 0; padding: 0; height: 100%; width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: '/style.json',           // your self-hosted style spec
+      center: [-87.6298, 41.8781],    // Chicago
+      zoom: 11,
+    });
+
+    map.addControl(new maplibregl.NavigationControl(), 'top-right');
+    map.addControl(new maplibregl.ScaleControl(), 'bottom-left');
+  </script>
+</body>
+</html>
