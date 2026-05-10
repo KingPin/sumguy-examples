@@ -1,0 +1,20 @@
+services:
+  overpass:
+    image: wiktorn/overpass-api:latest
+    container_name: overpass
+    ports:
+      - "12345:80"
+    environment:
+      OVERPASS_META: "yes"
+      OVERPASS_MODE: "init"
+      OVERPASS_PLANET_URL: "https://download.geofabrik.de/north-america/us/new-york-latest.osm.pbf"
+      OVERPASS_DIFF_URL: "https://download.geofabrik.de/north-america/us/new-york-updates/"
+      OVERPASS_RULES_LOAD: "10"
+      OVERPASS_SPACE: "4000000000"
+      OVERPASS_MAX_TIMEOUT: "1000"
+    volumes:
+      - overpass-db:/db
+    restart: unless-stopped
+
+volumes:
+  overpass-db:
