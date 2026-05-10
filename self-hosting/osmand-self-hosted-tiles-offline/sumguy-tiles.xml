@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<item>
+    <name>SumGuy Tile Server</name>
+    <url_template>http://192.168.1.100:8080/data/osm-bright/{0}/{1}/{2}.png</url_template>
+    <min_zoom>1</min_zoom>
+    <max_zoom>19</max_zoom>
+    <tile_size>256</tile_size>
+    <img_density>1</img_density>
+    <avg_img_size>18000</avg_img_size>
+    <ellipsoid>false</ellipsoid>
+    <inverted_y>false</inverted_y>
+    <time_to_live>3600</time_to_live>
+</item>

@@ -1,0 +1,12 @@
+{
+  "options": {
+    "paths": {
+      "root": "/data"
+    }
+  },
+  "data": {
+    "osm-bright": {
+      "mbtiles": "your-region.mbtiles"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+services:
+  tileserver:
+    image: maptiler/tileserver-gl:latest
+    container_name: tileserver
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./tiles:/data
+    command: --config /data/config.json
+    restart: unless-stopped
