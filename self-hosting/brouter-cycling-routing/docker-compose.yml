@@ -1,0 +1,15 @@
+services:
+  brouter:
+    image: nrenner/brouter:1.7.5
+    container_name: brouter
+    ports:
+      - "17777:17777"
+    volumes:
+      - brouter-segments:/brouter/segments
+      - ./profiles:/brouter/profiles
+    environment:
+      - JAVA_OPTS=-Xmx512m -Xms256m
+    restart: unless-stopped
+
+volumes:
+  brouter-segments:

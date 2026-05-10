@@ -1,0 +1,27 @@
+---context:way
+# assign initial cost based on highway type
+assign initialcost =
+  if      highway=motorway    then 10000  # effectively forbidden
+  else if highway=trunk       then  1000
+  else if highway=primary     then   100
+  else if highway=secondary   then    50
+  else if highway=tertiary    then    20
+  else if highway=residential then    10
+  else if highway=cycleway    then     0
+  else if highway=path        then     5
+  else                                20
+
+# surface penalty
+assign surfacecost =
+  if surface=paved     then   0
+  else if surface=compacted then 10
+  else if surface=gravel    then 20
+  else if surface=dirt      then 40
+  else if surface=sand      then 200
+  else                           10
+
+# elevation penalty per meter of climbing
+assign uphillcost = 60
+
+# final cost per km of this segment
+assign cost = add initialcost surfacecost
