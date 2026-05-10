@@ -1,0 +1,35 @@
+services:
+  nominatim:
+    image: mediagis/nominatim:4.5
+    container_name: nominatim
+    ports:
+      - "8080:8080"
+    environment:
+      PBF_URL: https://download.geofabrik.de/north-america-latest.osm.pbf
+      REPLICATION_URL: https://download.geofabrik.de/north-america-updates/
+      NOMINATIM_PASSWORD: ${NOMINATIM_PASSWORD}
+      IMPORT_STYLE: full
+      THREADS: 4
+    volumes:
+      - nominatim-data:/var/lib/postgresql/16/main
+      - nominatim-flatnode:/nominatim/flatnode
+    shm_size: 1gb
+    restart: unless-stopped
+
+  photon:
+    image: komoot/photon:latest
+    container_name: photon
+    ports:
+      - "2322:2322"
+    volumes:
+      - photon-data:/photon/photon_data
+    # Remove the command block once you have a data directory populated.
+    # See README for two ways to populate it.
+    command: >
+      -listen-ip 0.0.0.0
+    restart: unless-stopped
+
+volumes:
+  nominatim-data:
+  nominatim-flatnode:
+  photon-data:

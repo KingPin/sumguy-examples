@@ -1,0 +1,13 @@
+maps.lan {
+  # autocomplete / fuzzy search → Photon
+  handle /photon/* {
+    uri strip_prefix /photon
+    reverse_proxy photon:2322
+  }
+
+  # structured geocoding + reverse geocoding → Nominatim
+  handle /nominatim/* {
+    uri strip_prefix /nominatim
+    reverse_proxy nominatim:8080
+  }
+}
