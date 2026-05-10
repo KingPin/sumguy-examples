@@ -1,0 +1,88 @@
+services:
+  nominatim:
+    image: mediagis/nominatim:4.5
+    container_name: nominatim
+    ports:
+      - "8080:8080"
+    environment:
+      PBF_URL: https://download.geofabrik.de/north-america-latest.osm.pbf
+      REPLICATION_URL: https://download.geofabrik.de/north-america-updates/
+      NOMINATIM_PASSWORD: ${NOMINATIM_PASSWORD}
+      IMPORT_STYLE: full
+      THREADS: 4
+    volumes:
+      - nominatim-data:/var/lib/postgresql/16/main
+      - nominatim-flatnode:/nominatim/flatnode
+    shm_size: 1gb
+    networks:
+      - geocoding-net
+    restart: unless-stopped
+
+  photoprism:
+    image: photoprism/photoprism:latest
+    container_name: photoprism
+    ports:
+      - "2342:2342"
+    environment:
+      PHOTOPRISM_GEOCODING_API: nominatim
+      PHOTOPRISM_GEOCODING_SERVER: "http://nominatim:8080"
+      PHOTOPRISM_GEOCODING_LANGUAGE: en
+      PHOTOPRISM_AUTH_MODE: "password"
+      PHOTOPRISM_ADMIN_PASSWORD: ${PHOTOPRISM_ADMIN_PASSWORD}
+    volumes:
+      - ./photos:/photoprism/originals
+      - photoprism-storage:/photoprism/storage
+    networks:
+      - geocoding-net
+    restart: unless-stopped
+
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:release
+    container_name: immich-server
+    ports:
+      - "2283:2283"
+    environment:
+      IMMICH_REVERSE_GEOCODING_URL: http://nominatim:8080
+      IMMICH_GEOCODING_ENABLED: "true"
+      DB_HOSTNAME: immich-db
+      DB_USERNAME: immich
+      DB_PASSWORD: ${IMMICH_DB_PASSWORD}
+      DB_DATABASE_NAME: immich
+      REDIS_HOSTNAME: immich-redis
+    depends_on:
+      - immich-db
+      - immich-redis
+    networks:
+      - geocoding-net
+      - immich-net
+    restart: unless-stopped
+
+  immich-db:
+    image: tensorchord/pgvecto-rs:pg14-v0.2.0
+    container_name: immich-db
+    environment:
+      POSTGRES_USER: immich
+      POSTGRES_PASSWORD: ${IMMICH_DB_PASSWORD}
+      POSTGRES_DB: immich
+    volumes:
+      - immich-db-data:/var/lib/postgresql/data
+    networks:
+      - immich-net
+    restart: unless-stopped
+
+  immich-redis:
+    image: redis:7-alpine
+    container_name: immich-redis
+    networks:
+      - immich-net
+    restart: unless-stopped
+
+networks:
+  geocoding-net:
+  immich-net:
+
+volumes:
+  nominatim-data:
+  nominatim-flatnode:
+  photoprism-storage:
+  immich-db-data:
