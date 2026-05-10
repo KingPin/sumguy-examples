@@ -1,0 +1,22 @@
+services:
+  nominatim:
+    image: mediagis/nominatim:4.5
+    container_name: nominatim
+    ports:
+      - "8080:8080"
+    environment:
+      # Use your country or smaller — HA reverse geocoding doesn't need the planet.
+      PBF_URL: https://download.geofabrik.de/europe/germany-latest.osm.pbf
+      REPLICATION_URL: https://download.geofabrik.de/europe/germany-updates/
+      NOMINATIM_PASSWORD: ${NOMINATIM_PASSWORD}
+      IMPORT_STYLE: full
+      THREADS: 4
+    volumes:
+      - nominatim-data:/var/lib/postgresql/16/main
+      - nominatim-flatnode:/nominatim/flatnode
+    shm_size: 1gb
+    restart: unless-stopped
+
+volumes:
+  nominatim-data:
+  nominatim-flatnode:

@@ -1,0 +1,49 @@
+# Drop these snippets into your existing Home Assistant configuration.yaml
+# (or split them across packages/ files if you use packages).
+#
+# Replace `nominatim.lan` with your local Nominatim hostname / IP and port.
+
+# --- Approach 1: Simple polling REST sensor ---
+sensor:
+  - platform: rest
+    name: "Phone Location Address"
+    resource_template: >-
+      http://nominatim.lan:8080/reverse?lat={{ state_attr('device_tracker.my_phone', 'latitude') }}&lon={{ state_attr('device_tracker.my_phone', 'longitude') }}&format=json&zoom=18&addressdetails=1
+    value_template: "{{ value_json.display_name }}"
+    json_attributes:
+      - address
+    scan_interval: 300
+
+# --- Template sensors that surface individual address fields ---
+template:
+  - sensor:
+      - name: "Phone City"
+        state: "{{ state_attr('sensor.phone_location_address', 'address').city }}"
+      - name: "Phone Street"
+        state: "{{ state_attr('sensor.phone_location_address', 'address').road }}"
+      - name: "Phone Country"
+        state: "{{ state_attr('sensor.phone_location_address', 'address').country }}"
+
+# --- Approach 2: Trigger-based template sensor (more efficient than polling) ---
+  - trigger:
+      - platform: state
+        entity_id: device_tracker.my_phone
+    action:
+      - service: rest_command.nominatim_reverse
+        data:
+          lat: "{{ state_attr('device_tracker.my_phone', 'latitude') }}"
+          lon: "{{ state_attr('device_tracker.my_phone', 'longitude') }}"
+        response_variable: result
+    sensor:
+      - name: "Phone Address"
+        state: "{{ result['content']['display_name'] }}"
+        attributes:
+          city: "{{ result['content']['address'].city }}"
+          road: "{{ result['content']['address'].road }}"
+          postcode: "{{ result['content']['address'].postcode }}"
+
+# --- The supporting REST command used by approach 2 ---
+rest_command:
+  nominatim_reverse:
+    url: "http://nominatim.lan:8080/reverse?lat={{ lat }}&lon={{ lon }}&format=json&zoom=18&addressdetails=1"
+    method: GET

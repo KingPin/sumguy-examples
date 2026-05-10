@@ -1,0 +1,20 @@
+# Example automation that uses a reverse-geocoded address sensor.
+- alias: "Notify when car arrives home at night"
+  trigger:
+    - platform: state
+      entity_id: device_tracker.car
+      to: "home"
+  condition:
+    - condition: time
+      after: "22:00:00"
+      before: "06:00:00"
+  action:
+    - service: switch.turn_on
+      target:
+        entity_id: switch.porch_light
+    - service: notify.family
+      data:
+        title: "Welcome home"
+        message: >-
+          Car arrived from {{ state_attr('sensor.car_address', 'road') }}
+          at {{ now().strftime('%H:%M') }}.
