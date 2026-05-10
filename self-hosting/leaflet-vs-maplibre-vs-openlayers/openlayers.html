@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenLayers Demo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@10.3.0/ol.css" />
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #map { height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://cdn.jsdelivr.net/npm/ol@10.3.0/dist/ol.js"></script>
+  <script>
+    const map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        }),
+        new ol.layer.Vector({
+          source: new ol.source.Vector({
+            features: [
+              new ol.Feature({
+                geometry: new ol.geom.Point(
+                  ol.proj.fromLonLat([-0.09, 51.505])
+                )
+              })
+            ]
+          })
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([-0.09, 51.505]),
+        zoom: 13
+      })
+    });
+  </script>
+</body>
+</html>
