@@ -1,0 +1,12 @@
+geocode.lan {
+  reverse_proxy nominatim:8080
+}
+
+tiles.lan {
+  reverse_proxy martin:3000
+
+  header {
+    Cache-Control "public, max-age=3600"
+    Access-Control-Allow-Origin "*"
+  }
+}

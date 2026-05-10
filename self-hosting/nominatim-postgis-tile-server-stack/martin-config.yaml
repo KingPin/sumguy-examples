@@ -1,0 +1,34 @@
+postgres:
+  connection_string: "postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/maps"
+  default_srid: 3857
+  pool_size: 20
+
+  # Auto-discover tables and views in the osm schema. You can also
+  # remove `auto_publish` and uncomment the explicit `tables` block below
+  # for tighter control over which tables get exposed.
+  auto_publish:
+    tables:
+      from_schemas: ["osm"]
+
+  # tables:
+  #   osm.water:
+  #     schema: osm
+  #     table: water
+  #     srid: 3857
+  #     geometry_column: geom
+  #     minzoom: 0
+  #     maxzoom: 14
+  #   osm.roads:
+  #     schema: osm
+  #     table: roads
+  #     srid: 3857
+  #     geometry_column: geom
+  #     minzoom: 6
+  #     maxzoom: 18
+  #   osm.buildings:
+  #     schema: osm
+  #     table: buildings
+  #     srid: 3857
+  #     geometry_column: geom
+  #     minzoom: 13
+  #     maxzoom: 18
