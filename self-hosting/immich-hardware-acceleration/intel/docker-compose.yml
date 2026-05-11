@@ -1,0 +1,55 @@
+name: immich
+
+services:
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:release
+    container_name: immich-server
+    extends:
+      file: hwaccel.transcoding.yml
+      service: immich-server
+    ports:
+      - "2283:3001"
+    environment:
+      DB_HOSTNAME: immich-db
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE_NAME: immich
+      REDIS_HOSTNAME: immich-redis
+    volumes:
+      - ${LIBRARY_PATH}:/usr/src/app/upload
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - immich-db
+      - immich-redis
+    restart: unless-stopped
+
+  immich-machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:release-openvino
+    container_name: immich-machine-learning
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - "${RENDER_GID:-104}"
+    volumes:
+      - model-cache:/cache
+    restart: unless-stopped
+
+  immich-redis:
+    image: redis:7-alpine
+    container_name: immich-redis
+    restart: unless-stopped
+
+  immich-db:
+    image: tensorchord/pgvecto-rs:pg14-v0.2.0
+    container_name: immich-db
+    environment:
+      POSTGRES_DB: immich
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  model-cache:
