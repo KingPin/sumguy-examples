@@ -1,0 +1,48 @@
+services:
+  remark42:
+    image: umputun/remark42:latest
+    container_name: remark42
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Required: public URL where Remark42 is accessible
+      - REMARK_URL=https://comments.yourdomain.com
+      # Required: long random string for signing tokens — generate with: openssl rand -hex 32
+      - SECRET=change-me-to-a-very-long-random-secret
+      # Required: identifier for your site (any string, no spaces)
+      - SITE=myblog
+
+      # --- GitHub OAuth (recommended) ---
+      # Create an OAuth app at https://github.com/settings/developers
+      # Callback URL: https://comments.yourdomain.com/auth/github/callback
+      - AUTH_GITHUB_CID=your-github-oauth-client-id
+      - AUTH_GITHUB_CSEC=your-github-oauth-client-secret
+
+      # --- Google OAuth (optional) ---
+      # Create credentials at https://console.cloud.google.com/apis/credentials
+      # Authorized redirect URI: https://comments.yourdomain.com/auth/google/callback
+      - AUTH_GOOGLE_CID=your-google-oauth-client-id
+      - AUTH_GOOGLE_CSEC=your-google-oauth-client-secret
+
+      # Allow anonymous comments (no account required)
+      - AUTH_ANON=true
+
+      # Admin: your GitHub username — lets you delete/pin comments from the UI
+      # Format: github_yourusername (lowercase)
+      - ADMIN_SHARED_ID=github_yourusername
+
+      # --- Email notifications (optional but recommended) ---
+      - NOTIFY_EMAIL_SMTP_HOST=smtp.yourdomain.com
+      - NOTIFY_EMAIL_SMTP_PORT=587
+      - NOTIFY_EMAIL_FROM=comments@yourdomain.com
+      - NOTIFY_EMAIL_SMTP_USERNAME=comments@yourdomain.com
+      - NOTIFY_EMAIL_SMTP_PASSWORD=your-smtp-password
+      # Admin email for new comment notifications
+      - ADMIN_SHARED_EMAIL=you@yourdomain.com
+
+    volumes:
+      - remark42_data:/srv/var
+
+volumes:
+  remark42_data:

@@ -1,0 +1,15 @@
+services:
+  isso:
+    image: ghcr.io/isso-comments/isso:latest
+    container_name: isso
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    volumes:
+      # Persistent SQLite database
+      - isso_data:/db
+      # Config file — copy isso.cfg.example to isso.cfg and edit before running
+      - ./isso.cfg:/config/isso.cfg:ro
+
+volumes:
+  isso_data:
