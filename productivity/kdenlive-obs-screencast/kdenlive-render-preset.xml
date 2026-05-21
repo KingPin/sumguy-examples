@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Kdenlive Custom Render Preset: SumGuy Web 1080p H.264
+
+  Installation:
+    Copy this file (or its contents) into:
+    ~/.config/kdenlive/kdenliverenderingprofiles/
+
+    Then restart Kdenlive. The preset will appear under
+    Project → Render → Custom presets.
+
+  Alternatively, paste the <profile> block into your existing
+  customprofiles.xml file inside the <profiles> root element.
+
+  Kdenlive version tested: 24.x / 23.x
+-->
+<profiles>
+  <profile
+    name="SumGuy Web 1080p H.264 CRF21"
+    category="Custom"
+    extension="mp4"
+    args="f=mp4 vcodec=libx264 crf=21 preset=medium acodec=aac ab=192k ar=48000 channels=2 movflags=+faststart"
+    vqualities=""
+    vbitrates=""
+    defaultvbitrate=""
+    aqualities=""
+    abitrates=""
+    defaultabitrate="192k"
+  />
+</profiles>
+
+<!--
+  Parameter reference:
+
+  f=mp4                 Output container: MP4
+  vcodec=libx264        H.264 video codec
+  crf=21                Quality level: 18=lossless-ish, 28=noticeable loss.
+                        21-22 is the sweet spot for screencasts.
+  preset=medium         Encoder speed/compression tradeoff.
+                        Slower = smaller file, same quality.
+                        "medium" is a good default; use "slow" for final renders.
+  acodec=aac            AAC audio (universally supported)
+  ab=192k               Audio bitrate: 192 kbps stereo
+  ar=48000              Audio sample rate: 48 kHz (standard for video)
+  channels=2            Stereo output
+  movflags=+faststart   Move MP4 index to file start for web streaming.
+                        Lets players start before download completes.
+
+  Adjust crf= for your use case:
+    18-20  = near-lossless (large files, for archiving source cuts)
+    21-22  = high quality web delivery (recommended)
+    23-25  = acceptable quality, smaller files (good for previews)
+-->
