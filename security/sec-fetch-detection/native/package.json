@@ -1,0 +1,13 @@
+{
+  "name": "sec-fetch-native-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bare-metal Sec-Fetch / UA-CH leak tests. Uses existing ~/.cache/ms-playwright Chromium — does NOT download browsers.",
+  "dependencies": {
+    "puppeteer-core": "23.5.0",
+    "puppeteer-extra": "3.3.6",
+    "puppeteer-extra-plugin-stealth": "2.11.2",
+    "playwright-core": "1.49.0",
+    "rebrowser-puppeteer-core": "24.8.1"
+  }
+}
