@@ -1,0 +1,31 @@
+# Caddy reverse proxy snippet for Jellyfin.
+# Drop this into your existing Caddyfile and adjust the domain.
+# Caddy handles HTTPS automatically via Let's Encrypt.
+
+jellyfin.example.com {
+	# Real client IP (so Jellyfin sees who's actually connecting)
+	@local remote_ip 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+	trusted_proxies @local
+
+	reverse_proxy 192.168.1.100:8096 {
+		# WebSocket + long-poll support for Jellyfin's sync features
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+
+	# Larger upload size if you ever use the (rare) upload features
+	request_body {
+		max_size 20MB
+	}
+
+	encode gzip zstd
+
+	# Security headers — Jellyfin's web UI is fine with these
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}

@@ -1,0 +1,17 @@
+# Intel Quick Sync / VAAPI override.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.qsv.yml up -d
+#
+# Verify the device is visible inside the container:
+#   docker exec -it jellyfin vainfo
+#
+# Then in the Jellyfin UI: Dashboard -> Playback -> Transcoding
+#   - Hardware acceleration: "Intel QuickSync (QSV)" or "Video Acceleration API (VAAPI)"
+#   - Enable hardware decoding for the codecs your library uses (H264, HEVC, AV1 on newer iGPUs)
+#   - Enable "Tone mapping" if you have HDR content
+services:
+  jellyfin:
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      # render group GID on most distros. Check yours with: getent group render
+      - "989"

@@ -1,0 +1,22 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    user: 1000:1000
+    network_mode: host
+    volumes:
+      - ./config:/config
+      - ./cache:/cache
+      # Read-only media mount. Point this at the same paths your Plex server uses.
+      # Both servers can read the same files simultaneously.
+      - /mnt/media:/media:ro
+    environment:
+      - JELLYFIN_PublishedServerUrl=http://192.168.1.100:8096
+      - TZ=America/New_York
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8096/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

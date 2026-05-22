@@ -1,0 +1,28 @@
+# NVIDIA NVENC override.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d
+#
+# Prerequisites on the host:
+#   - NVIDIA driver installed
+#   - nvidia-container-toolkit installed and Docker runtime configured
+#   - (Consumer GPUs) Apply keylase/nvidia-patch to lift the arbitrary stream limit:
+#     https://github.com/keylase/nvidia-patch
+#
+# Verify the GPU is visible inside the container:
+#   docker exec -it jellyfin nvidia-smi
+#
+# Then in the Jellyfin UI: Dashboard -> Playback -> Transcoding
+#   - Hardware acceleration: "Nvidia NVENC"
+#   - Enable HEVC and AV1 decoding if your GPU supports them
+services:
+  jellyfin:
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
