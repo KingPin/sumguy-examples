@@ -1,0 +1,57 @@
+server:
+  address: tcp://0.0.0.0:9091
+
+log:
+  level: info
+
+theme: dark
+
+totp:
+  issuer: SumGuy Homelab
+  period: 30
+  skew: 1
+
+webauthn:
+  display_name: SumGuy Homelab
+  timeout: 60s
+  usernameless: false
+
+authentication_backend:
+  file:
+    path: /config/users.yml
+    password:
+      algorithm: argon2id
+      iterations: 3
+      memory: 65536
+      parallelism: 4
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: "auth.home.internal"
+      policy: bypass
+    - domain: "vault.home.internal"
+      policy: two_factor
+      subject:
+        - "group:users"
+    - domain: "*.home.internal"
+      policy: one_factor
+      subject:
+        - "group:users"
+
+session:
+  cookies:
+    - name: authelia_session
+      domain: home.internal
+      authelia_url: https://auth.home.internal
+      inactivity: 1h
+      expiration: 24h
+      remember_me: 1M
+
+storage:
+  local:
+    path: /config/db.sqlite3
+
+notifier:
+  filesystem:
+    filename: /config/notification.txt
