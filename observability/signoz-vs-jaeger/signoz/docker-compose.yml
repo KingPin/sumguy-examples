@@ -1,0 +1,40 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.1.2
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  otel-collector:
+    image: signoz/signoz-otel-collector:0.88.11
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    depends_on:
+      - clickhouse
+
+  query-service:
+    image: signoz/query-service:0.45.0
+    environment:
+      - ClickHouseUrl=tcp://clickhouse:9000
+      - STORAGE=clickhouse
+    ports:
+      - "8080:8080"
+    depends_on:
+      - clickhouse
+
+  frontend:
+    image: signoz/frontend:0.45.0
+    ports:
+      - "3301:3301"
+    depends_on:
+      - query-service
+
+volumes:
+  clickhouse_data:
