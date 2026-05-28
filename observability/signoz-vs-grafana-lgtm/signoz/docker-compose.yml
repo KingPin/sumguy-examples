@@ -1,0 +1,41 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.1.2-alpine
+    environment:
+      CLICKHOUSE_DB: signoz_traces
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  otel-collector:
+    image: signoz/signoz-otel-collector:0.88.16
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    depends_on:
+      - clickhouse
+
+  signoz:
+    image: signoz/frontend:0.49.0
+    ports:
+      - "3301:3301"
+    depends_on:
+      - clickhouse
+
+  query-service:
+    image: signoz/query-service:0.49.0
+    environment:
+      - ClickHouseUrl=tcp://clickhouse:9000/?database=signoz_traces
+    depends_on:
+      - clickhouse
+
+volumes:
+  clickhouse_data:
