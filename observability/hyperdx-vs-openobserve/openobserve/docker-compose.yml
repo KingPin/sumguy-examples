@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  openobserve:
+    image: public.ecr.aws/zinclabs/openobserve:latest
+    container_name: openobserve
+    ports:
+      - "5080:5080"   # UI + API
+      - "5081:5081"   # gRPC (OTLP)
+    environment:
+      - ZO_ROOT_USER_EMAIL=admin@example.com
+      - ZO_ROOT_USER_PASSWORD=changeme123
+      # Local disk storage (default for eval)
+      - ZO_DATA_DIR=/data
+      # --- Uncomment for S3/MinIO object storage ---
+      # - ZO_S3_BUCKET_NAME=my-o2-bucket
+      # - ZO_S3_REGION_NAME=us-east-1
+      # - ZO_S3_ACCESS_KEY=minioadmin
+      # - ZO_S3_SECRET_KEY=minioadmin
+      # - ZO_S3_SERVER_URL=http://minio:9000
+    volumes:
+      - openobserve_data:/data
+    restart: unless-stopped
+
+volumes:
+  openobserve_data:

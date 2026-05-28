@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  hyperdx:
+    image: hyperdx/hyperdx-all-in-one:latest
+    container_name: hyperdx
+    ports:
+      - "8080:8080"   # UI
+      - "4318:4318"   # OTLP HTTP
+      - "4317:4317"   # OTLP gRPC
+    environment:
+      - HYPERDX_LOG_LEVEL=info
+      - FRONTEND_URL=http://localhost:8080
+    volumes:
+      - hyperdx_data:/data
+    restart: unless-stopped
+
+volumes:
+  hyperdx_data:
