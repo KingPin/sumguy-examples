@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.1.5-alpine
+    container_name: signoz-clickhouse
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: changeme
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - clickhouse-logs:/var/log/clickhouse-server
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  otel-collector:
+    image: signoz/signoz-otel-collector:0.88.21
+    container_name: signoz-otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otel/config.yaml"]
+    environment:
+      CLICKHOUSE_URL: tcp://admin:changeme@clickhouse:9000
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel/config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+
+  signoz:
+    image: signoz/signoz:0.50.1
+    container_name: signoz-frontend
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_URL: tcp://admin:changeme@clickhouse:9000
+      ALERTMANAGER_API_PREFIX: http://signoz-alertmanager:9093/api/
+    ports:
+      - "3301:3301"   # SigNoz UI
+      - "8080:8080"   # Internal API
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+
+  alertmanager:
+    image: signoz/alertmanager:0.23.4
+    container_name: signoz-alertmanager
+    restart: unless-stopped
+    volumes:
+      - alertmanager-data:/data
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/data"
+
+volumes:
+  clickhouse-data:
+  clickhouse-logs:
+  alertmanager-data:

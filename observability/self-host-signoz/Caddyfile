@@ -1,0 +1,3 @@
+signoz.your-domain.com {
+    reverse_proxy localhost:3301
+}
