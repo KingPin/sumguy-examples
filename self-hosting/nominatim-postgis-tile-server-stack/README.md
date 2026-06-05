@@ -67,7 +67,9 @@ docker run --rm \
     /data/north-america-latest.osm.pbf
 ```
 
-The bundled `style.lua` is intentionally minimal (roads, water, buildings). For a richer schema, start from osm2pgsql's own flex examples — [`generic.lua`](https://github.com/osm2pgsql-dev/osm2pgsql/tree/master/flex-config) is a solid base — and add layers as needed. Note that OpenMapTiles itself imports via imposm3 + YAML mappings, not an osm2pgsql Lua style, so there's no drop-in `style.lua` from that project.
+The bundled `style.lua` is intentionally minimal (roads, water, buildings) and matches the table names `martin-config.yaml` auto-publishes, so the stack runs as-is.
+
+If you want a more complete import, osm2pgsql's [`generic.lua`](https://github.com/osm2pgsql-dev/osm2pgsql/blob/master/flex-config/generic.lua) is the canonical base — but note it has a **different shape**: it splits by geometry type into `points` / `lines` / `polygons` / `routes` / `boundaries` (in the `public` schema, not `osm`) with all tags in a single `tags jsonb` column rather than named columns. To use it with this stack, point Martin's `auto_publish` at `public` (or adapt the style to emit `osm.*` tables) and query layers out of the jsonb. OpenMapTiles is *not* a drop-in here — it imports via imposm3 + YAML mappings, not an osm2pgsql Lua style.
 
 ### 5. Smoke test
 
