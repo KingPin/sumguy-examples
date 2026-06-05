@@ -44,9 +44,13 @@ docker exec -it postgres psql -U postgres -d maps -c "CREATE SCHEMA osm;"
 
 ### 4. Import OSM data into the osm schema for tile serving
 
-This is the part that varies a lot depending on which style and which extract you use. A reasonable starting point with the OpenMapTiles Lua style:
+This is the part that varies a lot depending on which style and which extract you use. The `style.lua` included in this folder is a minimal osm2pgsql flex style that produces exactly the `osm.roads`, `osm.water`, and `osm.buildings` tables that `martin-config.yaml` auto-publishes (geometries in EPSG:3857). Copy it into `./data/` so it lands at `/data/style.lua` in the container:
 
 ```bash
+mkdir -p data
+cp style.lua data/style.lua
+# download a PBF extract into data/ too, e.g. north-america-latest.osm.pbf
+
 docker run --rm \
   -v $(pwd)/data:/data \
   -e PGPASSWORD=$POSTGRES_PASSWORD \
@@ -63,7 +67,7 @@ docker run --rm \
     /data/north-america-latest.osm.pbf
 ```
 
-(You'll need to download the PBF and the style.lua first. See the OpenMapTiles or osm2pgsql Flex docs for style options.)
+The bundled `style.lua` is intentionally minimal (roads, water, buildings). For a richer schema, start from osm2pgsql's own flex examples — [`generic.lua`](https://github.com/osm2pgsql-dev/osm2pgsql/tree/master/flex-config) is a solid base — and add layers as needed. Note that OpenMapTiles itself imports via imposm3 + YAML mappings, not an osm2pgsql Lua style, so there's no drop-in `style.lua` from that project.
 
 ### 5. Smoke test
 
@@ -87,6 +91,7 @@ Point a MapLibre or Leaflet client at `http://tiles.lan/{table_name}/{z}/{x}/{y}
 - `docker-compose.yml` — full stack (Postgres, Nominatim, Martin, Caddy)
 - `.env.example` — passwords; copy to `.env`
 - `martin-config.yaml` — Martin config for auto-publishing the `osm` schema
+- `style.lua` — minimal osm2pgsql flex style; produces `osm.roads`, `osm.water`, `osm.buildings`
 - `Caddyfile` — reverse proxy with two hostnames
 
 ## Notes
