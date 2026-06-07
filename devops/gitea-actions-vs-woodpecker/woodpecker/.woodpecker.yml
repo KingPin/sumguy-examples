@@ -1,0 +1,12 @@
+steps:
+  - name: build-and-test
+    image: golang:1.22-alpine
+    commands:
+      - go mod download
+      - go test ./...
+      - go build -o bin/app ./cmd/app
+
+  - name: lint
+    image: golangci/golangci-lint:latest
+    commands:
+      - golangci-lint run ./...

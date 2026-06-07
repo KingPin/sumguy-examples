@@ -1,0 +1,47 @@
+# Woodpecker CI — server + agent + Postgres.
+# Create an OAuth2 app in Gitea (Settings -> Applications -> OAuth2 Applications)
+# with callback URL https://ci.example.com/authorize, then fill the env vars below.
+services:
+  woodpecker-server:
+    image: woodpeckerci/woodpecker-server:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "9000:9000"  # gRPC port for agents
+    environment:
+      WOODPECKER_OPEN: "false"
+      WOODPECKER_HOST: https://ci.example.com
+      WOODPECKER_GITEA: "true"
+      WOODPECKER_GITEA_URL: https://git.example.com
+      WOODPECKER_GITEA_CLIENT: ${GITEA_OAUTH_CLIENT_ID}
+      WOODPECKER_GITEA_SECRET: ${GITEA_OAUTH_CLIENT_SECRET}
+      WOODPECKER_AGENT_SECRET: ${AGENT_SECRET}
+      WOODPECKER_DATABASE_DRIVER: postgres
+      WOODPECKER_DATABASE_DATASOURCE: postgres://woodpecker:${DB_PASS}@db:5432/woodpecker?sslmode=disable
+    depends_on:
+      - db
+
+  woodpecker-agent:
+    image: woodpeckerci/woodpecker-agent:latest
+    restart: unless-stopped
+    environment:
+      WOODPECKER_SERVER: woodpecker-server:9000
+      WOODPECKER_AGENT_SECRET: ${AGENT_SECRET}
+      WOODPECKER_MAX_WORKFLOWS: 4
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - woodpecker-server
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: woodpecker
+      POSTGRES_USER: woodpecker
+      POSTGRES_PASSWORD: ${DB_PASS}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
