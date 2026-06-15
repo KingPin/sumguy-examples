@@ -1,0 +1,50 @@
+# Minimal SearXNG stack for use as a programmatic search backend.
+# The wrapper (./websearch) talks to this over the JSON API, so the
+# JSON format MUST be enabled in settings.yml — see searxng-settings-snippet.yml.
+#
+# First run, generate the default config, then merge in the snippet:
+#   mkdir -p searxng
+#   docker run --rm -v "$(pwd)/searxng:/etc/searxng" \
+#     searxng/searxng:latest \
+#     sh -c "cp /usr/local/searxng/searx/settings.yml /etc/searxng/settings.yml"
+#   # then edit searxng/settings.yml (add `json` to search.formats, set a secret_key)
+#
+# Bring it up:
+#   docker compose up -d
+#
+# Quick check that JSON works:
+#   curl -s 'http://localhost:8383/search?q=test&format=json' | head
+
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    ports:
+      # Host 8383 -> container 8080. The wrapper defaults to http://localhost:8383.
+      - "8383:8080"
+    volumes:
+      - ./searxng:/etc/searxng:rw
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8383/
+      # Generate one with: openssl rand -hex 32
+      - SEARXNG_SECRET_KEY=changeme_use_openssl_rand_hex_32
+    depends_on:
+      - redis
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: searxng-redis
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:

@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+# SearXNG web search wrapper for Claude Code
+#
+# Usage: websearch [options] "query" [num_results]
+#
+# Options:
+#   -n, --num N           Number of results (default 10; positional arg also works)
+#   -c, --category CAT    Category: general,images,news,videos,music,files,science,it,map
+#   -e, --engine ENGINES  Comma-separated engine list (e.g. google,duckduckgo,brave)
+#   -t, --time RANGE      Time range: day,week,month,year
+#   -l, --lang LANG       Language code (e.g. en, en-US, de)
+#   -s, --safe LEVEL      Safe search: 0 (off), 1 (moderate), 2 (strict)
+#   -j, --json            Emit raw JSON from SearXNG (for piping into jq, etc.)
+#   -h, --help            Show this help
+#
+# Env:
+#   SEARXNG_URL           SearXNG base URL (default http://localhost:8383)
+#   WEBSEARCH_TIMEOUT     curl/request max-time seconds (default 15)
+
+set -euo pipefail
+
+# Print the leading comment block (lines 2.. up to the first non-comment line).
+usage() { awk 'NR==1{next} /^#/{sub(/^# ?/,""); print; next} {exit}' "$0"; }
+
+SEARXNG_URL="${SEARXNG_URL:-http://localhost:8383}"
+TIMEOUT="${WEBSEARCH_TIMEOUT:-15}"
+
+NUM_RESULTS=10
+CATEGORY=""
+ENGINES=""
+TIME_RANGE=""
+LANG=""
+SAFE=""
+JSON_OUT=0
+QUERY=""
+NUM_FROM_FLAG=0
+
+# --- argument parsing -------------------------------------------------------
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -n|--num)      NUM_RESULTS="${2:?--num requires a value}"; NUM_FROM_FLAG=1; shift 2 ;;
+        -c|--category) CATEGORY="${2:?--category requires a value}"; shift 2 ;;
+        -e|--engine|--engines) ENGINES="${2:?--engine requires a value}"; shift 2 ;;
+        -t|--time)     TIME_RANGE="${2:?--time requires a value}"; shift 2 ;;
+        -l|--lang)     LANG="${2:?--lang requires a value}"; shift 2 ;;
+        -s|--safe)     SAFE="${2:?--safe requires a value}"; shift 2 ;;
+        -j|--json)     JSON_OUT=1; shift ;;
+        -h|--help)     usage; exit 0 ;;
+        --)            shift; while [[ $# -gt 0 ]]; do POSITIONAL+=("$1"); shift; done ;;
+        -*)            echo "ERROR: unknown option: $1" >&2; usage >&2; exit 2 ;;
+        *)             POSITIONAL+=("$1"); shift ;;
+    esac
+done
+
+# Positional: "query" [num_results]
+if [[ ${#POSITIONAL[@]} -ge 1 ]]; then
+    QUERY="${POSITIONAL[0]}"
+fi
+if [[ ${#POSITIONAL[@]} -ge 2 && $NUM_FROM_FLAG -eq 0 ]]; then
+    NUM_RESULTS="${POSITIONAL[1]}"
+fi
+
+if [[ -z "$QUERY" ]]; then
+    echo "ERROR: no query provided" >&2
+    usage >&2
+    exit 2
+fi
+
+# --- validation -------------------------------------------------------------
+if ! [[ "$NUM_RESULTS" =~ ^[1-9][0-9]*$ ]]; then
+    echo "ERROR: num_results must be a positive integer (got: $NUM_RESULTS)" >&2
+    exit 2
+fi
+if [[ -n "$SAFE" ]] && ! [[ "$SAFE" =~ ^[012]$ ]]; then
+    echo "ERROR: --safe must be 0, 1, or 2 (got: $SAFE)" >&2
+    exit 2
+fi
+if [[ -n "$TIME_RANGE" ]] && ! [[ "$TIME_RANGE" =~ ^(day|week|month|year)$ ]]; then
+    echo "ERROR: --time must be day, week, month, or year (got: $TIME_RANGE)" >&2
+    exit 2
+fi
+
+# --- fetch & format ---------------------------------------------------------
+# All user values are passed as env (data), never interpolated into Python
+# source, so quotes and special chars are safe.
+SEARXNG_URL="$SEARXNG_URL" QUERY="$QUERY" NUM_RESULTS="$NUM_RESULTS" TIMEOUT="$TIMEOUT" \
+CATEGORY="$CATEGORY" ENGINES="$ENGINES" TIME_RANGE="$TIME_RANGE" LANG="$LANG" \
+SAFE="$SAFE" JSON_OUT="$JSON_OUT" \
+python3 - <<'PY'
+import json, os, sys, urllib.parse, urllib.request
+
+base = os.environ["SEARXNG_URL"].rstrip("/")
+query = os.environ["QUERY"]
+limit = int(os.environ["NUM_RESULTS"])
+timeout = float(os.environ["TIMEOUT"])
+json_out = os.environ["JSON_OUT"] == "1"
+
+params = {"q": query, "format": "json"}
+if os.environ.get("CATEGORY"):   params["categories"] = os.environ["CATEGORY"]
+if os.environ.get("ENGINES"):    params["engines"] = os.environ["ENGINES"]
+if os.environ.get("TIME_RANGE"): params["time_range"] = os.environ["TIME_RANGE"]
+if os.environ.get("LANG"):       params["language"] = os.environ["LANG"]
+if os.environ.get("SAFE"):       params["safesearch"] = os.environ["SAFE"]
+
+url = f"{base}/search?" + urllib.parse.urlencode(params)
+
+try:
+    with urllib.request.urlopen(url, timeout=timeout) as resp:
+        raw = resp.read()
+        data = json.loads(raw)
+except urllib.error.URLError as e:
+    print(f"ERROR: cannot reach SearXNG at {base} ({e.reason})", file=sys.stderr)
+    print("Start it: docker compose up -d searxng", file=sys.stderr)
+    sys.exit(1)
+except json.JSONDecodeError:
+    print("ERROR: SearXNG did not return JSON. Is the JSON format enabled in settings.yml?", file=sys.stderr)
+    sys.exit(1)
+
+if json_out:
+    # Trim to the requested number of results but keep full structure.
+    data["results"] = data.get("results", [])[:limit]
+    json.dump(data, sys.stdout, indent=2, ensure_ascii=False)
+    print()
+    sys.exit(0)
+
+results = data.get("results", [])[:limit]
+if not results:
+    print(f"No results found for: {query}")
+    sys.exit(0)
+
+print(f"Found {len(results)} results for: {query}\n")
+for i, r in enumerate(results, 1):
+    print(f"{i}. {r.get('title', '(no title)')}")
+    print(f"   URL: {r.get('url', '')}")
+    content = (r.get("content") or "").strip()
+    if content:
+        print(f"   {content[:300]}")
+    print()
+PY

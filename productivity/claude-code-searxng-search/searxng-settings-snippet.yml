@@ -1,0 +1,40 @@
+# Merge these keys into your generated searxng/settings.yml.
+# The ONLY non-negotiable bit for the wrapper is `json` in search.formats —
+# by default SearXNG only serves HTML, and the JSON API returns HTTP 403.
+
+search:
+  # `html` is the default; ADD `json` so /search?format=json works.
+  formats:
+    - html
+    - json
+  safe_search: 0
+  autocomplete: "duckduckgo"
+  default_lang: "auto"
+
+server:
+  # Replace with: openssl rand -hex 32
+  secret_key: "your_secret_key_here"
+  # The limiter throttles bursty clients. Leave it ON for public instances.
+  # For a private, Tailscale-only or localhost instance that an agent hammers,
+  # you may want it OFF (or tune limiter.toml) to avoid self-rate-limiting.
+  limiter: false
+
+# Lean on engines that tolerate programmatic access. Google/Bing will start
+# serving CAPTCHAs when an agent queries them repeatedly from one IP.
+engines:
+  - name: brave
+    engine: brave
+    shortcut: br
+    disabled: false
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+    disabled: false
+  - name: mojeek
+    engine: mojeek
+    shortcut: mjk
+    disabled: false
+  - name: google
+    engine: google
+    shortcut: go
+    disabled: true   # flip to false only if you've got a proxy/Tor in front
