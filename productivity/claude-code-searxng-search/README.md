@@ -15,14 +15,15 @@ not a wholesale replacement.
 
 ### `websearch`
 
-The wrapper itself. Drop it on your `PATH` (e.g. `~/.local/bin/websearch` or
-`~/.claude/bin/websearch`) and `chmod +x` it. It hits SearXNG's JSON API and prints
-ranked, numbered results (title / URL / snippet) — or raw JSON with `--json` for piping
-into `jq`.
+The wrapper itself. Drop it on your `PATH` (e.g. `~/.claude/bin/websearch`, or
+anywhere else on PATH like `~/.local/bin/`) and `chmod +x` it. It hits SearXNG's JSON
+API and prints ranked, numbered results (title / URL / snippet) — or raw JSON with
+`--json` for piping into `jq`.
 
 ```bash
 chmod +x websearch
-cp websearch ~/.local/bin/        # anywhere on PATH
+mkdir -p ~/.claude/bin
+cp websearch ~/.claude/bin/        # or anywhere on PATH
 
 # point it at your instance (or rely on the localhost:8383 default)
 export SEARXNG_URL="http://localhost:8383"
@@ -82,7 +83,7 @@ docker compose up -d
 curl -s 'http://localhost:8383/search?q=test&format=json' | head
 
 # 5. install + use the wrapper
-chmod +x websearch && cp websearch ~/.local/bin/
+chmod +x websearch && mkdir -p ~/.claude/bin && cp websearch ~/.claude/bin/
 websearch "it works" 3
 ```
 
