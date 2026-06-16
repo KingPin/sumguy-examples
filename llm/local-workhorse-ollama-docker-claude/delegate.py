@@ -64,8 +64,9 @@ def main():
         temperature=0.1,   # low temp — we want deterministic edits, not creativity
         # If your model has a "thinking"/reasoning mode, turn it OFF for grunt work.
         # This was an 18x speedup in testing (38s -> 2s) against a reasoning-capable
-        # local model. Harmless on endpoints that don't support it; the knob name
-        # varies by model (some want /no_think in the prompt, some reasoning_effort).
+        # local model. This knob is honored by llama.cpp's server; Ollama silently
+        # ignores unknown extra_body fields (harmless), and the flag name varies by
+        # model (some want /no_think in the prompt, some reasoning_effort). Test it.
         extra_body={"chat_template_kwargs": {"enable_thinking": False}},
     )
 
