@@ -1,0 +1,17 @@
+services:
+  llama-server:
+    image: ghcr.io/ggerganov/llama.cpp:server
+    container_name: llama-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./models:/models
+    # Drop your GGUF into ./models/ next to this file.
+    # --n-gpu-layers 0 for CPU-only; tune up depending on VRAM.
+    command: >
+      -m /models/qwen2.5-coder-7b-instruct-q4_k_m.gguf
+      --host 0.0.0.0
+      --port 8080
+      --n-gpu-layers 35
+      --ctx-size 8192
