@@ -5,7 +5,7 @@ Usage: python3 delegate.py "your task description" [file1.py file2.py ...]
 
 Configure via environment variables:
   WORKHORSE_URL    OpenAI-compatible base URL (default: http://localhost:11434/v1)
-  WORKHORSE_MODEL  model name (default: qwen2.5-coder:7b)
+  WORKHORSE_MODEL  model name (default: gemma4:12b)
 """
 
 import sys
@@ -17,7 +17,7 @@ from openai import OpenAI
 # Ollama:   http://localhost:11434/v1
 # llama.cpp http://localhost:8080/v1
 BASE_URL = os.getenv("WORKHORSE_URL", "http://localhost:11434/v1")
-MODEL = os.getenv("WORKHORSE_MODEL", "qwen2.5-coder:7b")
+MODEL = os.getenv("WORKHORSE_MODEL", "gemma4:12b")
 
 client = OpenAI(api_key="ollama", base_url=BASE_URL)
 

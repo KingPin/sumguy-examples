@@ -26,9 +26,10 @@ its example, [`cheap-workhorse-model-ai-coding`](../cheap-workhorse-model-ai-cod
 - Docker + Docker Compose
 - Python 3.10+ and `pip install openai` (tested with `openai` 1.x)
 - For GPU: NVIDIA drivers + the NVIDIA Container Toolkit (or `ollama/ollama:rocm` for AMD)
-- A model — `qwen2.5-coder:7b` is the recommended default. Any OpenAI-compatible
-  local model works; `delegate.py` was validated against a general-purpose 12B
-  (Gemma-class) under `llama-server` and handled mechanical tasks cleanly.
+- A model — `gemma4:12b` is the recommended default (general-purpose, fits an 8 GB
+  card, Apache 2.0). With 24 GB of VRAM, `qwen3-coder:30b-a3b` is the code-specialist
+  upgrade. Any OpenAI-compatible local model works; `delegate.py` was validated
+  against a Gemma 4 12B under `llama-server` and handled mechanical tasks cleanly.
 
 ## How to run it
 
@@ -36,7 +37,7 @@ its example, [`cheap-workhorse-model-ai-coding`](../cheap-workhorse-model-ai-cod
 
 ```bash
 docker compose -f docker-compose.ollama.yml up -d
-docker exec ollama ollama pull qwen2.5-coder:7b
+docker exec ollama ollama pull gemma4:12b
 docker exec ollama ollama list   # verify it loaded
 ```
 
@@ -61,7 +62,7 @@ pip install openai
 python3 delegate.py "add type hints and a one-line docstring to each function" mymodule.py
 
 # Point at llama.cpp instead
-WORKHORSE_URL=http://localhost:8080/v1 WORKHORSE_MODEL=qwen2.5-coder:7b \
+WORKHORSE_URL=http://localhost:8080/v1 WORKHORSE_MODEL=gemma4:12b \
   python3 delegate.py "rename UserManager to UserService" src/auth/manager.py
 ```
 

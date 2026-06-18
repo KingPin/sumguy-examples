@@ -11,7 +11,7 @@ services:
     # --n-gpu-layers 99 offloads everything to GPU (llama.cpp clamps to the model's
     # real layer count). Use 0 for CPU-only; dial down if it won't fit in VRAM.
     command: >
-      -m /models/qwen2.5-coder-7b-instruct-q4_k_m.gguf
+      -m /models/gemma-4-12b-it-q4_k_m.gguf
       --host 0.0.0.0
       --port 8080
       --n-gpu-layers 99
