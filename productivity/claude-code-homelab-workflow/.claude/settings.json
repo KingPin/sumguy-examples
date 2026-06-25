@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(docker compose config:*)",
+      "Bash(docker compose ps:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker logs:*)",
+      "Bash(systemctl status:*)",
+      "Bash(journalctl:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(docker compose down -v:*)",
+      "Bash(docker volume rm:*)",
+      "Bash(dd:*)",
+      "Bash(mkfs:*)",
+      "Read(./.env)",
+      "Read(./**/*.env)",
+      "Read(./secrets/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '\"\\(now|todate) \\(.tool_input.file_path // \"?\")\"' >> ~/.claude/homelab-edit-audit.log"
+          }
+        ]
+      }
+    ]
+  }
+}
