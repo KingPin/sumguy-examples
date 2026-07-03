@@ -1,0 +1,19 @@
+name: "git-status"
+version: 1
+description: "Collapse git status to porcelain so the agent gets a parseable summary, not the verbose hint blurbs"
+
+match:
+  command: "git"
+  subcommand: "status"
+  exclude_flags: ["--porcelain", "-s", "--short"]
+
+inject:
+  args: ["--short", "--branch"]
+
+pipeline:
+  - action: "keep_lines"
+    pattern: "\\S"
+  - action: "truncate_lines"
+    max: 120
+
+on_error: "passthrough"

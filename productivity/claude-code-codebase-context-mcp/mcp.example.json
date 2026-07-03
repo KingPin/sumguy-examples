@@ -1,0 +1,28 @@
+{
+  "_comment": "Representative Claude Code MCP entries for the four codebase-context tools compared in the article. Confirm the exact command/args in each project's README before use — invocations change between releases. Merge the entries you want into your real .mcp.json (or run each tool's own installer, which writes these for you).",
+
+  "mcpServers": {
+    "code-review-graph": {
+      "_note": "pip/pipx install, then `code-review-graph install` auto-writes this for every detected agent. Shown here so you can see what it configures. Local-first, no keys.",
+      "command": "code-review-graph",
+      "args": ["mcp"]
+    },
+
+    "token-savior": {
+      "_note": "MCP structural-nav + memory server. Representative npx form — check the repo for the current package name. No cloud keys required.",
+      "command": "npx",
+      "args": ["-y", "token-savior"]
+    },
+
+    "claude-context": {
+      "_note": "Zilliz semantic vector search. REQUIRES a cloud vector DB + an OpenAI embedding key. This is the local-first dealbreaker called out in the article — your code's embeddings leave the box.",
+      "command": "npx",
+      "args": ["-y", "@zilliz/claude-context-mcp@latest"],
+      "env": {
+        "OPENAI_API_KEY": "sk-REPLACE_ME",
+        "MILVUS_ADDRESS": "https://REPLACE_ME.zillizcloud.com",
+        "MILVUS_TOKEN": "REPLACE_ME"
+      }
+    }
+  }
+}

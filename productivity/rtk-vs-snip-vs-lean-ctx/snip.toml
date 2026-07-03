@@ -1,0 +1,14 @@
+# snip config — drop at ~/.config/snip/config.toml
+# Filter directories are searched in order; LATER directories override
+# earlier ones when two filters share a name. That lets a per-repo .snip/
+# folder tweak a global filter without forking it.
+
+[filters]
+dir = [
+    "~/.config/snip/filters",   # global filters (the ones in ./filters/)
+    "${env.PWD}/.snip",         # per-project overrides, committed with the repo
+]
+
+[log]
+# snip logs what it rewrote and the token delta; handy while you tune filters
+level = "info"
