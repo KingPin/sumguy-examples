@@ -1,0 +1,21 @@
+services:
+  adguard:
+    image: adguard/adguardhome:latest
+    container_name: public-dns
+    restart: unless-stopped
+    ports:
+      - "443:443/tcp"   # DoH
+      - "853:853/tcp"   # DoT
+      - "3000:3000/tcp" # admin UI — firewall this to a management VLAN only
+    volumes:
+      - ./work:/opt/adguardhome/work
+      - ./conf:/opt/adguardhome/conf
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE   # the ONE capability it needs: bind 443/853
+    read_only: true
+    tmpfs:
+      - /tmp

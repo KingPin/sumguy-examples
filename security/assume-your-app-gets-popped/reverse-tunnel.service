@@ -1,0 +1,23 @@
+[Unit]
+Description=Reverse SSH tunnel to bastion (outbound only, no inbound SSH)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=tunnel-svc
+Environment=AUTOSSH_GATETIME=0
+Environment=AUTOSSH_POLL=30
+ExecStart=/usr/bin/autossh -M 0 -N \
+  -o "ServerAliveInterval=15" \
+  -o "ServerAliveCountMax=3" \
+  -o "ExitOnForwardFailure=yes" \
+  -o "StrictHostKeyChecking=yes" \
+  -i /home/tunnel-svc/.ssh/id_ed25519_bastion \
+  -R 127.0.0.1:22022:localhost:22 \
+  tunnel-svc@bastion.example.net -p 443
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
