@@ -11,8 +11,9 @@
 
 FROM qwen3.6:27b
 
-# The whole point. Ollama's default context is far smaller than the model's max,
-# so this line is doing real work in both directions.
+# The whole point. Ollama's own default scales with your VRAM (32k on a 24-48 GiB
+# card, 256k at 48 GiB or more), so depending on the box this line either raises a
+# small ceiling or drags a huge one back down. Either way it pins the number.
 PARAMETER num_ctx 32768
 
 # Low temperature for code. Raise it if you want prose out of the same model.

@@ -24,7 +24,7 @@ class OrdersService:
         row = self._conn.execute(
             "SELECT * FROM orders WHERE id = ?", (order_id,)
         ).fetchone()
-        return Order(**row) if row else None
+        return Order(**dict(row)) if row else None
 
     def save(self, order: Order) -> None:
         self._conn.execute(
@@ -36,7 +36,10 @@ class OrdersService:
 
 1. **Constructor takes the dependency, never builds it.** `__init__` receives an
    open connection. It does not call `connect()`. That is what makes it testable
-   without a live database.
+   without a live database. The caller is responsible for setting
+   `conn.row_factory = sqlite3.Row` before handing it over: a bare
+   `sqlite3.Connection` yields plain tuples, and `dict(row)` then raises
+   `ValueError`.
 2. **No business logic in the class.** `apply_discount` is a pure function that
    takes an `Order` and returns one. The service fetches and saves; it does not
    calculate.

@@ -29,8 +29,9 @@ exec llama-server \
 # --cache-type-k / --cache-type-v (short forms -ctk / -ctv) set the KV cache data
 # type. f16 is already the default; they are spelled out here so that nobody
 # "optimizes" this script later by setting them to q8_0 or q4_0. That trade is
-# fine for single-turn chat and bad for a thirty-turn agentic session, where the
-# small numerical errors compound.
+# fine for single-turn chat and worse for a long multi-turn agentic session, where
+# the small numerical errors have more turns to compound. Nobody has published a
+# threshold for where it starts to bite, so this is caution, not a measurement.
 #
 # --n-gpu-layers 99 offloads everything it can to the GPU. Lower it if the model
 # does not fit in VRAM at this context size.
