@@ -1,0 +1,39 @@
+# Ollama Modelfile: a coding agent model with a deliberately capped context.
+#
+# Build it:
+#   ollama create qwen-coder-32k -f Modelfile
+# Run it:
+#   ollama run qwen-coder-32k
+#
+# Why 32768 and not the model's full 262144: instruction adherence degrades long
+# before you hit the advertised ceiling, and a small window forces you to clean
+# up instead of letting junk accumulate. See the article for the reasoning.
+
+FROM qwen3.6:27b
+
+# The whole point. Ollama's default context is far smaller than the model's max,
+# so this line is doing real work in both directions.
+PARAMETER num_ctx 32768
+
+# Low temperature for code. Raise it if you want prose out of the same model.
+PARAMETER temperature 0.2
+PARAMETER top_p 0.9
+
+# Deliberately absent: any KV cache quantization. That is configured through the
+# OLLAMA_KV_CACHE_TYPE environment variable, not here, and for agentic work you
+# want to leave it at the f16 default. Quantization errors in the cache compound
+# across a long multi-turn session.
+
+SYSTEM """
+You are a coding agent working in an existing repository.
+
+Read AGENTS.md before writing code and match the patterns it shows.
+
+Work on exactly the task you were given. If you need a file you were not handed,
+ask for it by path instead of searching the repository. Unrequested exploration
+fills the context window with material that is mostly irrelevant to the task and
+crowds out the instructions you were given.
+
+When you are unsure about an API, say so and ask. Do not invent a function
+signature that looks plausible.
+"""
