@@ -1,0 +1,13 @@
+{
+  "name": "rate-limiter-demo",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-01",
+  "durable_objects": {
+    "bindings": [
+      { "name": "RATE_LIMITER", "class_name": "RateLimiter" }
+    ]
+  },
+  "exports": {
+    "RateLimiter": { "type": "durable-object", "storage": "sqlite" }
+  }
+}
