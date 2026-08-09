@@ -1,0 +1,44 @@
+# LiteLLM proxy: one OpenAI-compatible endpoint in front of a pool of free
+# tiers, with a paid model as the escape hatch.
+#
+#   pip install 'litellm[proxy]'
+#   litellm --config litellm-config.yaml --port 4000
+#
+# Point your app at http://localhost:4000 and ask for model "free-workhorse".
+# You never find out which backend served a given request, which is the point.
+
+model_list:
+  # Same model_name = LiteLLM treats these as one pool and rotates between
+  # them, skipping whichever one is currently cooling down after a 429.
+  - model_name: free-workhorse
+    litellm_params:
+      model: openrouter/qwen/qwen3-coder
+      api_key: os.environ/OPENROUTER_API_KEY_1
+
+  - model_name: free-workhorse
+    litellm_params:
+      model: gemini/gemma-4-27b-it
+      api_key: os.environ/GEMINI_API_KEY
+
+  - model_name: paid-overseer
+    litellm_params:
+      model: anthropic/claude-sonnet-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+router_settings:
+  # If every free-tier entry is rate-limited or down, escalate rather than
+  # failing the request outright.
+  fallbacks:
+    - free-workhorse: ["paid-overseer"]
+  num_retries: 3
+  retry_after: 10
+  # Park a deployment for a minute once it has failed twice, so the router
+  # stops sending traffic at a backend that is already saying no.
+  cooldown_time: 60
+  allowed_fails: 2
+
+litellm_settings:
+  # Providers in one pool rarely support an identical parameter set. Without
+  # this, a request carrying a param one backend does not understand fails on
+  # that backend and succeeds on the next, which looks like flaky routing.
+  drop_params: true
