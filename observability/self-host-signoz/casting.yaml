@@ -1,0 +1,37 @@
+apiVersion: v1alpha1
+kind: Installation
+metadata:
+  name: signoz
+spec:
+  deployment:
+    flavor: compose
+    mode: docker
+
+  # ClickHouse and the Keeper ship pinned already, but signoz and ingester
+  # default to :latest. Pin everything so an upgrade is a decision you make
+  # rather than something that happens to you on a Tuesday.
+  signoz:
+    spec:
+      image: signoz/signoz:v0.137.1
+  ingester:
+    spec:
+      image: signoz/signoz-otel-collector:v0.137.1
+  telemetrystore:
+    spec:
+      image: clickhouse/clickhouse-server:25.12.5
+
+  # Postgres is the default metastore (dashboards, alert rules, users).
+  # Swap to `kind: sqlite` for a single-node setup with one less container.
+  metastore:
+    kind: postgres
+
+  # Platform-level tweaks Foundry does not model go here as JSON Patch
+  # (RFC 6902) against a generated file in pours/.
+  # Run `foundryctl forge -f casting.yaml` once with this block commented out,
+  # read pours/deployment/compose.yaml, then write patches against what you see.
+  patches:
+    - target: "deployment/compose.yaml"
+      operations:
+        - op: add
+          path: /services/signoz-telemetrystore-clickhouse-0-0/mem_limit
+          value: "6g"

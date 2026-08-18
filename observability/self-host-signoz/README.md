@@ -1,29 +1,57 @@
 # Self-Host SigNoz: Install Guide
 
-Working files for the SigNoz self-hosted install walkthrough. Covers a self-contained Docker Compose setup with ClickHouse, the SigNoz OTel collector, the query service/frontend, and Alertmanager — plus example app instrumentation for Python/Flask and Node.js.
+Working files for the SigNoz self-hosted install walkthrough, using **Foundry** (`foundryctl`), which is now the only supported way to install SigNoz. Includes example app instrumentation for Python/Flask and Node.js.
+
+> **Note (2026-08-17):** SigNoz deprecated `install.sh` and the bundled Docker Compose manifests under `deploy/` as of [v0.130.0](https://github.com/SigNoz/signoz/releases/tag/v0.130.0). The hand-rolled `docker-compose.yml` and `otel-collector-config.yaml` that used to live in this folder have been removed because they no longer reflect how SigNoz is built or run. Foundry generates both for you.
 
 ## What it does
 
-`docker-compose.yml` brings up the full SigNoz stack: ClickHouse as the data store, the SigNoz-flavored OTel collector receiving OTLP data on ports 4317/4318, the SigNoz UI on port 3301, and Alertmanager for alert routing. `otel-collector-config.yaml` wires the collector to ClickHouse with separate pipelines for traces, metrics, and logs. `app.py` is a Flask demo app with variable latency and a deliberate error route. `tracing.js` is a Node.js OTel bootstrap file. `Caddyfile` is a minimal reverse proxy config for HTTPS.
+`casting.yaml` is the entire deployment config. `foundryctl` reads it and generates a full Compose stack into `pours/deployment/`: ClickHouse (telemetrystore), ClickHouse Keeper (telemetrykeeper), PostgreSQL (metastore, holding dashboards/alerts/users), the SigNoz OTel Collector (ingester, listening on 4317/4318), and the SigNoz UI and API server on port 8080.
+
+`app.py` is a Flask demo app with variable latency and a deliberate error route. `tracing.js` is a Node.js OTel bootstrap file. `Caddyfile` is a minimal reverse proxy config for HTTPS.
 
 ## Prerequisites
 
-- Docker 27.x and Docker Compose v2 (`docker compose`, not `docker-compose`)
-- 8 GB RAM minimum; 16 GB recommended (ClickHouse alone wants 2–4 GB)
-- 50–100 GB disk for a few weeks of retention at moderate volume; SSDs preferred
-- Linux (Ubuntu 22.04 / Debian 12 / Rocky 8+ all confirmed working)
+- Docker Engine 20.10+ and Docker Compose v2 (`docker compose`, not `docker-compose`)
+- 4 GB RAM allocated to Docker is SigNoz's stated floor. 8 GB is the honest homelab number, 16 GB if you run more than a few services
+- 50 to 100 GB disk for a few weeks of retention at moderate volume, SSDs preferred
+- Linux or macOS. On Windows use WSL 2 with Docker Engine installed natively inside the distro (ClickHouse Keeper segfaults under Docker Desktop's Windows virtualization layer)
+- Ports free: 8080 (UI), 4317 and 4318 (OTLP)
+
+Tested against SigNoz v0.137.1 and foundryctl v0.2.17.
 
 ## How to run it
 
+**1. Install foundryctl**
+
 ```bash
-docker compose up -d
-# Give it 60-90s for ClickHouse to initialize on first boot
-docker compose logs -f --tail=50
+curl -fsSL https://signoz.io/foundry.sh | bash
+foundryctl --help
 ```
 
-- SigNoz UI: http://your-host:3301 (create admin account on first visit)
+If that comes back "command not found", add `~/.local/bin` to your `PATH`.
+
+**2. Deploy**
+
+```bash
+foundryctl cast -f casting.yaml
+```
+
+`cast` chains three stages: `gauge` (check prerequisites), `forge` (generate manifests into `pours/deployment/`), then deploy. To read the generated files before anything starts:
+
+```bash
+foundryctl gauge -f casting.yaml
+foundryctl forge -f casting.yaml
+cd pours/deployment && docker compose up -d
+```
+
+Give it 60 to 90 seconds on first boot while ClickHouse builds its schema and the migrator runs.
+
+- SigNoz UI: http://your-host:8080 (create the admin account on first visit)
 - OTLP gRPC: localhost:4317
 - OTLP HTTP: localhost:4318
+
+**Do not hand-edit anything under `pours/`.** The next `forge` overwrites it. Change `casting.yaml` and re-cast.
 
 **Run the Python/Flask demo app:**
 
@@ -64,6 +92,21 @@ Edit `Caddyfile` to replace `signoz.your-domain.com` with your actual domain, th
 caddy run --config Caddyfile
 ```
 
+## Upgrading
+
+Bump the image tags in `casting.yaml`, then:
+
+```bash
+foundryctl cast -f casting.yaml
+docker compose -f pours/deployment/compose.yaml up -d --force-recreate
+```
+
+The `--force-recreate` matters: Compose does not restart a container when only the contents of a mounted config file change, so without it you can end up running new configs that nothing has read. Recreate everything in one command rather than restarting services individually, since restarting only the keeper leaves ClickHouse unable to reconnect. Data lives in volumes and is not affected.
+
+## Already running the old Compose stack?
+
+Follow SigNoz's [migration guide](https://github.com/SigNoz/signoz/blob/main/deploy/MIGRATION.md). It reattaches your existing volumes so you keep your data. Keep a copy of your old `docker-compose.yaml` first, since SigNoz no longer distributes it and that copy is your only rollback path, and never pass `-v` when bringing the old stack down.
+
 ## Article
 
-https://sumguy.com/posts/self-host-signoz/
+https://sumguy.com/self-host-signoz/
