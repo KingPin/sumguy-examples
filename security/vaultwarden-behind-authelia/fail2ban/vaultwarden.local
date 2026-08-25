@@ -1,0 +1,9 @@
+# /etc/fail2ban/jail.d/vaultwarden.local
+[vaultwarden]
+enabled  = true
+port     = 80,443
+filter   = vaultwarden
+logpath  = /path/to/vaultwarden_data/vaultwarden.log
+maxretry = 3
+bantime  = 14400
+findtime = 14400

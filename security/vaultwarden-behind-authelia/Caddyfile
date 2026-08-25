@@ -1,0 +1,34 @@
+vault.yourdomain.com {
+    # Paths the Bitwarden clients must reach without an Authelia session.
+    # /identity is the one everybody forgets: it carries connect/token
+    # and accounts/prelogin, the first two calls every client makes.
+    @client_paths {
+        path /api/* /identity/* /attachments/* /icons/*
+        path /events/* /notifications/* /.well-known/* /alive
+    }
+    handle @client_paths {
+        reverse_proxy vaultwarden:80 {
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    # Everything else (web vault UI, /admin) goes through Authelia.
+    handle {
+        forward_auth authelia:9091 {
+            uri /api/authz/forward-auth
+            copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+        }
+        reverse_proxy vaultwarden:80 {
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    encode zstd gzip
+    tls {
+        protocols tls1.2 tls1.3
+    }
+}
+
+auth.yourdomain.com {
+    reverse_proxy authelia:9091
+}

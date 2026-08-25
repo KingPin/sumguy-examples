@@ -1,0 +1,86 @@
+services:
+  caddy:
+    image: caddy:2.11-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - proxy
+
+  authelia:
+    image: authelia/authelia:4.39
+    container_name: authelia
+    restart: unless-stopped
+    volumes:
+      - ./authelia:/config
+    environment:
+      AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE: /config/secrets/jwt_secret
+      AUTHELIA_SESSION_SECRET_FILE: /config/secrets/session_secret
+      AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: /config/secrets/storage_encryption_key
+      AUTHELIA_STORAGE_POSTGRES_PASSWORD_FILE: /config/secrets/postgres_password
+      AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE: /config/secrets/smtp_password
+    networks:
+      - proxy
+    depends_on:
+      - redis
+      - postgres
+
+  redis:
+    image: redis:8.10-alpine
+    container_name: authelia_redis
+    restart: unless-stopped
+    networks:
+      - proxy
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: authelia_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: authelia
+      POSTGRES_USER: authelia
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./authelia/secrets/postgres_password:/run/secrets/postgres_password:ro
+    networks:
+      - proxy
+
+  vaultwarden:
+    image: vaultwarden/server:1.37.2
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      DOMAIN: "https://vault.yourdomain.com"
+      SIGNUPS_ALLOWED: "false"
+      INVITATIONS_ALLOWED: "true"
+      IP_HEADER: "X-Forwarded-For"
+      LOG_FILE: "/data/vaultwarden.log"
+      LOG_LEVEL: "warn"
+      SMTP_HOST: "smtp.yourdomain.com"
+      SMTP_FROM: "vault@yourdomain.com"
+      SMTP_PORT: "587"
+      SMTP_SECURITY: "starttls"
+      SMTP_USERNAME: "vault@yourdomain.com"
+      SMTP_PASSWORD: "your_smtp_password"
+      ADMIN_TOKEN: "replace_with_argon2_hash"
+    volumes:
+      - vaultwarden_data:/data
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres_data:
+  vaultwarden_data:
