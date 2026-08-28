@@ -1,0 +1,76 @@
+# Copy this to .forgejo/workflows/build.yml in your own repository.
+#
+# Forgejo reads .forgejo/workflows first. If that directory does not exist it
+# falls back to .github/workflows, so an imported GitHub repo runs without any
+# rename at all.
+
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    # Must match a label in the runner's config.yml.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Works because the runner ships a cache server and sets
+      # ACTIONS_CACHE_URL. Requires cache.enabled: true in config.yml.
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+  build-image:
+    runs-on: ubuntu-latest
+    needs: test
+    # forgejo.ref also works. Forgejo aliases the github.* context, so either
+    # spelling is fine.
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # Talks to the dind sidecar via DOCKER_HOST, which the runner passes
+      # into the job container from runner.envs in config.yml.
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: myapp:${{ github.sha }}
+
+  # Pushing back to Forgejo needs no secret of your own. FORGEJO_TOKEN is
+  # injected for every job, and GITHUB_TOKEN is an alias for it.
+  tag:
+    runs-on: ubuntu-latest
+    needs: build-image
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Show that the token is present
+        run: |
+          test -n "${{ secrets.FORGEJO_TOKEN }}" && echo "FORGEJO_TOKEN is set"
+          test -n "${{ secrets.GITHUB_TOKEN }}" && echo "GITHUB_TOKEN is the same token"

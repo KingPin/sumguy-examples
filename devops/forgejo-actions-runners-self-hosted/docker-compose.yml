@@ -1,0 +1,41 @@
+# Forgejo Runner for an EXISTING Forgejo instance.
+#
+# Docker-in-Docker sidecar + runner. No host Docker socket is mounted, because
+# the runner image runs as uid 1000 and is not in the host `docker` group, so a
+# bind-mounted /var/run/docker.sock gives permission denied.
+#
+# Run ./setup.sh first. It creates ./data and writes ./data/config.yml.
+# Then paste your UUID + Token into data/config.yml under server.connections.
+
+volumes:
+  docker_certs:
+
+services:
+  docker-in-docker:
+    image: data.forgejo.org/oci/docker:dind
+    container_name: forgejo_dind
+    # TLS certs are only valid for the hostname `docker` or `localhost`.
+    hostname: docker
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+    volumes:
+      - docker_certs:/certs
+    restart: unless-stopped
+
+  runner:
+    image: data.forgejo.org/forgejo/runner:13.0.0
+    container_name: forgejo_runner
+    depends_on:
+      - docker-in-docker
+    # Matches the ownership ./setup.sh applies to ./data.
+    user: 1000:1000
+    environment:
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_TLS_VERIFY: "1"
+    volumes:
+      - ./data:/data
+      - docker_certs:/certs
+    restart: unless-stopped
+    command: forgejo-runner --config config.yml daemon

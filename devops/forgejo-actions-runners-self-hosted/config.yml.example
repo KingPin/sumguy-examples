@@ -1,0 +1,107 @@
+# Forgejo Runner configuration.
+#
+# This is a trimmed, annotated version of `forgejo-runner generate-config`.
+# Every field the runner understands has a default, so a partial file like this
+# one is valid. Run `forgejo-runner generate-config` if you want the full,
+# heavily commented original.
+#
+# Tested against Forgejo Runner v13.0.0.
+
+log:
+  # What the runner process prints locally.
+  level: info
+  # What gets shipped to Forgejo and shown in the job log in the web UI.
+  job_level: info
+
+runner:
+  # How many jobs this runner executes at the same time.
+  capacity: 1
+  # Forgejo also enforces a job timeout (3h by default).
+  timeout: 3h
+  insecure: false
+
+  # Handed to every job. There is no container.envs key in Runner 13; this is
+  # where the dind connection details have to live.
+  envs:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_CERT_PATH: /certs/client
+
+  # Labels map a workflow's `runs-on:` value to a container image.
+  # Format: <label-name>:<label-type>://<image>
+  # label-type is one of: docker, lxc, host.
+  #
+  # `host` runs steps directly on the runner with no isolation at all. A single
+  # job can destroy the machine. Only use it for a runner you would rebuild.
+  labels:
+    - ubuntu-latest:docker://data.forgejo.org/oci/node:22-bookworm
+    - ubuntu-22.04:docker://data.forgejo.org/oci/node:22-bookworm
+    - node22:docker://docker.io/library/node:22-alpine
+    # Platform is a query string, not a second label. On a host that can run
+    # more than one architecture:
+    # - arm64:docker://docker.io/library/node:22-bookworm?platform=linux/arm64
+    #
+    # The label image IS the job environment. JS actions (actions/checkout,
+    # setup-node) are run with `node` inside it, and docker build steps need the
+    # docker CLI. No stock image ships both, so a job that checks out code and
+    # builds an image needs one you build yourself. See ci-runner.Dockerfile.
+    # - ci:docker://git.example.com/you/ci-runner:latest
+
+cache:
+  # Sets ACTIONS_CACHE_URL in workflow containers, which is what
+  # `actions/cache` uses. Leave enabled unless you have a reason not to.
+  enabled: true
+  # Port for the built-in cache server. 0 picks a free one.
+  port: 0
+  # Where cache data is written. Empty means $HOME/.cache/actcache, which is
+  # inside /data here, so it survives container restarts.
+  dir: ""
+  # Point this at another cache server to share cache across several runners.
+  # Leave empty and the runner spawns its own internal one.
+  external_server: ""
+  # Shared secret between the cache proxy and the cache server. Generated at
+  # startup when empty. Set it explicitly if you use external_server.
+  secret: ""
+  # Hostname or IP used to build ACTIONS_CACHE_URL. Autodetected when empty.
+  # Set it when the job containers live on a different network than the runner.
+  host: ""
+
+container:
+  # Empty means the runner creates a network per job.
+  # "host" puts job containers in the dind container's network namespace, which
+  # is on the compose network. Without it, actions/checkout cannot resolve or
+  # reach the Forgejo service and the job hangs on "Fetching the repository".
+  network: host
+  enable_ipv6: false
+  privileged: false
+  # Mount the dind client certs into job containers so steps that shell out to
+  # `docker` (or use docker/build-push-action) can reach the dind sidecar.
+  options: -v /certs/client:/certs/client
+  # Nothing can be mounted unless it is listed here. Use '**' to allow anything.
+  valid_volumes:
+    - /certs/client
+  # "-" mounts no docker host into the job container. The DOCKER_HOST env below
+  # is what points steps at the dind sidecar instead.
+  docker_host: "-"
+  force_pull: false
+
+server:
+  connections:
+    # The key is just a name. Use one block per Forgejo instance, user, org, or
+    # repository this runner should serve.
+    #
+    # Get url/uuid/token from the Forgejo web UI:
+    #   instance-wide : /admin/actions/runners
+    #   organization  : /org/{org}/settings/actions/runners
+    #   user          : /user/settings/actions/runners
+    #   repository    : /{owner}/{repo}/settings/actions/runners
+    # Click "Create new runner" and copy the UUID and Token it shows.
+    forgejo:
+      url: https://git.example.com/
+      uuid: REPLACE_WITH_UUID
+      token: REPLACE_WITH_TOKEN
+      # Overrides runner.fetch_interval for this connection only.
+      # fetch_interval: 5s
+      # Labels set here apply to this connection only and override runner.labels.
+      # labels:
+      #   - trusted:docker://data.forgejo.org/oci/node:22-bookworm

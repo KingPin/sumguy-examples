@@ -1,0 +1,93 @@
+# Forgejo + Docker-in-Docker + Forgejo Runner, from nothing.
+#
+# This one is for kicking the tyres on a throwaway host. If you already run
+# Forgejo, use the compose file in the parent directory instead.
+#
+# Run ./setup.sh first. It generates the shared secret and UUID, writes .env,
+# and prepares the data directories.
+#
+# Registration here is "offline registration": Forgejo and the runner agree on
+# a secret you generated yourself, instead of you pasting a token from the web
+# UI. It needs admin access to the Forgejo instance, which is why it only works
+# when you own the server.
+
+volumes:
+  docker_certs:
+
+services:
+  docker-in-docker:
+    image: data.forgejo.org/oci/docker:dind
+    container_name: forgejo_dind
+    hostname: docker
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+    volumes:
+      - docker_certs:/certs
+    restart: unless-stopped
+
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:16
+    container_name: forgejo
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      FORGEJO__security__INSTALL_LOCK: "true"
+      # Actions is enabled by default since Forgejo v1.21. This is here only so
+      # the setting is visible; you do not need it.
+      FORGEJO__actions__ENABLED: "true"
+      FORGEJO__repository__DEFAULT_REPO_UNITS: "repo.code,repo.issues,repo.pulls,repo.actions"
+    volumes:
+      - ./data/forgejo:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "2222:22"
+    restart: unless-stopped
+
+  # One-shot. Registers the runner with Forgejo using the shared secret, then
+  # writes the runner config and exits.
+  runner-register:
+    image: data.forgejo.org/forgejo/runner:13.0.0
+    container_name: forgejo_runner_register
+    depends_on:
+      - forgejo
+    # Runs as root so it can chown /data back to 1000 on the way out.
+    user: 0:0
+    volumes:
+      - ./data/runner:/data
+    environment:
+      FORGEJO_URL: http://forgejo:3000
+      SHARED_SECRET: ${SHARED_SECRET:?run ./setup.sh first}
+      RUNNER_UUID: ${RUNNER_UUID:?run ./setup.sh first}
+    command: >-
+      bash -ec '
+      if [ -e config.yml ]; then echo "config.yml exists, nothing to do"; chown -R 1000:1000 /data; exit 0; fi;
+      forgejo-runner generate-config > config.yml;
+      sed -i -e "s|  network: \"\"|  network: host|" config.yml;
+      sed -i -e "s|  labels: \[\]|  labels: [\"ubuntu-latest:docker://data.forgejo.org/oci/node:22-bookworm\"]|" config.yml;
+      sed -i -e "s|^  options:$$|  options: -v /certs/client:/certs/client|" config.yml;
+      sed -i -e "s|  valid_volumes: \[\]$$|  valid_volumes:\n    - /certs/client|" config.yml;
+      sed -i -e "s|^  envs:$$|  envs:\n    DOCKER_HOST: tcp://docker:2376\n    DOCKER_TLS_VERIFY: \"1\"\n    DOCKER_CERT_PATH: /certs/client|" config.yml;
+      sed -i -e "s|  connections:|  connections:\n    default:\n      url: $${FORGEJO_URL}\n      uuid: $${RUNNER_UUID}\n      token: $${SHARED_SECRET}|" config.yml;
+      chown -R 1000:1000 /data;
+      echo "runner config written"
+      '
+
+  runner:
+    image: data.forgejo.org/forgejo/runner:13.0.0
+    container_name: forgejo_runner
+    depends_on:
+      runner-register:
+        condition: service_completed_successfully
+    user: 1000:1000
+    environment:
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_TLS_VERIFY: "1"
+    volumes:
+      - ./data/runner:/data
+      - docker_certs:/certs
+    restart: unless-stopped
+    command: forgejo-runner --config config.yml daemon
