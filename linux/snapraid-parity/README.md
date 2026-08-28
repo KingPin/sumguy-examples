@@ -2,7 +2,7 @@
 
 Working config files and a nightly sync script for a SnapRAID parity setup with MergerFS pooling.
 
-**Article:** https://sumguy.com/posts/snapraid-parity-without-realtime/
+**Article:** https://sumguy.com/snapraid-parity-without-realtime/
 
 ---
 

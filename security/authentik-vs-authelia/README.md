@@ -1,6 +1,6 @@
 # authentik-vs-authelia
 
-Working Compose setups for both options from **[Authentik vs Authelia: SSO for Your Self-Hosted Stack](https://sumguy.com/posts/authentik-vs-authelia/)** on SumGuy's Ramblings.
+Working Compose setups for both options from **[Authentik vs Authelia: SSO for Your Self-Hosted Stack](https://sumguy.com/authentik-vs-authelia/)** on SumGuy's Ramblings.
 
 Two complete, runnable stacks behind Traefik. Pick the one that matches your needs.
 
@@ -16,7 +16,7 @@ Two complete, runnable stacks behind Traefik. Pick the one that matches your nee
 - **Authelia** — you want a quick login wall in front of services. Single user or small fixed team. No web admin UI; you edit YAML.
 - **Authentik** — you want OIDC / SAML for apps like Gitea, Grafana, Nextcloud. Web admin UI. More moving parts.
 
-Both work side-by-side during a migration. See the [article](https://sumguy.com/posts/authentik-vs-authelia/#migration-path-authelia-authentik) for the cutover path.
+Both work side-by-side during a migration. See the [article](https://sumguy.com/authentik-vs-authelia/#migration-path-authelia-authentik) for the cutover path.
 
 ## Prerequisites
 

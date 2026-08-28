@@ -2,7 +2,7 @@
 
 A working Docker Compose setup for self-hosting [Nominatim](https://nominatim.org/), the OpenStreetMap geocoder. Uses the `mediagis/nominatim` community image with a regional PBF extract from Geofabrik.
 
-Companion to the article: [Nominatim: Self-Hosted Geocoding](https://sumguy.com/posts/nominatim-self-hosted-geocoding-server/) on SumGuy's Ramblings.
+Companion to the article: [Nominatim: Self-Hosted Geocoding](https://sumguy.com/nominatim-self-hosted-geocoding-server/) on SumGuy's Ramblings.
 
 ## What it does
 
@@ -65,4 +65,4 @@ docker exec -d nominatim sudo -u nominatim nominatim replication
 
 - [Nominatim docs](https://nominatim.org/release-docs/latest/)
 - [mediagis/nominatim README](https://github.com/mediagis/nominatim-docker)
-- [SumGuy's Ramblings — Nominatim hardware sizing](https://sumguy.com/posts/nominatim-hardware-sizing/)
+- [SumGuy's Ramblings — Nominatim hardware sizing](https://sumguy.com/nominatim-hardware-sizing/)

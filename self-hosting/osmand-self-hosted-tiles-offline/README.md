@@ -74,4 +74,4 @@ curl -o /dev/null -w "%{http_code}\n" \
 - Tileserver-GL also serves vector tiles at `/data/osm-bright/{z}/{x}/{y}.pbf` — useful for MapLibre GL web apps on the same server.
 - For public-facing setups, put Tileserver-GL behind Caddy or Nginx with rate limiting. The container has no auth.
 
-[Read the article](https://sumguy.com/posts/osmand-self-hosted-tiles-offline/)
+[Read the article](https://sumguy.com/osmand-self-hosted-tiles-offline/)

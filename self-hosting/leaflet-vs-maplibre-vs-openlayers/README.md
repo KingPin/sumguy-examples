@@ -36,4 +36,4 @@ All three render the same location (London, 51.505°N 0.09°W, zoom 13) with a s
 - Leaflet's plugin ecosystem (Leaflet.markercluster, Leaflet.heat) works against Leaflet only. MapLibre has clustering built in; OpenLayers has its own cluster strategy.
 - For raster-only use cases (satellite imagery, WMS overlays), Leaflet and OpenLayers are the right choices. For vector tiles with dynamic styling, MapLibre wins.
 
-[Read the article](https://sumguy.com/posts/leaflet-vs-maplibre-vs-openlayers/)
+[Read the article](https://sumguy.com/leaflet-vs-maplibre-vs-openlayers/)

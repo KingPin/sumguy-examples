@@ -4,7 +4,7 @@ Working files for the layered hardening described in the article: how to expose
 a possibly-vulnerable app (a public adblocking DNS resolver, in this case) to the
 open internet and contain the damage when — not if — something gets poked.
 
-Article: https://sumguy.com/posts/assume-your-app-gets-popped/
+Article: https://sumguy.com/assume-your-app-gets-popped/
 
 ## What's here
 

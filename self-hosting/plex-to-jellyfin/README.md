@@ -2,7 +2,7 @@
 
 A working Docker Compose stack for running Jellyfin alongside an existing Plex server during migration. No media files get moved — both servers point at the same read-only media mount.
 
-📖 **Full article:** [Plex Pass Hits $749. Time for Jellyfin.](https://sumguy.com/posts/plex-price-hike-jellyfin-migration/)
+📖 **Full article:** [Plex Pass Hits $749. Time for Jellyfin.](https://sumguy.com/plex-price-hike-jellyfin-migration/)
 
 ## What This Is
 
@@ -99,9 +99,9 @@ The base Compose doesn't expose Jellyfin to the internet. Recommended options:
 
 ## Related
 
-- [Headscale: Self-Hosted Tailscale](https://sumguy.com/posts/headscale-self-hosted-tailscale/) — for remote access
-- [Overseerr vs Jellyseerr](https://sumguy.com/posts/overseerr-vs-jellyseerr/) — request system replacement
-- [Plex Meta Manager: Posters, Collections, Sanity](https://sumguy.com/posts/plex-meta-manager-posters-collections/) — works with Jellyfin too via the Kometa fork
+- [Headscale: Self-Hosted Tailscale](https://sumguy.com/headscale-self-hosted-tailscale/) — for remote access
+- [Overseerr vs Jellyseerr](https://sumguy.com/overseerr-vs-jellyseerr/) — request system replacement
+- [Plex Meta Manager: Posters, Collections, Sanity](https://sumguy.com/plex-meta-manager-posters-collections/) — works with Jellyfin too via the Kometa fork
 
 ## License
 

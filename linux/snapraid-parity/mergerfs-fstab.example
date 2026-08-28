@@ -1,6 +1,6 @@
 # /etc/fstab — MergerFS union mount for SnapRAID data drives
 #
-# See: https://sumguy.com/posts/snapraid-parity-without-realtime/
+# See: https://sumguy.com/snapraid-parity-without-realtime/
 # MergerFS docs: https://github.com/trapexit/mergerfs
 #
 # This line unions all data drive mountpoints into a single /mnt/storage path.

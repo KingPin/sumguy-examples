@@ -62,9 +62,9 @@ Users hitting Gitea now see "Sign in with Authentik."
 
 ## What to read next
 
-- [Article: Authentik vs Authelia](https://sumguy.com/posts/authentik-vs-authelia/)
-- [Article: Caddy vs Traefik](https://sumguy.com/posts/caddy-vs-traefik/) — proxy choice in front of Authentik
-- [Article: WebAuthn / Passkeys for Sysadmins](https://sumguy.com/posts/webauthn-passkeys-sysadmins/) — strong 2FA for your users
+- [Article: Authentik vs Authelia](https://sumguy.com/authentik-vs-authelia/)
+- [Article: Caddy vs Traefik](https://sumguy.com/caddy-vs-traefik/) — proxy choice in front of Authentik
+- [Article: WebAuthn / Passkeys for Sysadmins](https://sumguy.com/webauthn-passkeys-sysadmins/) — strong 2FA for your users
 
 ## Tested versions
 

@@ -233,6 +233,6 @@ Broadcom support matrix before starting.
 
 ## See Also
 
-- Article: https://sumguy.com/posts/hardware-vs-software-raid/
-- [SMART Monitoring](https://sumguy.com/posts/smart-monitoring-smartmontools/) — what you gain back when drives are visible to the OS
-- [ZFS RAID-Z and dRAID](https://sumguy.com/posts/raid-z-and-draid-explained/) — what to run on top of your newly-IT-mode HBA
+- Article: https://sumguy.com/hardware-vs-software-raid/
+- [SMART Monitoring](https://sumguy.com/smart-monitoring-smartmontools/) — what you gain back when drives are visible to the OS
+- [ZFS RAID-Z and dRAID](https://sumguy.com/raid-z-and-draid-explained/) — what to run on top of your newly-IT-mode HBA

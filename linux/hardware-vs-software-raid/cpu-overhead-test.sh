@@ -268,7 +268,7 @@ print_summary() {
     echo "  real spinning disks (less wait time). The parity calculation cost"
     echo "  is what matters — and it's small."
     echo ""
-    echo "  See: https://sumguy.com/posts/hardware-vs-software-raid/"
+    echo "  See: https://sumguy.com/hardware-vs-software-raid/"
     echo "========================================"
 }
 

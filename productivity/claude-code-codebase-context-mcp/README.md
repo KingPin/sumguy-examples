@@ -3,7 +3,7 @@
 Representative MCP config for the four tools compared in the article — servers that stop
 your agent from dumping the whole repo into context and instead let it read only what matters.
 
-Companion article: **[Stop Feeding the AI Your Whole Repo](https://sumguy.com/posts/claude-code-codebase-context-mcp/)**
+Companion article: **[Stop Feeding the AI Your Whole Repo](https://sumguy.com/claude-code-codebase-context-mcp/)**
 
 ## What's here
 

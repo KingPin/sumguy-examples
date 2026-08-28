@@ -7,7 +7,7 @@
 # SAFE: refuses to operate on real block devices (/dev/sd*, /dev/nvme*, etc.)
 # Run as root.
 #
-# Companion to: https://sumguy.com/posts/mdadm-day-2-operations/
+# Companion to: https://sumguy.com/mdadm-day-2-operations/
 
 set -euo pipefail
 

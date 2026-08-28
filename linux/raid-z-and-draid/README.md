@@ -1,6 +1,6 @@
 # ZFS RAID-Z and dRAID Examples
 
-Working shell scripts for the article: **[RAID-Z and dRAID: ZFS Parity Explained](https://sumguy.com/posts/raid-z-and-draid-explained/)**
+Working shell scripts for the article: **[RAID-Z and dRAID: ZFS Parity Explained](https://sumguy.com/raid-z-and-draid-explained/)**
 
 These scripts use loop devices only — no real disks are touched. Safe to run on any Linux box with ZFS installed.
 
@@ -78,4 +78,4 @@ rm -f /tmp/zfs-test-*.img
 ## Back to the Article
 
 Full explanation of RAID-Z vs dRAID, when each is appropriate, and what dRAID actually changes about resilver speed:
-**https://sumguy.com/posts/raid-z-and-draid-explained/**
+**https://sumguy.com/raid-z-and-draid-explained/**

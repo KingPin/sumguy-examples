@@ -7,7 +7,7 @@
 # Install: copy to /etc/cron.monthly/mdadm-scrub, chmod +x
 # Requires: mdadm, /proc/mdstat, optionally mail(1) for alerts
 #
-# Companion to: https://sumguy.com/posts/mdadm-day-2-operations/
+# Companion to: https://sumguy.com/mdadm-day-2-operations/
 
 set -euo pipefail
 

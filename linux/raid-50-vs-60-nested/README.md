@@ -1,6 +1,6 @@
 # RAID 50 / RAID 60 — Nested Parity Examples
 
-Working scripts for the article: [RAID 50/60: Nested Parity Done Right](https://sumguy.com/posts/raid-50-vs-60-nested/)
+Working scripts for the article: [RAID 50/60: Nested Parity Done Right](https://sumguy.com/raid-50-vs-60-nested/)
 
 All scripts use **loop devices backed by sparse files** — no real disks are touched. Safe to run on any Linux box for learning and testing.
 
@@ -76,7 +76,7 @@ rm -f /tmp/raid-test-*.img
 
 ## More Reading
 
-- Full article: https://sumguy.com/posts/raid-50-vs-60-nested/
-- RAID 0/1/5 basics: https://sumguy.com/posts/raid-0-1-5-explained/
-- RAID 6 vs RAID 10: https://sumguy.com/posts/raid-6-vs-raid-10/
-- Rebuild math and monitoring: https://sumguy.com/posts/raid-reliability-and-recovery/
+- Full article: https://sumguy.com/raid-50-vs-60-nested/
+- RAID 0/1/5 basics: https://sumguy.com/raid-0-1-5-explained/
+- RAID 6 vs RAID 10: https://sumguy.com/raid-6-vs-raid-10/
+- Rebuild math and monitoring: https://sumguy.com/raid-reliability-and-recovery/

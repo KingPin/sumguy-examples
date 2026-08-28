@@ -6,7 +6,7 @@
 # SAFE: operates on loop devices only. Refuses if passed real block devices.
 # Run as root.
 #
-# Companion to: https://sumguy.com/posts/mdadm-day-2-operations/
+# Companion to: https://sumguy.com/mdadm-day-2-operations/
 
 set -euo pipefail
 

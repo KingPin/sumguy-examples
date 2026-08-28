@@ -3,7 +3,7 @@
 Working config for the "token-killer" proxy comparison — tools that sit between your
 AI coding agent and the model and filter command output *before* it burns context tokens.
 
-Companion article: **[RTK vs snip vs lean-ctx: Token Killers](https://sumguy.com/posts/rtk-vs-snip-vs-lean-ctx/)**
+Companion article: **[RTK vs snip vs lean-ctx: Token Killers](https://sumguy.com/rtk-vs-snip-vs-lean-ctx/)**
 
 ## What's here
 

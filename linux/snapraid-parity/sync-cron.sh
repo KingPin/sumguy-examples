@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # snapraid-sync.sh — Nightly SnapRAID sync with sanity checks
 #
-# See: https://sumguy.com/posts/snapraid-parity-without-realtime/
+# See: https://sumguy.com/snapraid-parity-without-realtime/
 #
 # Install: sudo cp sync-cron.sh /usr/local/bin/snapraid-sync.sh
 #          sudo chmod +x /usr/local/bin/snapraid-sync.sh

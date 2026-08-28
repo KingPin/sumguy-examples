@@ -49,4 +49,4 @@ Note: OpenObserve's OTLP HTTP endpoint requires Basic auth headers. Set `OTEL_EX
 
 ## Article
 
-https://sumguy.com/posts/hyperdx-vs-openobserve/
+https://sumguy.com/hyperdx-vs-openobserve/

@@ -39,9 +39,9 @@ Open `https://grafana.home.internal/`. Traefik bounces you to `auth.home.interna
 
 ## What to read next
 
-- [Article: Authentik vs Authelia](https://sumguy.com/posts/authentik-vs-authelia/)
-- [Article: Vaultwarden Behind Authelia](https://sumguy.com/posts/vaultwarden-behind-authelia/) — the same pattern in front of Vaultwarden
-- [Article: Caddy vs Traefik](https://sumguy.com/posts/caddy-vs-traefik/) — swap Traefik for Caddy
+- [Article: Authentik vs Authelia](https://sumguy.com/authentik-vs-authelia/)
+- [Article: Vaultwarden Behind Authelia](https://sumguy.com/vaultwarden-behind-authelia/) — the same pattern in front of Vaultwarden
+- [Article: Caddy vs Traefik](https://sumguy.com/caddy-vs-traefik/) — swap Traefik for Caddy
 
 ## Tested versions
 

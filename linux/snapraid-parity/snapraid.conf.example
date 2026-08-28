@@ -1,6 +1,6 @@
 # /etc/snapraid.conf — Example configuration for 4 data drives + 1 parity drive
 #
-# See: https://sumguy.com/posts/snapraid-parity-without-realtime/
+# See: https://sumguy.com/snapraid-parity-without-realtime/
 # Docs: https://www.snapraid.it/manual
 #
 # IMPORTANT: Edit all paths to match your actual drive mountpoints before use.

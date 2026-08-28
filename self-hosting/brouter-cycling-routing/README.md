@@ -69,4 +69,4 @@ curl "http://localhost:17777/brouter?lonlats=-87.65,41.85|-87.63,41.87&profile=t
 - Increase `JAVA_OPTS=-Xmx` if you load many large tiles and see OOM errors.
 - BRouter's HTTP API is not authenticated — run behind a firewall or reverse proxy for public-facing setups.
 
-[Read the article](https://sumguy.com/posts/brouter-cycling-routing/)
+[Read the article](https://sumguy.com/brouter-cycling-routing/)

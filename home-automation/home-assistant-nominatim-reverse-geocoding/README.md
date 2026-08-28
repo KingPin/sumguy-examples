@@ -2,7 +2,7 @@
 
 Wire a self-hosted [Nominatim](https://nominatim.org/) instance into Home Assistant so `device_tracker` entities (phones, cars, GPS collars) get street/city/country names looked up locally — no GPS coords leaking to Google, Mapbox, or HERE.
 
-Companion to the article: [Self-Hosted HA Reverse Geocoding](https://sumguy.com/posts/home-assistant-reverse-geocoding-nominatim/) on SumGuy's Ramblings.
+Companion to the article: [Self-Hosted HA Reverse Geocoding](https://sumguy.com/home-assistant-reverse-geocoding-nominatim/) on SumGuy's Ramblings.
 
 ## What it does
 
@@ -68,4 +68,4 @@ Copy `automations.yaml` snippets into your existing automations (or use the pack
 
 - [Nominatim docs](https://nominatim.org/release-docs/latest/)
 - [Home Assistant REST sensor docs](https://www.home-assistant.io/integrations/sensor.rest/)
-- [SumGuy's Ramblings — Nominatim install](https://sumguy.com/posts/nominatim-self-hosted-geocoding-server/)
+- [SumGuy's Ramblings — Nominatim install](https://sumguy.com/nominatim-self-hosted-geocoding-server/)

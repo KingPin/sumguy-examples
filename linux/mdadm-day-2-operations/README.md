@@ -1,6 +1,6 @@
 # mdadm Day-2 Operations — Example Files
 
-Companion scripts for [mdadm Day-2: Grow, Replace, Scrub](https://sumguy.com/posts/mdadm-day-2-operations/)
+Companion scripts for [mdadm Day-2: Grow, Replace, Scrub](https://sumguy.com/mdadm-day-2-operations/)
 on [SumGuy's Ramblings](https://sumguy.com).
 
 ---
@@ -83,6 +83,6 @@ Edit the `MAILTO` variable at the top of the script to set your email address.
 
 ## Links
 
-- Article: https://sumguy.com/posts/mdadm-day-2-operations/
+- Article: https://sumguy.com/mdadm-day-2-operations/
 - Full series: https://sumguy.com/tags/raid/
-- SMART monitoring companion: https://sumguy.com/posts/smart-monitoring-smartmontools/
+- SMART monitoring companion: https://sumguy.com/smart-monitoring-smartmontools/

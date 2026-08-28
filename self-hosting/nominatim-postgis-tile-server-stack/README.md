@@ -2,7 +2,7 @@
 
 End-to-end self-hosted maps: address geocoding via [Nominatim](https://nominatim.org/), spatial queries via [PostGIS](https://postgis.net/), and vector tile serving via [Martin](https://github.com/maplibre/martin). All behind a single [Caddy](https://caddyserver.com/) reverse proxy.
 
-Companion to the article: [Full Self-Hosted Maps Stack](https://sumguy.com/posts/nominatim-postgis-tile-server-stack/) on SumGuy's Ramblings.
+Companion to the article: [Full Self-Hosted Maps Stack](https://sumguy.com/nominatim-postgis-tile-server-stack/) on SumGuy's Ramblings.
 
 ## What it does
 
@@ -108,5 +108,5 @@ Point a MapLibre or Leaflet client at `http://tiles.lan/{table_name}/{z}/{x}/{y}
 - [Martin docs](https://maplibre.org/martin/)
 - [Nominatim docs](https://nominatim.org/release-docs/latest/)
 - [PostGIS docs](https://postgis.net/documentation/)
-- [SumGuy's Ramblings — Nominatim install](https://sumguy.com/posts/nominatim-self-hosted-geocoding-server/)
-- [SumGuy's Ramblings — PostGIS for self-hosted mapping](https://sumguy.com/posts/postgis-self-hosted-mapping/)
+- [SumGuy's Ramblings — Nominatim install](https://sumguy.com/nominatim-self-hosted-geocoding-server/)
+- [SumGuy's Ramblings — PostGIS for self-hosted mapping](https://sumguy.com/postgis-self-hosted-mapping/)

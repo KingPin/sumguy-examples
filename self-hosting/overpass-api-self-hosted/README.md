@@ -55,4 +55,4 @@ The `query-by-area.sh` script requires a running Nominatim instance to resolve t
 - `OVERPASS_DIFF_URL` enables incremental updates from Geofabrik's diff feed. The container applies them automatically.
 - Overpass QL's `area()` selector works on OSM relation IDs offset by `+3600000000`. Use Nominatim's `/search` endpoint to resolve human-readable area names to relation IDs.
 
-[Read the article](https://sumguy.com/posts/overpass-api-self-hosted/)
+[Read the article](https://sumguy.com/overpass-api-self-hosted/)

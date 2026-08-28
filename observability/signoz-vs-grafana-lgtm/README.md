@@ -41,4 +41,4 @@ python instrumentation.py
 
 ## Article
 
-https://sumguy.com/posts/signoz-vs-grafana-lgtm/
+https://sumguy.com/signoz-vs-grafana-lgtm/

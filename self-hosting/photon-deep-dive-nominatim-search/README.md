@@ -78,4 +78,4 @@ Frontend calls `/photon/api?q=...` for autocomplete and `/nominatim/reverse?lat=
 - The `lang` parameter on Photon returns localised place names if OSM has them (`?lang=de` for German).
 - Photon's planet dump is always the full planet — no regional subset available from Komoot. If you only need one region, build from your Nominatim DB (Option B) instead.
 
-[Read the article](https://sumguy.com/posts/photon-deep-dive-nominatim-search/)
+[Read the article](https://sumguy.com/photon-deep-dive-nominatim-search/)

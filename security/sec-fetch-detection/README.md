@@ -1,6 +1,6 @@
 # sec-fetch-detection
 
-Test harness used in **[Sec-Fetch & UA Client Hints in 2026: What Actually Leaks](https://sumguy.com/posts/sec-fetch-ua-client-hints-2026/)** on SumGuy's Ramblings.
+Test harness used in **[Sec-Fetch & UA Client Hints in 2026: What Actually Leaks](https://sumguy.com/sec-fetch-ua-client-hints-2026/)** on SumGuy's Ramblings.
 
 Runs 9 real client tools against a local echo server, captures every request header sent, and aggregates the result into a markdown matrix showing what each tool actually leaks via `Sec-Fetch-*` and `Sec-CH-UA-*` headers.
 

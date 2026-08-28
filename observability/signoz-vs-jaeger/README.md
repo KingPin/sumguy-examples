@@ -53,4 +53,4 @@ python instrumentation.py
 
 ## Article
 
-https://sumguy.com/posts/signoz-vs-jaeger/
+https://sumguy.com/signoz-vs-jaeger/

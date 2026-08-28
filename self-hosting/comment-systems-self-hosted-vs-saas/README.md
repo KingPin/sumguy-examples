@@ -1,7 +1,7 @@
 # Comment Systems: Self-Hosted Examples
 
 Working Compose files for self-hosted blog comment systems. Companion to the article:
-**[Blog Comments: Self-Host or SaaS?](https://sumguy.com/posts/comment-systems-self-hosted-vs-saas/)**
+**[Blog Comments: Self-Host or SaaS?](https://sumguy.com/comment-systems-self-hosted-vs-saas/)**
 
 ---
 
@@ -145,4 +145,4 @@ isso.yourdomain.com {
 ## Back to the article
 
 Full writeup, decision guide, and SaaS alternatives:
-https://sumguy.com/posts/comment-systems-self-hosted-vs-saas/
+https://sumguy.com/comment-systems-self-hosted-vs-saas/

@@ -59,4 +59,4 @@ curl "http://localhost:8080/reverse?lat=40.7128&lon=-74.0060&format=json"
 - Immich uses its bundled Natural Earth dataset by default. Setting `IMMICH_REVERSE_GEOCODING_URL` switches to Nominatim for new imports; the backfill script handles existing assets.
 - The `DELAY_SECONDS=2` in the backfill script is intentional — keeps burst traffic within Nominatim's ~15–30 reverse lookups/sec capacity.
 
-[Read the article](https://sumguy.com/posts/reverse-geocoding-photo-libraries/)
+[Read the article](https://sumguy.com/reverse-geocoding-photo-libraries/)

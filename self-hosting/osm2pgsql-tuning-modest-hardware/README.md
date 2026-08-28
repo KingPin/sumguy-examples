@@ -81,4 +81,4 @@ watch -n5 "psql -U osm -d osm -c \
 - `--number-processes` parallelises geometry processing, not index creation. Adding more processes past `cores/2` rarely helps — you hit IO contention first.
 - The `roads.lua` style imports only highway ways. Adapt it to your schema needs.
 
-[Read the article](https://sumguy.com/posts/osm2pgsql-tuning-modest-hardware/)
+[Read the article](https://sumguy.com/osm2pgsql-tuning-modest-hardware/)

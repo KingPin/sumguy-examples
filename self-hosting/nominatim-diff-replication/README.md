@@ -62,4 +62,4 @@ chmod +x scripts/check-replication-lag.sh
 - The `OnFailure=` directive in the service unit needs a `nominatim-replication-failure@.service` unit to send notifications — stub yours in with `ExecStart=/usr/bin/systemd-cat echo "Nominatim replication FAILED"` or wire it to a proper alerting service.
 - For minutely updates, change `REPLICATION_URL` in the Compose file to `https://planet.openstreetmap.org/replication/minute/` and adjust the timer cadence. Hourly diffs are the sweet spot for most home labs.
 
-[Read the article](https://sumguy.com/posts/nominatim-diff-replication/)
+[Read the article](https://sumguy.com/nominatim-diff-replication/)

@@ -3,7 +3,7 @@
 Working files for both CI options that sit next to a self-hosted Gitea/Forgejo
 instance, so you can stand each one up and compare them side by side.
 
-Article: https://sumguy.com/posts/gitea-actions-vs-woodpecker/
+Article: https://sumguy.com/gitea-actions-vs-woodpecker/
 
 ## What's here
 

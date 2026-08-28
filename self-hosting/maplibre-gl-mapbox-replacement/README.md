@@ -53,4 +53,4 @@ curl "http://localhost:8080/data/v3/11/1097/754.pbf" \
 - Mapbox v1 migration is usually a find-and-replace: `mapboxgl.` → `maplibregl.`, swap CDN URLs. Most third-party plugins work unchanged.
 - Reduce symbol layers at low zoom levels on mobile — that's the main perf knob for mid-range Android devices.
 
-[Read the article](https://sumguy.com/posts/maplibre-gl-mapbox-replacement/)
+[Read the article](https://sumguy.com/maplibre-gl-mapbox-replacement/)

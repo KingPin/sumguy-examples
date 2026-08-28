@@ -66,4 +66,4 @@ python3 ors_client.py
 - Graph rebuild is triggered by replacing the PBF and restarting the container (delete `ors-data/graphs/` first to force a clean build).
 - ORS OpenAPI spec: http://localhost:8080/ors/openapi.json
 
-[Read the article](https://sumguy.com/posts/openrouteservice-all-in-one/)
+[Read the article](https://sumguy.com/openrouteservice-all-in-one/)

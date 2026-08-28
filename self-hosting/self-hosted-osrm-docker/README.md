@@ -64,4 +64,4 @@ curl "http://localhost:5000/table/v1/driving/-97.7431,30.2672;-96.7970,32.7767;-
 - MLD is the algorithm to use if you plan to inject live traffic data (`osrm-customize` can be re-run with updated speeds without a full re-extract).
 - For CH, swap `--algorithm mld` to `--algorithm ch` in `docker-compose.yml`.
 
-[Read the article](https://sumguy.com/posts/self-hosted-osrm-docker/)
+[Read the article](https://sumguy.com/self-hosted-osrm-docker/)

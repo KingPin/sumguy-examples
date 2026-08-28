@@ -2,7 +2,7 @@
 
 Working examples for the SumGuy's Ramblings article: **Hardware RAID vs Software RAID in 2026**
 
-Article: https://sumguy.com/posts/hardware-vs-software-raid/
+Article: https://sumguy.com/hardware-vs-software-raid/
 
 ---
 
@@ -62,8 +62,8 @@ The point: see how little CPU software RAID 6 parity actually uses on a modern s
 
 ## See Also
 
-- [RAID 0/1/5 Explained](https://sumguy.com/posts/raid-0-1-5-explained/)
-- [RAID 6 vs RAID 10](https://sumguy.com/posts/raid-6-vs-raid-10/)
-- [ZFS RAID-Z and dRAID](https://sumguy.com/posts/raid-z-and-draid-explained/)
-- [SMART Monitoring with smartmontools](https://sumguy.com/posts/smart-monitoring-smartmontools/)
-- [fio Disk Benchmarking](https://sumguy.com/posts/fio-disk-benchmarking/)
+- [RAID 0/1/5 Explained](https://sumguy.com/raid-0-1-5-explained/)
+- [RAID 6 vs RAID 10](https://sumguy.com/raid-6-vs-raid-10/)
+- [ZFS RAID-Z and dRAID](https://sumguy.com/raid-z-and-draid-explained/)
+- [SMART Monitoring with smartmontools](https://sumguy.com/smart-monitoring-smartmontools/)
+- [fio Disk Benchmarking](https://sumguy.com/fio-disk-benchmarking/)
