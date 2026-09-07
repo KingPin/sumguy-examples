@@ -1,0 +1,13 @@
+# Fallback for hosts without systemd. Install with: crontab -e
+#
+# Gotchas that bite people here:
+#   1. cron runs with a minimal PATH, so use the absolute /usr/bin/docker.
+#   2. A non-root crontab needs the user in the `docker` group, or every run fails
+#      with a permission error on the socket.
+#   3. cron treats `%` as a newline. Escape it as `\%` if a date format ever needs one.
+#   4. cron mails output to the local user by default. The redirect below discards it,
+#      so log to a file instead if you want to see what was reclaimed.
+
+0 2 * * * /usr/bin/docker image prune -af --filter until=168h --filter "label!=keep" >> /var/log/docker-prune.log 2>&1
+15 2 * * * /usr/bin/docker container prune -f --filter until=24h --filter "label!=keep" >> /var/log/docker-prune.log 2>&1
+30 2 * * * /usr/bin/docker network prune -f --filter until=24h >> /var/log/docker-prune.log 2>&1

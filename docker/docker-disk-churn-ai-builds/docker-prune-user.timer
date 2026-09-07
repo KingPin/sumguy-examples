@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the rootless Docker prune daily
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

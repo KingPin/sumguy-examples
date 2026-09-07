@@ -1,0 +1,18 @@
+[Unit]
+Description=Run the Docker prune daily
+
+[Timer]
+# "daily" normalizes to *-*-* 00:00:00. Check any expression with:
+#   systemd-analyze calendar daily
+OnCalendar=daily
+
+# Run on the next boot if the machine was off when the timer should have fired.
+Persistent=true
+
+# Calendar timers already default to an accuracy window of 1 minute. This line
+# only makes that explicit. Widen it (AccuracySec=1h) to let systemd batch the
+# wakeup with other timers instead.
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,20 @@
+[Unit]
+Description=Automated Docker prune (rootless)
+After=docker.service
+Wants=docker.service
+
+[Service]
+Type=oneshot
+
+ExecStart=/usr/bin/docker image prune -af --filter until=168h --filter label!=keep
+ExecStart=/usr/bin/docker container prune -f --filter until=24h --filter label!=keep
+ExecStart=/usr/bin/docker network prune -f --filter until=24h
+
+# Rootless notes:
+#   docker.service here is the USER unit (systemctl --user status docker), not the
+#   system one, which is why this uses Wants= rather than Requires=. A hard Requires=
+#   on a user unit that is socket-activated can fail the job before Docker is up.
+#
+#   The rootless daemon only exists inside your user session. Run
+#   `sudo loginctl enable-linger "$USER"` or the timer will not fire while you are
+#   logged out.

@@ -1,0 +1,24 @@
+[Unit]
+Description=Automated Docker prune for agent build churn
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+
+# Untagged and unused images older than 7 days. This is the one that reclaims
+# the space an agentic rebuild loop leaves behind.
+ExecStart=/usr/bin/docker image prune -af --filter until=168h --filter label!=keep
+
+# Stopped containers older than a day.
+ExecStart=/usr/bin/docker container prune -f --filter until=24h --filter label!=keep
+
+# Networks nothing is attached to.
+ExecStart=/usr/bin/docker network prune -f --filter until=24h
+
+# Deliberately absent:
+#   --volumes / docker volume prune   see README, this is how you lose data
+#   docker builder prune              BuildKit's own GC already bounds the build cache
+#
+# No [Install] section. A timer-triggered oneshot is started by its .timer,
+# not by a target, so it has nothing to install itself into.
