@@ -1,0 +1,35 @@
+name: assets-check
+
+# Fails the build when a declared image in assets.yml is missing or has drifted
+# from its prompt. `spx sync --check` makes no network calls and spends no
+# subscription quota, so this needs no credentials and costs nothing to run.
+#
+# Exit codes: 0 = everything matches, 6 = drift detected.
+#
+# PRECONDITION: the generated images and their .json manifests must be committed
+# to the repository. `--check` compares what is on disk against assets.yml, so a
+# checkout with no images in public/ is drift, and this job will exit 6 every
+# time. This example repo does not ship the generated binaries, so run
+# `spx sync` and commit public/ before wiring this workflow up.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          # subpixel requires Node 24 or newer.
+          node-version: '24'
+
+      - name: Check declared assets
+        run: npx -y subpixel sync --check

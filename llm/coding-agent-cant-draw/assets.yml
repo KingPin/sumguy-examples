@@ -1,0 +1,29 @@
+# Declared images for a small static site.
+#
+# `spx sync`          generates whatever is missing or out of date
+# `spx sync --check`  reports drift, exits 6, makes no network calls
+#
+# The --check form is the one that belongs in CI. It spends no subscription
+# quota and calls nothing, so it is safe to run on every pull request.
+
+assets:
+  - id: hero
+    prompt: >-
+      a wide banner for a developer tools site, flat vector illustration,
+      teal and slate palette, dark background, no text
+    out: public/hero.png
+    size: 1536x1024
+
+  - id: og-card
+    prompt: >-
+      a social share card, bold flat ink style, dark background,
+      abstract geometric shapes, no text
+    out: public/og-card.png
+    size: 1536x1024
+
+  - id: empty-state
+    prompt: >-
+      a friendly empty-state illustration, single line-art object centred
+      on a plain dark background, muted teal accent, no text
+    out: public/empty-state.png
+    size: 1024x1024
