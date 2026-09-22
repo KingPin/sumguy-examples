@@ -1,0 +1,22 @@
+services:
+  crowdsec:
+    image: crowdsecurity/crowdsec:v1.8.1
+    container_name: crowdsec-lapi
+    environment:
+      COLLECTIONS: "crowdsecurity/linux crowdsecurity/sshd"
+      CUSTOM_HOSTNAME: lapi-box
+      TZ: "Etc/UTC"
+      # Uncomment to auto-register a bouncer at startup instead of `cscli bouncers add`:
+      # BOUNCER_KEY_firewall-boxb: "CHANGE_ME_BOUNCER_KEY"
+    volumes:
+      - crowdsec-db:/var/lib/crowdsec/data
+      - crowdsec-config:/etc/crowdsec
+      - /var/log:/var/log:ro
+    ports:
+      # Bind only to the LAN/Tailscale address, never 0.0.0.0, never the internet.
+      - "192.168.1.10:8080:8080"
+    restart: unless-stopped
+
+volumes:
+  crowdsec-db:
+  crowdsec-config:

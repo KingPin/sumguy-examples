@@ -1,0 +1,21 @@
+services:
+  crowdsec:
+    image: crowdsecurity/crowdsec:v1.8.1
+    container_name: crowdsec-agent
+    environment:
+      DISABLE_LOCAL_API: "true"
+      LOCAL_API_URL: "http://192.168.1.10:8080"
+      AGENT_USERNAME: "boxb-agent"
+      AGENT_PASSWORD: "CHANGE_ME_AGENT_PASSWORD"
+      COLLECTIONS: "crowdsecurity/linux crowdsecurity/sshd"
+      TZ: "Etc/UTC"
+    volumes:
+      - crowdsec-config:/etc/crowdsec
+      - /var/log:/var/log:ro
+      # If this box runs Traefik, mount its access log and add
+      # "crowdsecurity/traefik" to COLLECTIONS above:
+      # - /path/to/traefik/logs:/var/log/traefik:ro
+    restart: unless-stopped
+
+volumes:
+  crowdsec-config:

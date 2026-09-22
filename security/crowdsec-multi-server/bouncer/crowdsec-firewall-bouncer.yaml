@@ -1,0 +1,26 @@
+# Config for cs-firewall-bouncer, installed as a native package on box B/C
+# (it needs direct access to the host's iptables/nftables, so it isn't
+# a good fit for a container). Path: /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+mode: nftables
+pid_dir: /var/run/
+update_frequency: 10s
+daemonize: true
+
+log_mode: file
+log_dir: /var/log/
+log_level: info
+log_compression: true
+log_max_size: 100
+log_max_backups: 3
+log_max_age: 30
+
+# Point this at the central LAPI, not 127.0.0.1. Get the key from
+# `cscli bouncers add firewall-boxb` run on the LAPI box.
+api_url: http://192.168.1.10:8080/
+api_key: CHANGE_ME_FIREWALL_BOUNCER_KEY
+
+disable_ipv6: false
+deny_action: DROP
+deny_log: false
+supported_decisions_types:
+  - ban
