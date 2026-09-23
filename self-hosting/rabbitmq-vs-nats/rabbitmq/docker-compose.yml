@@ -1,0 +1,20 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"     # AMQP 0-9-1 and AMQP 1.0
+      - "15672:15672"   # management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: appuser
+      RABBITMQ_DEFAULT_PASS: change-me
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  rabbitmq_data:
