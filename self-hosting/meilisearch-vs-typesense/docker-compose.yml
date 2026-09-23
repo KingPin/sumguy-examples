@@ -1,0 +1,24 @@
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.54.0
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: "change-me-master-key"
+      MEILI_ENV: "development"
+    ports:
+      - "7700:7700"
+    volumes:
+      - meili_data:/meili_data
+
+  typesense:
+    image: typesense/typesense:30.2
+    restart: unless-stopped
+    command: '--data-dir /data --api-key=change-me-typesense-key --enable-cors'
+    ports:
+      - "8108:8108"
+    volumes:
+      - typesense_data:/data
+
+volumes:
+  meili_data:
+  typesense_data:

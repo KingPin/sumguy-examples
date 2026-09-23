@@ -1,0 +1,22 @@
+[
+  {"id": 1, "title": "The Silent Reactor", "director": "Lena Ashworth", "year": 2019, "genre": "Thriller", "rating": 7.4},
+  {"id": 2, "title": "Forklift Dreams", "director": "Marco Tavella", "year": 2021, "genre": "Comedy", "rating": 6.8},
+  {"id": 3, "title": "Midnight Compiler", "director": "Priya Nandan", "year": 2018, "genre": "Sci-Fi", "rating": 8.1},
+  {"id": 4, "title": "Rustbelt Requiem", "director": "Hank Oduya", "year": 2020, "genre": "Drama", "rating": 7.9},
+  {"id": 5, "title": "Echo Chamber", "director": "Lena Ashworth", "year": 2022, "genre": "Thriller", "rating": 6.5},
+  {"id": 6, "title": "The Couch Movers", "director": "Marco Tavella", "year": 2017, "genre": "Comedy", "rating": 6.2},
+  {"id": 7, "title": "Kernel Panic", "director": "Priya Nandan", "year": 2023, "genre": "Sci-Fi", "rating": 7.7},
+  {"id": 8, "title": "Latency", "director": "Hank Oduya", "year": 2016, "genre": "Drama", "rating": 7.0},
+  {"id": 9, "title": "The Deadlock", "director": "Sofia Brandt", "year": 2019, "genre": "Thriller", "rating": 7.2},
+  {"id": 10, "title": "Garage Symphony", "director": "Marco Tavella", "year": 2015, "genre": "Comedy", "rating": 6.4},
+  {"id": 11, "title": "Vector Field", "director": "Priya Nandan", "year": 2021, "genre": "Sci-Fi", "rating": 8.3},
+  {"id": 12, "title": "Cold Storage", "director": "Sofia Brandt", "year": 2020, "genre": "Drama", "rating": 7.6},
+  {"id": 13, "title": "The 2 AM Shift", "director": "Hank Oduya", "year": 2022, "genre": "Drama", "rating": 8.0},
+  {"id": 14, "title": "Race Condition", "director": "Lena Ashworth", "year": 2018, "genre": "Thriller", "rating": 7.1},
+  {"id": 15, "title": "Overengineered", "director": "Marco Tavella", "year": 2023, "genre": "Comedy", "rating": 6.9},
+  {"id": 16, "title": "The Segfault Diaries", "director": "Sofia Brandt", "year": 2016, "genre": "Drama", "rating": 6.7},
+  {"id": 17, "title": "Quorum", "director": "Priya Nandan", "year": 2019, "genre": "Sci-Fi", "rating": 7.8},
+  {"id": 18, "title": "Cache Invalidation", "director": "Lena Ashworth", "year": 2024, "genre": "Thriller", "rating": 7.3},
+  {"id": 19, "title": "The Last Backup", "director": "Hank Oduya", "year": 2017, "genre": "Drama", "rating": 7.5},
+  {"id": 20, "title": "Sharded", "director": "Sofia Brandt", "year": 2024, "genre": "Sci-Fi", "rating": 8.2}
+]
