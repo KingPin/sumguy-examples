@@ -1,0 +1,21 @@
+services:
+  surrealdb:
+    image: surrealdb/surrealdb:v3.2.4
+    user: root
+    command: start --user root --pass changeme rocksdb:/data/sumguy.db
+    environment:
+      SURREAL_BIND: 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: sumguy
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql
