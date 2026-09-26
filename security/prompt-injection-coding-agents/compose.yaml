@@ -1,0 +1,28 @@
+services:
+  agent:
+    image: coding-agent:latest   # your own agent image
+    depends_on:
+      - egress-proxy
+    networks:
+      - internal
+    environment:
+      HTTP_PROXY: http://egress-proxy:3128
+      HTTPS_PROXY: http://egress-proxy:3128
+      http_proxy: http://egress-proxy:3128   # curl only reads the lowercase one
+      https_proxy: http://egress-proxy:3128
+    volumes:
+      - ./workspace:/workspace
+    # No cloud credentials, no DB connection strings. Not here, not ever.
+
+  egress-proxy:
+    image: ubuntu/squid
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf:ro
+    networks:
+      - internal
+      - external
+
+networks:
+  internal:
+    internal: true
+  external:
