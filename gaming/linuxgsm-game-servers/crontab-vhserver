@@ -1,0 +1,5 @@
+# Recommended LinuxGSM cron lines for a Valheim server, straight from
+# linuxgsm.com/servers/vhserver. Install with: crontab -e (as the vhserver user).
+*/5 * * * * /home/vhserver/vhserver monitor > /dev/null 2>&1
+*/30 * * * * /home/vhserver/vhserver update > /dev/null 2>&1
+0 0 * * 0 /home/vhserver/vhserver update-lgsm > /dev/null 2>&1

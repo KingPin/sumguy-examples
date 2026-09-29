@@ -1,0 +1,13 @@
+services:
+  vhserver:
+    image: gameservermanagers/gameserver:vh
+    container_name: vhserver
+    restart: unless-stopped
+    # Host networking avoids hand-mapping Valheim's UDP ports (2456 game, 2457 query).
+    # Swap for explicit "ports:" mappings if you need the container isolated from the host network.
+    network_mode: host
+    volumes:
+      - vhserver-data:/data
+
+volumes:
+  vhserver-data:

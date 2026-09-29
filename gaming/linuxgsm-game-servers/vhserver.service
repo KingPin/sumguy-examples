@@ -1,0 +1,17 @@
+[Unit]
+Description=Valheim dedicated server (LinuxGSM)
+After=network.target
+
+[Service]
+Type=forking
+User=vhserver
+WorkingDirectory=/home/vhserver
+ExecStart=/home/vhserver/vhserver start
+ExecStop=/home/vhserver/vhserver stop
+# Restart=no on purpose: LinuxGSM's own "monitor" command (run from cron) handles
+# crash recovery. Letting systemd restart too can spawn two tmux sessions fighting
+# over the same world save.
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
