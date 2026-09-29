@@ -1,0 +1,87 @@
+# Self-hosted Temporal for one box: Postgres + server + web UI.
+# Modeled on temporalio/samples-server (compose/docker-compose-postgres.yml).
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # One-shot: create both databases and apply the schemas, then exit.
+  schema-setup:
+    image: temporalio/admin-tools:1.32.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        T="temporal-sql-tool --plugin postgres12 --ep postgres -u temporal -p 5432"
+        export SQL_PASSWORD=temporal
+        for db in temporal temporal_visibility; do
+          $$T --db $$db create
+          $$T --db $$db setup-schema -v 0.0
+        done
+        $$T --db temporal update-schema -d /etc/temporal/schema/postgresql/v12/temporal/versioned
+        $$T --db temporal_visibility update-schema -d /etc/temporal/schema/postgresql/v12/visibility/versioned
+    restart: "no"
+
+  temporal:
+    image: temporalio/server:1.32.0
+    depends_on:
+      schema-setup:
+        condition: service_completed_successfully
+    environment:
+      DB: postgres12
+      DB_PORT: "5432"
+      POSTGRES_USER: temporal
+      POSTGRES_PWD: temporal
+      POSTGRES_SEEDS: postgres
+      BIND_ON_IP: 0.0.0.0
+      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yaml
+    ports:
+      - "127.0.0.1:7233:7233"
+    volumes:
+      - ./dynamicconfig:/etc/temporal/config/dynamicconfig
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "7233"]
+      interval: 5s
+      timeout: 3s
+      start_period: 20s
+      retries: 30
+    restart: unless-stopped
+
+  # One-shot: the server image does not create the "default" namespace itself.
+  create-namespace:
+    image: temporalio/admin-tools:1.32.0
+    depends_on:
+      temporal:
+        condition: service_healthy
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - temporal operator namespace describe -n default || temporal operator namespace create -n default
+    restart: "no"
+
+  ui:
+    image: temporalio/ui:2.54.1
+    depends_on:
+      temporal:
+        condition: service_healthy
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+    ports:
+      - "127.0.0.1:8080:8080"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

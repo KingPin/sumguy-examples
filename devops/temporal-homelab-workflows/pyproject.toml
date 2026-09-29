@@ -1,0 +1,5 @@
+[project]
+name = "temporal-homelab-workflows"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = ["temporalio==1.33.0"]
