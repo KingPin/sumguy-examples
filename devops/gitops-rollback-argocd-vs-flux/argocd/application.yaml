@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: web
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: http://git.example.com/you/homelab.git   # in-cluster URL of your Git server
+    targetRevision: main
+    path: apps/argo-demo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-demo
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    # Uncomment for auto-sync. Auto-sync is what undoes `argocd app rollback`.
+    # automated:
+    #   prune: true
+    #   selfHeal: true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m

@@ -1,0 +1,10 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: homelab
+  namespace: flux-system
+spec:
+  interval: 30s
+  url: http://git.example.com/you/homelab.git   # in-cluster URL of your Git server
+  ref:
+    branch: main

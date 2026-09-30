@@ -1,0 +1,30 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: demo
+  namespace: flux-system
+spec:
+  interval: 30s
+  releaseName: demo
+  targetNamespace: flux-helm
+  storageNamespace: flux-helm
+  install:
+    createNamespace: true
+    remediation:
+      retries: 1
+  timeout: 60s
+  chart:
+    spec:
+      chart: ./charts/demo
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: homelab
+  values:
+    image:
+      tag: 1.29-alpine
+  upgrade:
+    remediation:
+      retries: 2
+      strategy: rollback
+      remediateLastFailure: true   # defaults to true anyway when retries > 0

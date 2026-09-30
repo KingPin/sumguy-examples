@@ -1,0 +1,27 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: demo
+  namespace: flux-system
+spec:
+  interval: 30s
+  path: ./apps/flux-demo
+  prune: true
+  wait: true
+  timeout: 60s
+  sourceRef:
+    kind: GitRepository
+    name: homelab
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: demo-helm
+  namespace: flux-system
+spec:
+  interval: 30s
+  path: ./apps/flux-helm
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: homelab
