@@ -1,0 +1,23 @@
+# Everyone logged in can read the root
+[root]
+user: .+
+collection:
+permissions: R
+
+# Each user owns their own principal collection
+[principal]
+user: .+
+collection: {user}
+permissions: RW
+
+# Each user owns their calendars and address books
+[calendars]
+user: .+
+collection: {user}/[^/]+
+permissions: rw
+
+# Alice and Bob share everything under /household/
+[household]
+user: alice|bob
+collection: household(/[^/]+)?
+permissions: RWrw
