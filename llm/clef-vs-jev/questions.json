@@ -1,0 +1,1 @@
+{"type":{"type":"choice","instructions":"Which conventional-commit type best describes this commit?","criteria":{"feat":"adds a new feature or capability","fix":"fixes a bug","docs":"documentation only","chore":"maintenance, tooling, config, or dependencies","test":"adds or changes tests only","refactor":"restructures code without changing behavior"}}}
