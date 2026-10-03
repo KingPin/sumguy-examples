@@ -1,0 +1,8 @@
+# Tested 2026-10-03 on Python 3.13 and 3.14. Install torch first from the CPU index
+# (parts 1-2 need no GPU), then this file:
+#   pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements.txt
+torch==2.14.1
+tiktoken==0.14.0
+regex==2026.9.29
+numpy==2.5.3
