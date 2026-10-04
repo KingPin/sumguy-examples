@@ -1,0 +1,4 @@
+id,title,note,excerpt,url,folder,tags,created,cover,highlights,favorite
+1,Immich docs,,Photo backup,https://immich.app/docs,Self Hosted/Photos,"photos, backup",2021-03-04T05:06:07.000Z,,,false
+2,Pi-hole,,DNS sinkhole,https://pi-hole.net/,Self Hosted,dns,2020-01-02T03:04:05.000Z,,,true
+3,Borg,,Backups,https://www.borgbackup.org/,Unsorted,,2022-06-01T00:00:00.000Z,,,false

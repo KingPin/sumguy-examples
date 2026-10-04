@@ -1,0 +1,4 @@
+title,url,time_added,cursor,tags,status
+Why SQLite,https://sqlite.org/whentouse.html,1420000000,abc123,database|sqlite,unread
+Old rant,https://example.org/rant/,1380000000,def456,,archive
+Systemd timers,https://wiki.archlinux.org/title/Systemd/Timers,1440000000,ghi789,linux|systemd,archive

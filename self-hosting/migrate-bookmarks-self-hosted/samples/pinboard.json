@@ -1,0 +1,5 @@
+[
+ {"href":"https://lwn.net/Articles/1/","description":"LWN article","extended":"Kernel locking deep dive.","meta":"x","hash":"h1","time":"2016-01-01T12:00:00Z","shared":"yes","toread":"no","tags":"linux kernel"},
+ {"href":"https://example.com/read-later","description":"Read me later","extended":"","meta":"x","hash":"h2","time":"2017-05-05T08:30:00Z","shared":"no","toread":"yes","tags":"todo"},
+ {"href":"https://news.ycombinator.com/","description":"HN","extended":"","meta":"x","hash":"h3","time":"2015-02-02T00:00:00Z","shared":"yes","toread":"no","tags":""}
+]
