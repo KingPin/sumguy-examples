@@ -69,7 +69,7 @@ def main():
 
     parser = NetscapeParser("check")
     parser.feed(args.input.read_text(encoding="utf-8"))
-    urls = [r["url"] for r in parser.records]
+    urls = [r["url"] for r in parser.records if r["url"].startswith(("http://", "https://"))]
     with ThreadPoolExecutor(args.workers) as pool:
         rows = list(pool.map(lambda u: classify(u, args.timeout), urls))
 
