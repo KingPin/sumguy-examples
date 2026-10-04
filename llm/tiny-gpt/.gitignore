@@ -1,3 +1,5 @@
 .venv/
 data/
 part-*/tokenizer.json
+part-*/*.pt
+part-*/*.csv

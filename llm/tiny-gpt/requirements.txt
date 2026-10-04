@@ -1,5 +1,5 @@
 # Tested 2026-10-03 on Python 3.13 and 3.14. Install torch first from the CPU index
-# (parts 1-2 need no GPU), then this file:
+# (every part runs on CPU; a GPU only makes Part 3 faster), then this file:
 #   pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
 #   pip install -r requirements.txt
 torch==2.14.1

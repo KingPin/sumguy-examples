@@ -7,6 +7,7 @@ small GPT-style language model from scratch on home hardware.
 |------|--------|---------|
 | 1. Tokenizer and embeddings | [`part-1-tokenizer/`](part-1-tokenizer/) | <https://sumguy.com/train-tiny-gpt-tokenizer/> |
 | 2. Attention and position | [`part-2-attention/`](part-2-attention/) | <https://sumguy.com/train-tiny-gpt-attention/> |
+| 3. Model and training loop | [`part-3-training/`](part-3-training/) | <https://sumguy.com/train-tiny-gpt-training/> |
 
 Every part trains on the same corpus: nine public-domain Sherlock Holmes books
 from Project Gutenberg (about 3.8 MB of text).
