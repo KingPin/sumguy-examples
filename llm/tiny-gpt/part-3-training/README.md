@@ -21,7 +21,8 @@ overfitting, and reruns Part 1's embedding check on the trained weights.
   [Part 1](../part-1-tokenizer/) (`python train_tokenizer.py` there)
 - `train.py` tokenizes the corpus on its first run and caches the ids in
   `../data/holmes_ids.npy` (1,030,773 tokens, about a second)
-- GPU runs need an NVIDIA GPU. Tested on an RTX 3070 Laptop GPU (8 GB) and
+- GPU runs need an NVIDIA GPU and a CUDA build of torch (the series README
+  installs the CPU build), or the Docker command below. Tested on an RTX 3070 Laptop GPU (8 GB) and
   its Intel i7-11800H CPU (8 cores), in the
   `pytorch/pytorch:2.14.1-cuda13.2-cudnn9-runtime` image
 - Tested 2026-10-04 with torch 2.14.1 (CPU build and CUDA 13.2 build)
@@ -35,6 +36,7 @@ python train.py --device cpu --threads 8 --steps 1500 --out cpu1500   # about 1 
 python train.py --device cuda --steps 1500 --out gpu1500              # about 1 minute
 python train.py --device cuda --steps 5000 --out gpu                  # the overfitting run
 python bench.py cuda
+python bench.py cpu 8                             # thread count is optional
 python embeddings_after.py gpu1500.pt
 python sample.py gpu1500.pt "Holmes" --seed 1
 ```
@@ -57,7 +59,7 @@ untrained loss 8.379, ln(4096) = 8.318
 
 ```text
 NVIDIA GeForce RTX 3070 Laptop GPU, torch 2.14.1+cu132, bf16, batch 32 x 256 = 8,192 tokens/step
-step  1500  train 3.078  val 3.773  207,012 tok/s      59s *
+step  1500  train 3.078  val 3.773  206,699 tok/s      59s *
 CPU, 8 threads, torch 2.14.1+cu132, fp32, batch 32 x 256 = 8,192 tokens/step
 step  1500  train 3.070  val 3.762    4,293 tok/s    2862s *
 ```
@@ -73,4 +75,9 @@ nearest to ' telegram': ' letter' 0.60, ' note' 0.57, ' narrative' 0.56, ' messa
 
 Speed depends on your hardware. Two GPU runs of the same command matched
 to three decimal places. CPU (fp32) and GPU (bf16) runs see the same
-batches but differ slightly in loss because of the precision.
+batches but differ slightly in loss: bf16 rounding, plus different dropout
+masks, because CPU and CUDA random numbers differ even with the same seed.
+
+`peak VRAM` in `train.py` output is `torch.cuda.max_memory_allocated()`.
+`nvidia-smi` shows about 280 MiB more (allocator cache plus the CUDA context):
+1,291 MiB for the 1,500-step run.

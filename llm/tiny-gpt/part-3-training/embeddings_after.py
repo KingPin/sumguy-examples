@@ -5,7 +5,7 @@ After training, the embedding table has been shaped by next-token
 prediction. Prints the same three cosine pairs, untrained vs trained, and
 the nearest neighbours of a few tokens.
 
-  python embeddings_after.py gpu.pt
+  python embeddings_after.py gpu1500.pt
 """
 
 import sys
@@ -19,7 +19,7 @@ sys.path.insert(0, "../part-1-tokenizer")
 from bpe import BPE  # noqa: E402
 
 tok = BPE.load("../part-1-tokenizer/tokenizer.json")
-ckpt = torch.load(sys.argv[1] if len(sys.argv) > 1 else "gpu.pt", map_location="cpu")
+ckpt = torch.load(sys.argv[1] if len(sys.argv) > 1 else "gpu1500.pt", map_location="cpu")
 cfg = Config(**ckpt["config"])
 torch.manual_seed(1337)  # same init train.py starts from
 untrained = GPT(cfg).emb.weight.detach()

@@ -1,7 +1,8 @@
 """How batch size and precision change speed and VRAM for one training step.
 
   python bench.py cuda     # batch 8 to 256, fp32 vs bf16
-  python bench.py cpu      # batch 8 to 64, fp32, all threads
+  python bench.py cpu      # batch 8 to 64, fp32, torch default threads
+  python bench.py cpu 16   # same, with 16 threads
 
 Random tokens are fine here: the cost of a step does not depend on the text.
 """
@@ -14,6 +15,8 @@ import torch
 from model import GPT, Config
 
 dev = torch.device(sys.argv[1] if len(sys.argv) > 1 else "cpu")
+if len(sys.argv) > 2:
+    torch.set_num_threads(int(sys.argv[2]))
 cfg = Config()
 cuda = dev.type == "cuda"
 batches = [8, 16, 32, 64, 128, 256] if cuda else [8, 16, 32, 64]
