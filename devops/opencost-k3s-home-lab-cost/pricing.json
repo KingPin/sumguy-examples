@@ -1,0 +1,7 @@
+{
+  "provider": "custom",
+  "description": "Home lab rates from power bill and hardware cost",
+  "CPU": "0.00065393",
+  "RAM": "0.00007006",
+  "storage": "0.00000057"
+}

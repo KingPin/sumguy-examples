@@ -1,0 +1,25 @@
+# OpenCost chart 2.5.32 (app 1.121.3). Prometheus is kube-prometheus-stack
+# installed as release "kps" in namespace "monitoring". Adjust serviceName.
+opencost:
+  exporter:
+    defaultClusterId: homelab
+  prometheus:
+    internal:
+      enabled: true
+      serviceName: kps-kube-prometheus-stack-prometheus
+      namespaceName: monitoring
+      port: 9090
+  metrics:
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: kps   # must match the Prometheus serviceMonitorSelector
+  customPricing:
+    enabled: true
+    createConfigmap: true
+    provider: custom
+    costModel:
+      description: Home lab rates from power bill and hardware cost
+      CPU: "0.00065393"
+      RAM: "0.00007006"
+      storage: "0.00000057"
