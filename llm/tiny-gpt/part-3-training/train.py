@@ -45,6 +45,7 @@ def main():
     ap.add_argument("--threads", type=int, default=0, help="CPU threads, 0 = torch default")
     ap.add_argument("--eval-every", type=int, default=250)
     ap.add_argument("--out", default="run")
+    ap.add_argument("--frac", type=float, default=1.0, help="train on this share of the train split (Part 5)")
     args = ap.parse_args()
 
     if args.threads:
@@ -54,9 +55,9 @@ def main():
 
     ids = torch.from_numpy(load_ids().astype(np.int64))
     split = int(len(ids) * 0.9)
-    data = {"train": ids[:split], "val": ids[split:]}  # the last 10% is never trained on
+    data = {"train": ids[: int(split * args.frac)], "val": ids[split:]}  # the last 10% is never trained on
     cfg = Config()
-    print(f"{len(ids):,} tokens: {split:,} train, {len(ids) - split:,} val")
+    print(f"{len(ids):,} tokens: {len(data['train']):,} train, {len(ids) - split:,} val")
 
     torch.manual_seed(1337)
     model = GPT(cfg).to(dev)  # init happens on the CPU, so both devices start identical
@@ -149,7 +150,7 @@ def main():
         train_time += time.perf_counter() - ts  # time spent training, evals excluded
 
     print(f"\n{args.steps:,} steps, {args.steps * tokens_per_step / 1e6:.1f}M tokens seen "
-          f"({args.steps * tokens_per_step / split:.1f} passes over the training set)")
+          f"({args.steps * tokens_per_step / len(data['train']):.1f} passes over the training set)")
     print(f"training time {train_time:.0f}s (wall clock incl. evals {time.perf_counter() - t0:.0f}s)")
     print(f"best val loss {best_val:.3f} at step {best_step}, saved to {args.out}.pt")
     if dev.type == "cuda":

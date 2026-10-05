@@ -9,6 +9,7 @@ small GPT-style language model from scratch on home hardware.
 | 2. Attention and position | [`part-2-attention/`](part-2-attention/) | <https://sumguy.com/train-tiny-gpt-attention/> |
 | 3. Model and training loop | [`part-3-training/`](part-3-training/) | <https://sumguy.com/train-tiny-gpt-training/> |
 | 4. Inference: KV cache and sampling | [`part-4-inference/`](part-4-inference/) | <https://sumguy.com/train-tiny-gpt-inference/> |
+| 5. From scratch vs a QLoRA fine-tune | [`part-5-finetune/`](part-5-finetune/) | <https://sumguy.com/train-tiny-gpt-finetune/> |
 
 Every part trains on the same corpus: nine public-domain Sherlock Holmes books
 from Project Gutenberg (about 3.8 MB of text).
@@ -22,4 +23,5 @@ pip install -r requirements.txt
 python get_data.py          # writes data/holmes.txt
 ```
 
-Each part's README lists what to run next.
+Each part's README lists what to run next. Part 5 needs a GPU and extra
+packages; its README has the Docker commands.
