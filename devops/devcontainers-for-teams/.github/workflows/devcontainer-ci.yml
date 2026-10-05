@@ -1,0 +1,53 @@
+name: devcontainer-ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/your-org/devcontainers-for-teams
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Same compose.yaml, same Dockerfile, same Features as a laptop.
+      - name: Run the tests inside the devcontainer
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: ${{ env.IMAGE }}
+          cacheFrom: ${{ env.IMAGE }}
+          push: never
+          runCmd: python -m pytest -q
+
+  publish:
+    # Build with --frozen-lockfile so the pushed image matches the committed Feature lockfile.
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: npm install -g @devcontainers/cli@0.89.0
+
+      - run: devcontainer build --workspace-folder . --frozen-lockfile --image-name "$IMAGE:${{ github.sha }}"
+
+      - run: docker push "$IMAGE:${{ github.sha }}"
