@@ -1,0 +1,31 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.1
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    # GPU optional: nomic-embed-text runs fine on CPU.
+
+  crawl4ai:            # optional: REST API instead of the Python library
+    image: unclecode/crawl4ai:0.9.4
+    profiles: ["api"]
+    ports:
+      - "11235:11235"
+    shm_size: 1gb
+    environment:
+      CRAWL4AI_API_TOKEN: ${CRAWL4AI_API_TOKEN:-}
+    restart: unless-stopped
+
+volumes:
+  qdrant_data:
+  ollama_data:
