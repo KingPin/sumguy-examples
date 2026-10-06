@@ -1,0 +1,29 @@
+# Caddyfile plus a bigger backend idle-connection pool. Caddy keeps 32 idle
+# connections per backend by default; above 32 concurrent requests the extra
+# connections close after each request and park local ports in TIME_WAIT.
+{
+	auto_https off
+}
+
+(site) {
+	handle_path /proxy/* {
+		reverse_proxy whoami:80 {
+			transport http {
+				keepalive_idle_conns_per_host 128
+			}
+		}
+	}
+	handle {
+		root * /srv/www
+		file_server
+	}
+}
+
+http://bench.lab {
+	import site
+}
+
+https://bench.lab {
+	tls /certs/cert.pem /certs/key.pem
+	import site
+}

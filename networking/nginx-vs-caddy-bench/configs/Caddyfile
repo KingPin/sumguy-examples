@@ -1,0 +1,24 @@
+# Near-stock Caddy. auto_https off because the test uses a local cert,
+# not Let's Encrypt. Everything else is default.
+{
+	auto_https off
+}
+
+(site) {
+	handle_path /proxy/* {
+		reverse_proxy whoami:80
+	}
+	handle {
+		root * /srv/www
+		file_server
+	}
+}
+
+http://bench.lab {
+	import site
+}
+
+https://bench.lab {
+	tls /certs/cert.pem /certs/key.pem
+	import site
+}
