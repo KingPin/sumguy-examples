@@ -33,7 +33,7 @@ The default (1.0) leaves Part 3's behavior unchanged.
   model on the CPU and needs about 15 GB for the weights alone
 - 15 GB of disk for the checkpoint. Gemma 4 is Apache 2.0 and not gated, so
   no Hugging Face token is needed
-- Tested 2026-10-05 on an RTX 3070 Laptop GPU (8 GB) with 62 GB RAM, in the
+- Tested 2026-10-05 on an RTX 3070 Laptop GPU (8 GB) with 64 GB RAM, in the
   `pytorch/pytorch:2.14.1-cuda13.2-cudnn9-runtime` image, with
   transformers 5.18.0, peft 0.21.2, bitsandbytes 0.50.2, accelerate 1.15.0
 
