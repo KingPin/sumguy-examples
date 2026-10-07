@@ -1,0 +1,10 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+  [[rules.allowlists]]
+  regexTarget = "line"
+  regexes = ['''EXAMPLE_TOKEN_DO_NOT_USE''']
+  paths = ['''docs/.*\.md$''']
