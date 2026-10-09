@@ -1,0 +1,28 @@
+# Resolver on the same user-defined network as the apps, so its query log
+# shows each container's own IP instead of the Docker host's.
+services:
+  adguard:
+    image: adguard/adguardhome
+    restart: unless-stopped
+    networks:
+      apps:
+        ipv4_address: 172.20.0.2
+    volumes:
+      - ./adguard/work:/opt/adguardhome/work
+      - ./adguard/conf:/opt/adguardhome/conf
+    ports:
+      - "3000:3000"   # setup wizard; pick 3000 as the admin port so this mapping keeps working
+
+  whoami:
+    image: traefik/whoami
+    dns:
+      - 172.20.0.2
+    networks:
+      - apps
+
+networks:
+  apps:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+          ip_range: 172.20.0.128/25   # dynamic IPs stay clear of .2

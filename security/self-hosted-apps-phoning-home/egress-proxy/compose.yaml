@@ -1,0 +1,25 @@
+# The app only lives on an internal network; its one way out is Squid,
+# which allows the domains listed in squid.conf and nothing else.
+services:
+  egress:
+    image: ubuntu/squid
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf:ro
+    networks: [internal_net, outbound]
+
+  app:
+    image: curlimages/curl
+    command: ["sleep", "infinity"]
+    environment:
+      HTTP_PROXY: http://egress:3128
+      HTTPS_PROXY: http://egress:3128
+      NO_PROXY: localhost,127.0.0.1,db
+      http_proxy: http://egress:3128   # curl and friends only read lowercase
+      https_proxy: http://egress:3128
+      no_proxy: localhost,127.0.0.1,db
+    networks: [internal_net]
+
+networks:
+  internal_net:
+    internal: true
+  outbound: {}
