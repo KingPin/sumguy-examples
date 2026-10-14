@@ -1,0 +1,15 @@
+services:
+  gatus:
+    image: ghcr.io/twin/gatus:v5.37.0
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - CACHET_TOKEN=${CACHET_TOKEN:-unset}
+      - PUSH_TOKEN=${PUSH_TOKEN:-change-me}
+    volumes:
+      - ./config.yaml:/config/config.yaml:ro
+      - gatus-data:/data
+
+volumes:
+  gatus-data:

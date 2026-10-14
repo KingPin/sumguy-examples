@@ -1,0 +1,50 @@
+storage:
+  type: sqlite
+  path: /data/data.db
+
+alerting:
+  custom:
+    # Cachet 3.x: PUT /api/components/{id} with a numeric status and a Bearer token.
+    url: "http://cachet:8000/api/components/1"
+    method: "PUT"
+    headers:
+      Authorization: "Bearer ${CACHET_TOKEN}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    body: '{"status": [ALERT_TRIGGERED_OR_RESOLVED]}'
+    placeholders:
+      ALERT_TRIGGERED_OR_RESOLVED:
+        TRIGGERED: "4"   # major_outage
+        RESOLVED: "1"    # operational
+
+endpoints:
+  - name: blog
+    group: web
+    url: "https://example.com/"
+    interval: 60s
+    conditions:
+      - "[STATUS] == 200"
+      - "[RESPONSE_TIME] < 300"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: custom
+        failure-threshold: 3
+        success-threshold: 2
+        send-on-resolved: true
+        description: "blog is down"
+
+  - name: dns
+    group: infra
+    url: "1.1.1.1"
+    dns:
+      query-type: "A"
+      query-name: "example.com"
+    conditions:
+      - "[DNS_RCODE] == NOERROR"
+
+external-endpoints:
+  - name: nightly-backup
+    group: jobs
+    token: "${PUSH_TOKEN}"
+    heartbeat:
+      interval: 26h
