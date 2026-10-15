@@ -1,0 +1,140 @@
+# Three Steam Headless v2 seats on one host, one LAN IP each (macvlan).
+# Export STEAM_HEADLESS_PASSWORD (12+ chars) before "docker compose up".
+x-seat: &seat
+  image: josh5/steam-headless:2.44.20261004.1
+  restart: unless-stopped
+  # NVIDIA only: uncomment these two lines and the two env vars below.
+  # runtime: nvidia
+  cgroup: private
+  tty: true
+  stop_signal: SIGRTMIN+3
+  stop_grace_period: 30s
+  pids_limit: 8192
+  shm_size: 2gb
+  cap_add: [DAC_READ_SEARCH, NET_ADMIN, SYS_ADMIN, SYS_NICE, SYS_PTRACE]
+  security_opt:
+    - seccomp=unconfined
+    - apparmor:unconfined
+    - systempaths=unconfined
+    - writable-cgroups=true
+  device_cgroup_rules:
+    - "c 13:* rwm"
+  tmpfs:
+    - /run
+    - /run/lock
+    - /tmp
+    - /dev/input:rw,dev,mode=0755
+  environment: &seat-env
+    PUID: "1000"   # same PUID/PGID in every seat: they share /mnt/games
+    PGID: "1000"
+    # TZ: Europe/London   # optional; overrides the host localtime mount
+    DISPLAY_MODE: wayland
+    ENABLE_STEAM_SYSTEMD_SERVICE: "true"
+    # NVIDIA_VISIBLE_DEVICES: all
+    # NVIDIA_DRIVER_CAPABILITIES: all
+  networks: [lan]
+  secrets:
+    - source: sh-password
+      target: /steam-headless-provisioning-password
+      uid: "0"
+      gid: "0"
+      mode: 0400
+
+services:
+  parent:
+    <<: *seat
+    container_name: sh-parent
+    hostname: sh-parent
+    cpuset: "0-3"            # keep each seat inside one CCX/CCD
+    environment:
+      <<: *seat-env
+      SUNSHINE_NAME: sh-parent
+    devices:                 # per seat: a devices list in the anchor would be replaced, not merged
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/fuse
+      - /dev/uinput
+      - /dev/uhid
+    networks:
+      lan:
+        ipv4_address: 192.168.50.193
+    volumes:
+      - parent-state:/var/lib/steam-headless
+      - parent-journal:/var/log/journal
+      - ./homes/parent:/home/steamheadless:Z   # Steam login, settings, saves
+      - /mnt/games:/mnt/games:z
+      - /sys/devices/virtual/input:/sys/devices/virtual/input:ro
+      - /etc/localtime:/run/host-localtime:ro
+
+  kid1:
+    <<: *seat
+    container_name: sh-kid1
+    hostname: sh-kid1
+    cpuset: "4-7"
+    environment:
+      <<: *seat-env
+      SUNSHINE_NAME: sh-kid1
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128   # same GPU: shared seat
+      - /dev/fuse
+      - /dev/uinput
+      - /dev/uhid
+    networks:
+      lan:
+        ipv4_address: 192.168.50.194
+    volumes:
+      - kid1-state:/var/lib/steam-headless
+      - kid1-journal:/var/log/journal
+      - ./homes/kid1:/home/steamheadless:Z   # Steam login, settings, saves
+      - /mnt/games:/mnt/games:z
+      - /sys/devices/virtual/input:/sys/devices/virtual/input:ro
+      - /etc/localtime:/run/host-localtime:ro
+
+  kid2:
+    <<: *seat
+    container_name: sh-kid2
+    hostname: sh-kid2
+    cpuset: "8-11"
+    environment:
+      <<: *seat-env
+      SUNSHINE_NAME: sh-kid2
+    devices:
+      - /dev/dri/renderD129:/dev/dri/renderD129   # second GPU, if you have one
+      - /dev/fuse
+      - /dev/uinput
+      - /dev/uhid
+    networks:
+      lan:
+        ipv4_address: 192.168.50.195
+    volumes:
+      - kid2-state:/var/lib/steam-headless
+      - kid2-journal:/var/log/journal
+      - ./homes/kid2:/home/steamheadless:Z   # Steam login, settings, saves
+      - /mnt/games:/mnt/games:z
+      - /sys/devices/virtual/input:/sys/devices/virtual/input:ro
+      - /etc/localtime:/run/host-localtime:ro
+
+volumes:
+  parent-state:
+  parent-journal:
+  kid1-state:
+  kid1-journal:
+  kid2-state:
+  kid2-journal:
+
+secrets:
+  sh-password:
+    environment: STEAM_HEADLESS_PASSWORD
+
+networks:
+  lan:
+    driver: macvlan
+    driver_opts:
+      parent: eth0
+      macvlan_mode: bridge
+    ipam:
+      config:
+        - subnet: 192.168.50.0/24
+          gateway: 192.168.50.1
+          ip_range: 192.168.50.192/27   # outside the router's DHCP pool
+          aux_addresses:
+            host-shim: 192.168.50.222   # reserved for the host shim below
