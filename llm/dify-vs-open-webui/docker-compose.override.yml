@@ -1,0 +1,9 @@
+services:
+  open-webui:
+    networks:
+      - default
+      - docker_default
+
+networks:
+  docker_default:
+    external: true
