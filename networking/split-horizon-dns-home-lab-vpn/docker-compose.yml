@@ -1,0 +1,10 @@
+services:
+  unbound:
+    image: klutchell/unbound:latest   # Unbound 1.26.1 at time of writing
+    container_name: unbound
+    restart: unless-stopped
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - ./unbound/unbound.conf:/etc/unbound/unbound.conf:ro

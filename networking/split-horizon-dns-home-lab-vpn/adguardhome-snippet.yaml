@@ -1,0 +1,10 @@
+# Merge into AdGuardHome.yaml with the container stopped (v0.107.79).
+filtering:
+  rewrites_enabled: true
+  rewrites:
+    - domain: jellyfin.home.example.com
+      answer: 192.168.10.20
+    - domain: nextcloud.home.example.com
+      answer: 192.168.10.20
+    - domain: '*.apps.home.example.com'
+      answer: 192.168.10.20
