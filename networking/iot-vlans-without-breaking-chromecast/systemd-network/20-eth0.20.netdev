@@ -1,0 +1,6 @@
+[NetDev]
+Name=eth0.20
+Kind=vlan
+
+[VLAN]
+Id=20

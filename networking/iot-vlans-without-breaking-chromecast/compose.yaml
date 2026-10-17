@@ -1,0 +1,12 @@
+services:
+  avahi-reflector:
+    image: alpine:3
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./avahi/avahi-daemon.conf:/etc/avahi/avahi-daemon.conf:ro
+    command: >
+      sh -c "apk add --no-cache avahi &&
+             rm -f /etc/avahi/services/*.service &&
+             exec avahi-daemon --no-drop-root --no-chroot
+             -f /etc/avahi/avahi-daemon.conf"

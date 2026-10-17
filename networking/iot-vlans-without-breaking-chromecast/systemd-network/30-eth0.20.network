@@ -1,0 +1,5 @@
+[Match]
+Name=eth0.20
+
+[Network]
+Address=10.0.20.1/24
