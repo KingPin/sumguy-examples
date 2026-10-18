@@ -53,7 +53,7 @@ services:
       - proxy
 
   vaultwarden:
-    image: vaultwarden/server:1.37.2
+    image: vaultwarden/server:1.37.4
     container_name: vaultwarden
     restart: unless-stopped
     environment:
@@ -70,6 +70,8 @@ services:
       SMTP_USERNAME: "vault@yourdomain.com"
       SMTP_PASSWORD: "your_smtp_password"
       ADMIN_TOKEN: "replace_with_argon2_hash"
+      # Optional, only with the send.yourdomain.com host in the Caddyfile
+      # ALLOWED_CONNECT_SRC: "https://vault.yourdomain.com"
     volumes:
       - vaultwarden_data:/data
     networks:

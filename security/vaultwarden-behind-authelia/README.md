@@ -46,7 +46,7 @@ fail2ban covers the rest.
 
 Tested with:
 
-- Vaultwarden 1.37.2
+- Vaultwarden 1.37.4
 - Authelia 4.39.20
 - Caddy 2.11
 - PostgreSQL 18, Redis 8.10
@@ -72,7 +72,7 @@ scoped to the parent domain, so the portal cannot live on a different one.
    ```
 5. Generate the Vaultwarden admin token and paste it into `compose.yaml`:
    ```bash
-   docker run --rm -it vaultwarden/server:1.37.2 /vaultwarden hash --preset owasp
+   docker run --rm -it vaultwarden/server:1.37.4 /vaultwarden hash --preset owasp
    ```
 6. Bring it up:
    ```bash
@@ -94,6 +94,21 @@ Do these in order. Test 2 is the one that catches the common mistake:
    is missing from the bypass list.
 3. Download a file attachment on mobile. This exercises `/attachments/*`.
 4. Browse to `/admin`. You should get Authelia, then the token prompt.
+
+## Optional: Bitwarden Send links
+
+Send links (`https://vault.yourdomain.com/#/send/<id>/<key>`) stop at the
+Authelia portal. The part after `#` never reaches the server, so no access
+rule can single them out. The commented blocks in `Caddyfile` and
+`compose.yaml` add a `send.yourdomain.com` host that serves the web vault
+without forward auth and returns 403 for `/admin`.
+
+To enable it, uncomment all three pieces (the `send.` site block, the
+`header` line in the `vault.` block, and `ALLOWED_CONNECT_SRC`), add a DNS
+record for `send.yourdomain.com`, and swap `vault.` for `send.` in a Send link
+before sharing it. Text Sends need only the site block. File Sends also need
+the other two lines, because the download URL is built from `DOMAIN` and the
+browser on `send.` must fetch it cross-origin. Tested on Vaultwarden 1.37.4.
 
 ## Notes
 

@@ -1,4 +1,7 @@
 vault.yourdomain.com {
+    # Optional, only with the send host below: let its page fetch file Sends.
+    # header /api/sends/* Access-Control-Allow-Origin "https://send.yourdomain.com"
+
     # Paths the Bitwarden clients must reach without an Authelia session.
     # /identity is the one everybody forgets: it carries connect/token
     # and accounts/prelogin, the first two calls every client makes.
@@ -32,3 +35,11 @@ vault.yourdomain.com {
 auth.yourdomain.com {
     reverse_proxy authelia:9091
 }
+
+# Optional: Bitwarden Send links (/#/send/...) can't pass Authelia, because the
+# fragment never reaches the server. Serve the web vault here without forward
+# auth and swap vault. for send. in a Send link before sharing it.
+# send.yourdomain.com {
+#     respond /admin* 403
+#     reverse_proxy vaultwarden:80
+# }
