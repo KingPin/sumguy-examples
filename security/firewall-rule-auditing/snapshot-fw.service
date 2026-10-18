@@ -1,0 +1,6 @@
+[Unit]
+Description=Snapshot nftables ruleset and counters
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/snapshot-fw.sh
