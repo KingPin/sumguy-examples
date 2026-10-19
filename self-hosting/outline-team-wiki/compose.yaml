@@ -1,0 +1,61 @@
+services:
+  outline:
+    image: outlinewiki/outline:1.11.0
+    env_file: .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - outline-data:/var/lib/outline/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      dex:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: outline
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copy .env.example to .env first}
+      POSTGRES_DB: outline
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U outline -d outline"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:8
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  dex:
+    image: ghcr.io/dexidp/dex:v2.46.0
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
+    environment:
+      OUTLINE_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:?copy .env.example to .env first}
+    networks:
+      default:
+        aliases:
+          - dex.localtest.me
+    ports:
+      - "5556:5556"
+    volumes:
+      - ./config.yaml:/etc/dex/config.yaml:ro
+      - dex-data:/var/dex
+    restart: unless-stopped
+
+volumes:
+  outline-data:
+  postgres-data:
+  dex-data:
