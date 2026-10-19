@@ -1,0 +1,17 @@
+# Jellyfin with Intel Quick Sync (QSV) via /dev/dri.
+# Set RENDER_GID first:  export RENDER_GID=$(getent group render | cut -d: -f3)
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    user: 1000:1000
+    network_mode: host
+    restart: unless-stopped
+    group_add:
+      - "${RENDER_GID:?run: export RENDER_GID=$(getent group render | cut -d: -f3)}"
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    volumes:
+      - /opt/jellyfin/config:/config
+      - /opt/jellyfin/cache:/cache
+      - /srv/media:/media:ro
