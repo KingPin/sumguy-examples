@@ -1,0 +1,29 @@
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    restart: unless-stopped
+    ipc: host
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ${HF_CACHE_DIR:-/srv/hf-cache}:/root/.cache/huggingface
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+      # Uncomment only if the launch hangs on a board without working P2P:
+      # NCCL_P2P_DISABLE: "1"
+    command:
+      - --model
+      - ${VLLM_MODEL:-Qwen/Qwen3.6-27B-FP8}
+      - --tensor-parallel-size
+      - ${TP_SIZE:-2}
+      - --max-model-len
+      - "16384"
+      - --gpu-memory-utilization
+      - "0.90"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

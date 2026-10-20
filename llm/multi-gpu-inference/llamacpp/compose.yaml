@@ -1,0 +1,23 @@
+services:
+  llama:
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ${MODELS_DIR:-/srv/models}:/models:ro
+    command: >
+      -m /models/${GGUF_FILE:-Qwen3.6-27B-Q8_0.gguf}
+      --host 0.0.0.0 --port 8080
+      -c ${CTX_SIZE:-16384}
+      -ngl 99
+      --split-mode layer
+      --tensor-split ${TENSOR_SPLIT:-2,1}
+      --main-gpu 0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
