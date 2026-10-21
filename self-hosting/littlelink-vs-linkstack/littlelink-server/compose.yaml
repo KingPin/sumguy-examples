@@ -1,0 +1,22 @@
+services:
+  littlelink-server:
+    image: ghcr.io/timothystewart6/littlelink-server:latest
+    environment:
+      META_TITLE: Your Name
+      META_DESCRIPTION: Links to everything I make
+      META_AUTHOR: Your Name
+      LANG: en
+      META_INDEX_STATUS: all
+      THEME: Dark
+      NAME: Your Name
+      BIO: Homelab, Docker, and bad ideas
+      AVATAR_URL: https://links.example.com/avatar.png
+      AVATAR_2X_URL: https://links.example.com/avatar-2x.png
+      AVATAR_ALT: Your Name
+      BUTTON_ORDER: GITHUB,YOUTUBE,INSTAGRAM
+      GITHUB: https://github.com/example
+      YOUTUBE: https://youtube.com/@example
+      INSTAGRAM: https://instagram.com/example
+    ports:
+      - "${HTTP_PORT:-8082}:3000"
+    restart: unless-stopped

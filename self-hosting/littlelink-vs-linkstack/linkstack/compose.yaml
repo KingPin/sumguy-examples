@@ -1,0 +1,21 @@
+services:
+  linkstack:
+    hostname: linkstack
+    image: linkstackorg/linkstack:latest
+    environment:
+      TZ: UTC
+      SERVER_ADMIN: admin@example.com
+      HTTP_SERVER_NAME: links.example.com
+      HTTPS_SERVER_NAME: links.example.com
+      LOG_LEVEL: info
+      PHP_MEMORY_LIMIT: 256M
+      UPLOAD_MAX_FILESIZE: 8M
+    volumes:
+      - linkstack_data:/htdocs
+    ports:
+      - "${HTTP_PORT:-8190}:80"
+      - "${HTTPS_PORT:-8191}:443"
+    restart: unless-stopped
+
+volumes:
+  linkstack_data:
