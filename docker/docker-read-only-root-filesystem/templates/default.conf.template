@@ -1,0 +1,6 @@
+server {
+    listen 80;
+    location / {
+        return 200 "hello from ${HOST_NAME}\n";
+    }
+}

@@ -1,0 +1,69 @@
+# Four read-only services, each with the minimum writable paths found by testing.
+# Tested on Docker 29.8.2 with Compose v5.
+services:
+  web:
+    image: nginx:1.30-alpine
+    read_only: true
+    ports:
+      - "18080:80"
+    environment:
+      HOST_NAME: read-only-nginx
+    volumes:
+      - ./templates:/etc/nginx/templates:ro
+    tmpfs:
+      - /var/cache/nginx   # client_temp, proxy_temp, and friends
+      - /run               # nginx.pid
+      - /etc/nginx/conf.d  # the entrypoint renders the template here
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  db:
+    image: postgres:18
+    read_only: true
+    environment:
+      POSTGRES_PASSWORD: example
+    volumes:
+      - dbdata:/var/lib/postgresql   # PG 18 images keep the data dir under here
+    tmpfs:
+      - /run/postgresql              # unix socket and lock file
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  cache:
+    image: redis:8
+    read_only: true
+    command: ["redis-server", "--save", "60", "1"]
+    volumes:
+      - redisdata:/data              # RDB snapshots and the temp file land here
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  worker:
+    image: python:3.14-slim
+    read_only: true
+    working_dir: /app
+    command: ["python", "worker.py"]
+    volumes:
+      - ./app:/app:ro
+    tmpfs:
+      - /tmp:size=16m                # tempfile needs one usable directory
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"   # skip __pycache__ writes
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,sys; sys.exit(0 if os.path.exists('/tmp/alive') else 1)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  dbdata:
+  redisdata:
