@@ -1,0 +1,14 @@
+{
+  "backup": {
+    "database": {
+      "cronExpression": "0 02 * * *",
+      "enabled": true,
+      "keepLastAmount": 14
+    }
+  },
+  "storageTemplate": {
+    "enabled": true,
+    "hashVerificationEnabled": true,
+    "template": "{{y}}/{{y}}-{{MM}}-{{dd}}/{{filename}}"
+  }
+}
