@@ -1,0 +1,18 @@
+[Unit]
+Description=Uptime Kuma
+
+[Container]
+Image=docker.io/louislam/uptime-kuma:2
+AutoUpdate=registry
+Network=apps.network
+PublishPort=3001:3001
+Volume=kuma-data.volume:/app/data
+Memory=512m
+PidsLimit=512
+
+[Service]
+Restart=always
+TimeoutStartSec=300
+
+[Install]
+WantedBy=default.target

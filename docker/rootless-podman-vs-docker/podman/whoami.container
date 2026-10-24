@@ -1,0 +1,14 @@
+[Unit]
+Description=whoami test container
+
+[Container]
+Image=docker.io/traefik/whoami:latest
+AutoUpdate=registry
+Network=apps.network
+PublishPort=8081:80
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

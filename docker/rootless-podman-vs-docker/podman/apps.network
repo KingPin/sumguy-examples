@@ -1,0 +1,2 @@
+[Network]
+# Creates a Podman network named systemd-apps
