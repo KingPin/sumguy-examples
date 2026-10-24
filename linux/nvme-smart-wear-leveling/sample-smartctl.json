@@ -1,0 +1,211 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "device": {
+    "name": "/dev/nvme0",
+    "info_name": "/dev/nvme0",
+    "type": "nvme",
+    "protocol": "NVMe"
+  },
+  "model_name": "KINGSTON OM8SEP41024Q-A0",
+  "firmware_version": "SBI00111",
+  "nvme_pci_vendor": {
+    "id": 9798,
+    "subsystem_id": 9798
+  },
+  "nvme_controller_id": 1,
+  "nvme_version": {
+    "string": "1.3",
+    "value": 66304
+  },
+  "nvme_number_of_namespaces": 1,
+  "user_capacity": {
+    "blocks": 2000409264,
+    "bytes": 1024209543168
+  },
+  "logical_block_size": 512,
+  "smart_support": {
+    "available": true,
+    "enabled": true
+  },
+  "nvme_firmware_update_capabilities": {
+    "value": 18,
+    "slots": 1,
+    "first_slot_is_read_only": false,
+    "activiation_without_reset": true,
+    "multiple_update_detection": false,
+    "other": 0
+  },
+  "nvme_optional_admin_commands": {
+    "value": 23,
+    "security_send_receive": true,
+    "format_nvm": true,
+    "firmware_download": true,
+    "namespace_management": false,
+    "self_test": true,
+    "directives": false,
+    "mi_send_receive": false,
+    "virtualization_management": false,
+    "doorbell_buffer_config": false,
+    "get_lba_status": false,
+    "command_and_feature_lockdown": false,
+    "other": 0
+  },
+  "nvme_optional_nvm_commands": {
+    "value": 31,
+    "compare": true,
+    "write_uncorrectable": true,
+    "dataset_management": true,
+    "write_zeroes": true,
+    "save_select_feature_nonzero": true,
+    "reservations": false,
+    "timestamp": false,
+    "verify": false,
+    "copy": false,
+    "other": 0
+  },
+  "nvme_log_page_attributes": {
+    "value": 2,
+    "smart_health_per_namespace": false,
+    "commands_effects_log": true,
+    "extended_get_log_page_cmd": false,
+    "telemetry_log": false,
+    "persistent_event_log": false,
+    "supported_log_pages_log": false,
+    "telemetry_data_area_4": false,
+    "other": 0
+  },
+  "nvme_maximum_data_transfer_pages": 64,
+  "nvme_composite_temperature_threshold": {
+    "warning": 83,
+    "critical": 90
+  },
+  "temperature": {
+    "op_limit_max": 83,
+    "critical_limit_max": 90,
+    "current": 45
+  },
+  "nvme_power_states": [
+    {
+      "non_operational_state": false,
+      "relative_read_latency": 0,
+      "relative_read_throughput": 0,
+      "relative_write_latency": 0,
+      "relative_write_throughput": 0,
+      "entry_latency_us": 0,
+      "exit_latency_us": 0,
+      "max_power": {
+        "value": 500,
+        "scale": 2,
+        "units_per_watt": 100
+      }
+    },
+    {
+      "non_operational_state": false,
+      "relative_read_latency": 1,
+      "relative_read_throughput": 1,
+      "relative_write_latency": 1,
+      "relative_write_throughput": 1,
+      "entry_latency_us": 0,
+      "exit_latency_us": 200,
+      "max_power": {
+        "value": 400,
+        "scale": 2,
+        "units_per_watt": 100
+      }
+    },
+    {
+      "non_operational_state": false,
+      "relative_read_latency": 2,
+      "relative_read_throughput": 2,
+      "relative_write_latency": 2,
+      "relative_write_throughput": 2,
+      "entry_latency_us": 0,
+      "exit_latency_us": 1000,
+      "max_power": {
+        "value": 300,
+        "scale": 2,
+        "units_per_watt": 100
+      }
+    },
+    {
+      "non_operational_state": true,
+      "relative_read_latency": 3,
+      "relative_read_throughput": 3,
+      "relative_write_latency": 3,
+      "relative_write_throughput": 3,
+      "entry_latency_us": 5000,
+      "exit_latency_us": 5000,
+      "max_power": {
+        "value": 500,
+        "scale": 1,
+        "units_per_watt": 10000
+      }
+    },
+    {
+      "non_operational_state": true,
+      "relative_read_latency": 4,
+      "relative_read_throughput": 4,
+      "relative_write_latency": 4,
+      "relative_write_throughput": 4,
+      "entry_latency_us": 20000,
+      "exit_latency_us": 70000,
+      "max_power": {
+        "value": 250,
+        "scale": 1,
+        "units_per_watt": 10000
+      }
+    }
+  ],
+  "smart_status": {
+    "passed": true,
+    "nvme": {
+      "value": 0
+    }
+  },
+  "nvme_smart_health_information_log": {
+    "nsid": -1,
+    "critical_warning": 0,
+    "temperature": 45,
+    "available_spare": 100,
+    "available_spare_threshold": 10,
+    "percentage_used": 14,
+    "data_units_read": 829049945,
+    "data_units_written": 115340906,
+    "host_reads": 4943652991,
+    "host_writes": 4056000107,
+    "controller_busy_time": 97900,
+    "power_cycles": 118,
+    "power_on_hours": 23368,
+    "unsafe_shutdowns": 50,
+    "media_errors": 0,
+    "num_err_log_entries": 0,
+    "warning_temp_time": 0,
+    "critical_comp_time": 0
+  },
+  "spare_available": {
+    "current_percent": 100,
+    "threshold_percent": 10
+  },
+  "endurance_used": {
+    "current_percent": 14
+  },
+  "power_cycle_count": 118,
+  "power_on_time": {
+    "hours": 23368
+  },
+  "nvme_error_information_log": {
+    "size": 64,
+    "read": 16,
+    "unread": 0
+  },
+  "nvme_self_test_log": {
+    "nsid": -1,
+    "current_self_test_operation": {
+      "value": 0,
+      "string": "No self-test in progress"
+    }
+  }
+}
