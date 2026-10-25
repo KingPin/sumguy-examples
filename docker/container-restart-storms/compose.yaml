@@ -1,0 +1,79 @@
+# Restart-storm lab. Run with: docker compose -p storm-lab up -d
+# Four services, three broken on purpose, one fixed.
+
+services:
+  # 1. Missing env var. The entrypoint refuses to start without DB_PASSWORD.
+  #    Signal: exit code 2, tiny uptime, a clear message in the logs.
+  missing-env:
+    image: alpine:3.22
+    restart: unless-stopped
+    command:
+      - sh
+      - -c
+      - |
+        : "$${DB_PASSWORD:?DB_PASSWORD is not set}"
+        echo "started with a password"
+        sleep 3600
+
+  # 2. OOM kill. The shell grows a string until the 16 MiB cgroup limit trips.
+  #    Signal: exit code 137 and .State.OOMKilled true.
+  oom:
+    image: alpine:3.22
+    restart: unless-stopped
+    mem_limit: 16m
+    memswap_limit: 16m
+    command:
+      - sh
+      - -c
+      - |
+        echo "allocating memory"
+        x=x
+        while true; do x="$$x$$x"; done
+
+  # 3. Dependency race. The app needs a database that is not there yet
+  #    (the "db" service takes a while and has no healthcheck gate).
+  #    Signal: exit code 1, "connection refused" style error, then it works
+  #    once db is up. With a slow db it loops for a while first.
+  race-app:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    depends_on:
+      - slow-db
+    command:
+      - sh
+      - -c
+      - |
+        pg_isready -h slow-db -p 5432 -t 1 || { echo "db not ready, exiting"; exit 1; }
+        echo "db is ready"
+        sleep 3600
+
+  # 4. The fix: same app, but compose waits for a healthy db first.
+  fixed-app:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    depends_on:
+      slow-db:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - |
+        pg_isready -h slow-db -p 5432 -t 1 || { echo "db not ready, exiting"; exit 1; }
+        echo "db is ready"
+        sleep 3600
+
+  # The database. The 40 s sleep fakes a slow first boot (migrations, restore).
+  slow-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_PASSWORD: lab-only
+    entrypoint:
+      - sh
+      - -c
+      - sleep 40 && exec docker-entrypoint.sh postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 40s
