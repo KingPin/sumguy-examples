@@ -1,0 +1,9 @@
+demo.home.arpa {
+	# Per-site, so Caddy does not fall back to its own internal CA for this name.
+	tls {
+		ca https://ca.home.arpa:9000/acme/acme/directory
+		ca_root /etc/caddy/root_ca.crt
+	}
+	root * /srv
+	file_server
+}

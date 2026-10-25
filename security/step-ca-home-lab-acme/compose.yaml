@@ -1,0 +1,54 @@
+name: step-ca-demo
+
+services:
+  ca:
+    image: smallstep/step-ca:0.30.2
+    restart: unless-stopped
+    environment:
+      DOCKER_STEPCA_INIT_NAME: "Home Lab CA"
+      DOCKER_STEPCA_INIT_DNS_NAMES: "ca.home.arpa,localhost"
+      DOCKER_STEPCA_INIT_ACME: "true"
+      DOCKER_STEPCA_INIT_PASSWORD_FILE: /run/secrets/ca_password
+    secrets:
+      - ca_password
+    volumes:
+      - step-data:/home/step
+    networks:
+      lab:
+        aliases:
+          - ca.home.arpa
+    healthcheck:
+      test: ["CMD", "step", "ca", "health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  caddy:
+    image: caddy:2.11.7-alpine
+    restart: unless-stopped
+    depends_on:
+      ca:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./site:/srv:ro
+      - ./root_ca.crt:/etc/caddy/root_ca.crt:ro
+      - caddy-data:/data
+    networks:
+      lab:
+        aliases:
+          - demo.home.arpa
+
+networks:
+  lab:
+
+volumes:
+  step-data:
+  caddy-data:
+
+secrets:
+  ca_password:
+    file: ./ca_password.txt
