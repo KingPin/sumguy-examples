@@ -1,0 +1,78 @@
+# Annotated Wings config.yml for a second node (node2.example.com).
+# Target: Wings v1.13.4, Panel v1.15.2. Every key below exists in the
+# v1.13.4 config structs (config/config.go, config/config_docker.go).
+#
+# The Panel writes these keys when you generate the config: debug, uuid,
+# token_id, token, api.host, api.port, api.ssl.*, api.upload_limit,
+# system.data, system.sftp.bind_port, allowed_mounts, remote.
+# Everything else is local to this node. Edit it by hand.
+
+debug: false
+
+# Placeholders. Copy the real values from Nodes > node2 > Configuration.
+uuid: 00000000-0000-0000-0000-000000000000
+token_id: REPLACE_WITH_TOKEN_ID
+token: REPLACE_WITH_TOKEN
+
+api:
+  host: 0.0.0.0
+  port: 8080
+  ssl:
+    # The Panel sets enabled: true for scheme https unless Behind Proxy is on.
+    enabled: true
+    cert: /etc/letsencrypt/live/node2.example.com/fullchain.pem
+    key: /etc/letsencrypt/live/node2.example.com/privkey.pem
+  # Max upload size in MB for the file manager. Default 100.
+  upload_limit: 100
+  # Only needed when a reverse proxy fronts Wings (Behind Proxy = yes).
+  # Proxy IPs listed here may set X-Forwarded-For.
+  trusted_proxies: []
+  # trusted_proxies:
+  #   - 198.51.100.10
+
+system:
+  root_directory: /var/lib/pterodactyl
+  log_directory: /var/log/pterodactyl
+  data: /var/lib/pterodactyl/volumes
+  archive_directory: /var/lib/pterodactyl/archives
+  # Local (wings driver) backups land here, on THIS node only.
+  backup_directory: /var/lib/pterodactyl/backups
+  sftp:
+    bind_address: 0.0.0.0
+    bind_port: 2022
+    # 0 means the built-in default of 16. Raise it if clients arrive via a proxy.
+    max_authenticating_connections_per_ip: 0
+
+docker:
+  network:
+    # Local override: move the Wings bridge off 172.18.0.0/16 when that range
+    # is already used by a VPN, LAN, or another Docker network on this host.
+    # After changing it, stop Wings, run `docker network rm pterodactyl_nw`,
+    # then start Wings so the network is recreated.
+    interface: 10.200.0.1
+    interfaces:
+      v4:
+        subnet: 10.200.0.0/16
+        gateway: 10.200.0.1
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+    network_mtu: 1500
+  container_pid_limit: 512
+  tmpfs_size: 100
+  installer_limits:
+    memory: 1024
+    cpu: 100
+
+# The Panel URL that Wings calls.
+remote: https://panel.example.com
+remote_query:
+  timeout: 30
+  boot_servers_per_page: 50
+
+allowed_mounts: []
+# Extra browser origins allowed to call this node. The Panel URL is allowed
+# automatically.
+allowed_origins: []
+# Set true to stop the Panel from overwriting the keys it normally pushes.
+ignore_panel_config_updates: false
