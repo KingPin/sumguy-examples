@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "permission_prompt|idle_prompt",
+        "hooks": [
+          { "type": "command", "command": "printf '{\"terminalSequence\":\"\\\\u0007\"}'" }
+        ]
+      }
+    ]
+  }
+}

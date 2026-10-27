@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# agent-wt: one git worktree + one tmux window per agent.
+#   agent-wt new <name> [base-ref]   create worktree on branch agent/<name>, open a window
+#   agent-wt rm  <name>              close the window, remove the worktree and branch
+#   agent-wt ls                      list worktrees
+# Run it from inside the main checkout, inside tmux.
+# AGENT_CMD (default: claude) is typed into the new window. Set it empty to get a bare shell.
+set -euo pipefail
+
+cmd=${1:-}
+name=${2:-}
+repo=$(git rev-parse --show-toplevel)
+# Worktrees live next to the repo: ~/code/myapp -> ~/code/myapp-wt/<name>
+wt_root="${repo}-wt"
+path="$wt_root/$name"
+branch="agent/$name"
+win="wt-$name"
+
+find_window() {
+  tmux list-windows -F '#{window_id} #{window_name}' | awk -v n="$win" '$2 == n { print $1; exit }'
+}
+
+case "$cmd" in
+  new)
+    [ -n "$name" ] || { echo "usage: agent-wt new <name> [base-ref]" >&2; exit 2; }
+    [ -n "${TMUX:-}" ] || { echo "agent-wt: run this inside tmux" >&2; exit 1; }
+    base=${3:-HEAD}
+    mkdir -p "$wt_root"
+    git worktree add "$path" -b "$branch" "$base"
+    tmux new-window -n "$win" -c "$path"
+    if [ -n "${AGENT_CMD-claude}" ]; then
+      tmux send-keys -t "$(find_window)" "${AGENT_CMD-claude}" Enter
+    fi
+    ;;
+  rm)
+    [ -n "$name" ] || { echo "usage: agent-wt rm <name>" >&2; exit 2; }
+    git worktree remove "$path"    # refuses if the tree is dirty; add --force yourself
+    git worktree prune
+    id=$(find_window || true)
+    if [ -n "$id" ]; then tmux kill-window -t "$id"; fi
+    git branch -d "$branch"        # refuses if the branch is unmerged; use -D yourself
+    ;;
+  ls)
+    git worktree list
+    ;;
+  *)
+    echo "usage: agent-wt {new <name> [base-ref] | rm <name> | ls}" >&2
+    exit 2
+    ;;
+esac
