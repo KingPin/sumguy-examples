@@ -1,0 +1,33 @@
+rule_files:
+  - ../rules/node.yml
+
+evaluation_interval: 15s
+
+tests:
+  - interval: 15s
+    input_series:
+      # Two cores. Each core is idle 0.5 s per second, so utilisation is 50%.
+      - series: 'node_cpu_seconds_total{instance="a:9100", cpu="0", mode="idle"}'
+        values: '0+7.5x40'
+      - series: 'node_cpu_seconds_total{instance="a:9100", cpu="1", mode="idle"}'
+        values: '0+7.5x40'
+      # Busy time: 7.5 s per 15 s scrape per core.
+      - series: 'node_cpu_seconds_total{instance="a:9100", cpu="0", mode="user"}'
+        values: '0+7.5x40'
+      - series: 'node_cpu_seconds_total{instance="a:9100", cpu="1", mode="user"}'
+        values: '0+7.5x40'
+      - series: 'node_memory_MemTotal_bytes{instance="a:9100"}'
+        values: '1000x40'
+      - series: 'node_memory_MemAvailable_bytes{instance="a:9100"}'
+        values: '250x40'
+    promql_expr_test:
+      - expr: instance:node_cpu_utilisation:ratio_rate5m
+        eval_time: 8m
+        exp_samples:
+          - labels: 'instance:node_cpu_utilisation:ratio_rate5m{instance="a:9100"}'
+            value: 0.5
+      - expr: instance:node_memory_utilisation:ratio
+        eval_time: 8m
+        exp_samples:
+          - labels: 'instance:node_memory_utilisation:ratio{instance="a:9100"}'
+            value: 0.75

@@ -1,0 +1,28 @@
+services:
+  prometheus:
+    image: prom/prometheus:v3.15.1
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=2d"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./rules:/etc/prometheus/rules:ro
+      - prom-data:/prometheus
+    ports:
+      - "9090:9090"
+
+  node_exporter:
+    image: prom/node-exporter:v1.12.1
+    ports:
+      - "9100:9100"
+
+  grafana:
+    image: grafana/grafana:13.3.0
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  prom-data:
+  grafana-data:

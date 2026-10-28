@@ -1,0 +1,27 @@
+groups:
+  - name: node_cpu
+    interval: 15s
+    limit: 500
+    rules:
+      # Step 1: per-mode CPU seconds per second, cores summed away.
+      - record: instance_mode:node_cpu_seconds:rate5m
+        expr: sum without (cpu) (rate(node_cpu_seconds_total[5m]))
+
+      # Step 2: reads step 1. Same group, so it runs after step 1, same timestamp.
+      # Numerator and denominator are aggregated separately, then divided.
+      # ignoring (mode) because the numerator keeps mode="idle" and the denominator has no mode label.
+      - record: instance:node_cpu_utilisation:ratio_rate5m
+        expr: |2
+            1 -
+              instance_mode:node_cpu_seconds:rate5m{mode="idle"}
+            / ignoring (mode)
+              sum without (mode) (instance_mode:node_cpu_seconds:rate5m)
+
+  - name: node_memory_network
+    interval: 15s
+    rules:
+      - record: instance:node_memory_utilisation:ratio
+        expr: 1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes
+
+      - record: instance:node_network_receive_bytes:rate5m
+        expr: sum without (device) (rate(node_network_receive_bytes_total{device!~"lo|veth.*|docker.*|br-.*"}[5m]))

@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 1m   # default; groups can override with their own interval
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  - job_name: node
+    static_configs:
+      - targets: ["node_exporter:9100"]
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
