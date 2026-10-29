@@ -1,0 +1,13 @@
+[Unit]
+Description=Crashy demo service (segfaults 2 seconds after start)
+# Keep the loop short so the evidence does not scroll away.
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+# test.sh rewrites this path to a temp dir. Change it if you install by hand.
+ExecStart=/home/you/bin/crashy
+Restart=on-failure
+RestartSec=3
+# Allow a full core. A soft limit of 0 means no core is ever written.
+LimitCORE=infinity
