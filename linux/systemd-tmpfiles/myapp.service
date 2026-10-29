@@ -1,0 +1,24 @@
+[Unit]
+Description=myapp example service
+
+[Service]
+Type=simple
+User=myapp
+Group=myapp
+ExecStart=/usr/bin/sleep infinity
+
+# /run/myapp, removed when the service stops
+RuntimeDirectory=myapp
+RuntimeDirectoryMode=0750
+# /var/lib/myapp, survives forever
+StateDirectory=myapp
+# /var/cache/myapp, survives forever
+CacheDirectory=myapp
+CacheDirectoryMode=0750
+# /var/log/myapp
+LogsDirectory=myapp
+# /etc/myapp (created, owned by root)
+ConfigurationDirectory=myapp
+
+[Install]
+WantedBy=multi-user.target
