@@ -1,0 +1,28 @@
+# Demo for https://sumguy.com/docker-embedded-dns/
+# Run: docker compose up -d --scale web=3
+services:
+  web:
+    image: nginx:alpine
+    hostname: webhost
+    networks: [front]
+
+  api:
+    image: nginx:alpine
+    container_name: demo-api
+    networks:
+      front:
+        aliases: [backend]
+
+  other:
+    image: nginx:alpine
+    networks: [back]
+
+  lone:
+    image: nginx:alpine
+    networks: [isolated]
+
+networks:
+  front: {}
+  back: {}
+  isolated:
+    internal: true
