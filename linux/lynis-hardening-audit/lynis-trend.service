@@ -1,0 +1,11 @@
+[Unit]
+Description=Lynis audit, append hardening index to CSV
+After=network-online.target
+
+[Service]
+Type=oneshot
+# Packaged Lynis on PATH needs no LYNIS line. For a git checkout or tarball, set the path:
+# Environment=LYNIS=/opt/lynis/lynis
+ExecStart=/usr/local/bin/lynis-trend.sh
+Nice=10
+IOSchedulingClass=idle

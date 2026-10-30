@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly Lynis audit
+
+[Timer]
+OnCalendar=Sun *-*-* 03:30
+RandomizedDelaySec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

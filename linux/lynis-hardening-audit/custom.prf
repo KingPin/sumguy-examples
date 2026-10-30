@@ -1,0 +1,40 @@
+# custom.prf: local overrides for Lynis 3.1.7.
+# Install as /etc/lynis/custom.prf (packaged Lynis), or drop it next to default.prf
+# in a git checkout / tarball. Lynis reads it automatically and lists it on the
+# "Profiles:" line of the audit header.
+#
+# Rule: only skip a test after you looked at it with `lynis show details <TEST-ID>`
+# and decided the finding does not apply here. Each line says why.
+
+# USB-1000: this box has USB ports, and I plug in drives on purpose.
+skip-test=USB-1000
+
+# STRG-1846: no FireWire hardware here. The suggestion is pure noise.
+skip-test=STRG-1846
+
+# BANN-7126 and BANN-7130: legal banners warn "unauthorized users". On a private
+# LAN with one admin, nobody reads them and nobody would enforce them.
+skip-test=BANN-7126
+skip-test=BANN-7130
+
+# FILE-6310: wants /home, /tmp and /var on separate partitions. This box uses one
+# filesystem with subvolumes/datasets, so the test cannot see the separation.
+skip-test=FILE-6310
+
+# ACCT-9622: BSD-style process accounting. Metrics come from node_exporter instead.
+skip-test=ACCT-9622
+
+# ACCT-9626: sysstat. Same reason as above.
+skip-test=ACCT-9626
+
+# TOOL-5002: asks whether Puppet/Ansible/etc. is present. Config lives in a git repo
+# and gets applied by hand, which is a choice, not a finding.
+skip-test=TOOL-5002
+
+# KRNL-6000 checks many sysctl keys. Skip only the one key this box needs, not the
+# whole test. This host runs Docker, which requires IPv4 forwarding.
+skip-test=KRNL-6000:net.ipv4.conf.all.forwarding
+
+# SSH-7408 checks many sshd options. Skip only the Port suggestion: sshd listens on
+# 22 behind the LAN firewall, and moving it adds no protection worth the confusion.
+skip-test=SSH-7408:port
