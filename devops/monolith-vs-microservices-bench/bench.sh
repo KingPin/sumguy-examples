@@ -26,6 +26,7 @@ cg() { echo "/sys/fs/cgroup/system.slice/docker-$(docker inspect -f '{{.Id}}' "$
 services() { if [ "$1" = monolith ]; then echo monolith; else echo gateway catalog cart orders; fi; }
 
 cleanup() {  # save logs, then remove only this invocation's containers and network
+  trap '' INT TERM  # a second Ctrl-C must not abort the cleanup
   local ids id n
   ids=$(docker ps -aq --filter "name=^${P}")
   if [ -n "$ids" ]; then
