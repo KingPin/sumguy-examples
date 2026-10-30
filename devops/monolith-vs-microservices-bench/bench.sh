@@ -3,10 +3,14 @@
 # Usage: ./bench.sh [duration_seconds] [runs]   run PHASE (default matrix; 30 s per test, 3 runs)
 #        ./bench.sh contract [record]            contract check on both designs (record: monolith only, rewrites expected/)
 # Env: PHASE=matrix|sweep|scaling, B=2|3 (scaling), DESIGNS, SCENARIOS, CONFIGS, SWEEP_VUS, SUSTAINED=0|1,
-#      OUT, APP_PORT, K6_CPUS, PG_CPUS, APP_CPUS, plus the image and calibration values in bench.env
+#      OUT, APP_PORT, OS_CPUS, K6_CPUS, PG_CPUS, APP_CPUS, plus the image and calibration values in bench.env
 set -euo pipefail
 cd "$(dirname "$0")"
 source ./bench.env
+taskset -cp "${OS_CPUS:-0}" $$ >/dev/null   # the harness never runs on bench CPUs; children inherit
+# The harness's own cgroup (an ssh session or terminal scope) is left out of the user.slice noise reading.
+HARNESS_CG=$(sed -n 's/^0:://p' /proc/$$/cgroup)
+if [[ $HARNESS_CG != /user.slice/* ]]; then HARNESS_CG=; fi
 
 MODE=run
 if [ "${1:-}" = contract ]; then MODE=contract; shift; fi
@@ -154,9 +158,14 @@ calibrated() {  # $1 scenario label
 }
 
 noise_snap() {  # "name usage_usec" for user.slice and every system.slice child except this invocation's containers
-  local mine dir u
+  local mine dir u h
   mine=$(docker ps -q --no-trunc --filter "name=^${P}" | sed 's/^/docker-/; s/$/.scope/')
-  echo "user.slice $(awk '/^usage_usec/{print $2}' /sys/fs/cgroup/user.slice/cpu.stat)"
+  u=$(awk '/^usage_usec/{print $2}' /sys/fs/cgroup/user.slice/cpu.stat)
+  # Minus the harness cgroup, a subtree of user.slice, so the value never goes down. If it cannot be
+  # read, the full user.slice counts: noise is overstated, never dropped.
+  if [ -n "$HARNESS_CG" ] && h=$(awk '/^usage_usec/{print $2}' "/sys/fs/cgroup$HARNESS_CG/cpu.stat" 2>/dev/null) \
+    && [ -n "$h" ]; then u=$(( u - h )); fi
+  echo "user.slice $u"
   for dir in /sys/fs/cgroup/system.slice/*/; do
     dir=${dir%/}
     if grep -qxF "${dir##*/}" <<<"$mine"; then continue; fi
@@ -298,7 +307,8 @@ write_env() {  # provenance for this phase
     echo "os: $(. /etc/os-release && echo "$PRETTY_NAME")"
     echo "docker: $(docker version -f '{{.Server.Version}}')"
     echo "phase: $PHASE_DIR duration: ${DUR}s runs: $RUNS step: ${STEP_S}s budget: ${B:-none}"
-    echo "cpus: k6=$K6_CPUS pg=$PG_CPUS app=$APP_CPUS"
+    echo "cpus: os=$OS_CPUS k6=$K6_CPUS pg=$PG_CPUS app=$APP_CPUS"
+    echo "noise excludes harness cgroup: ${HARNESS_CG:-none (not under user.slice)}"
     echo "resolved: VUS=$VUS FIXED_RATE=$FIXED_RATE RAMP_LO=$RAMP_LO RAMP_HI=$RAMP_HI NOISE_LIMIT=$NOISE_LIMIT"
     echo "--- sibling map (lscpu -e=CPU,CORE)"; lscpu -e=CPU,CORE
     echo "--- bench.env"; cat bench.env
