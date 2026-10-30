@@ -119,5 +119,225 @@ if [ "$MODE" = contract ]; then
   exit 0
 fi
 
-echo "run mode arrives in Task 11"
-exit 1
+# ---------------------------------------------------------------- run mode
+PHASE=${PHASE:-matrix}
+STEP_S=${STEP_S:-$(( DUR < 20 ? DUR : 20 ))}  # mix-ramp step length; the smoke form shortens it
+case $PHASE in
+  matrix)
+    PHASE_DIR=matrix
+    CONFIGS=${CONFIGS:-${DESIGNS:-monolith micro}}
+    SCENARIOS=${SCENARIOS:-browse-max cart-max checkout-max mix-max mix-fixed mix-ramp} ;;
+  sweep)
+    PHASE_DIR=sweep; RUNS=1
+    CONFIGS=${CONFIGS:-${DESIGNS:-monolith micro}}
+    SCENARIOS=${SCENARIOS:-$(for v in ${SWEEP_VUS:-16 32 64 128 256}; do printf 'mix-max-v%s ' "$v"; done)} ;;
+  scaling)
+    [[ ${B:-} == 2 || ${B:-} == 4 ]] || { echo "scaling needs B=2 or B=4"; exit 1; }
+    PHASE_DIR=scaling-B$B
+    CONFIGS=${CONFIGS:-mono micro-even micro-tuned}
+    if [ "$B" = 4 ]; then SCENARIOS=${SCENARIOS:-mix-max mix-ramp}; else SCENARIOS=${SCENARIOS:-mix-max}; fi
+    if [[ $CONFIGS == *micro-tuned* ]]; then
+      [ -f "tuned-B$B.env" ] || { echo "tuned-B$B.env missing: run tune_split.py first"; exit 1; }
+      source "tuned-B$B.env"
+    fi ;;
+  *) echo "unknown PHASE $PHASE"; exit 1 ;;
+esac
+if [ -e "$OUT/$PHASE_DIR" ]; then echo "$OUT/$PHASE_DIR exists; set OUT to a new directory"; exit 1; fi
+
+design_of() { case $1 in monolith|mono) echo monolith ;; *) echo micro ;; esac; }
+calibrated() {  # $1 scenario label
+  case $1 in
+    mix-fixed) [ "${FIXED_RATE:-0}" -gt 0 ] ;;
+    mix-ramp)  [ "${RAMP_HI:-0}" -gt 0 ] ;;
+    *) true ;;
+  esac
+}
+
+noise_snap() {  # "name usage_usec" for user.slice and every system.slice child except this invocation's containers
+  local mine dir
+  mine=$(docker ps -q --no-trunc --filter "name=^${P}" | sed 's/^/docker-/; s/$/.scope/')
+  echo "user.slice $(awk '/^usage_usec/{print $2}' /sys/fs/cgroup/user.slice/cpu.stat)"
+  for dir in /sys/fs/cgroup/system.slice/*/; do
+    dir=${dir%/}
+    grep -qxF "${dir##*/}" <<<"$mine" || echo "${dir##*/} $(awk '/^usage_usec/{print $2}' "$dir/cpu.stat" 2>/dev/null)"
+  done
+}
+
+# k6 is never in either snapshot (it starts after the first and is gone before the second), so
+# child counters are used instead of the system.slice parent. A child that exited in between
+# would drop its CPU from the sum and hide noise, so it is reported and the test counts as noisy.
+noise_delta() {  # $1 before, $2 after -> "usec_used gone_children"
+  awk 'NR == FNR {a[$1] = $2; next} {d += $2 - a[$1]; delete a[$1]} END {n = 0; for (k in a) n++; print d + 0, n}' "$1" "$2"
+}
+
+snap() {  # one line per container: name usage_usec nr_throttled throttled_usec
+  local s
+  for s in "$@"; do
+    awk -v n="$s" '/^usage_usec/{u=$2} /^nr_throttled/{t=$2} /^throttled_usec/{tu=$2} END{print n, u, t + 0, tu + 0}' \
+      "$(cg "$P$s")/cpu.stat"
+  done
+}
+
+sampler() {  # $1 output file, $2 k6 cgroup, rest = app cgroups. Rewrites "peak_summed_memory k6_usec" every second.
+  local out=$1 k6cg=$2 peak=0 k6u=0 m d u; shift 2
+  while :; do
+    m=0; for d in "$@"; do m=$(( m + $(cat "$d/memory.current") )); done
+    if (( m > peak )); then peak=$m; fi
+    if u=$(awk '/^usage_usec/{print $2}' "$k6cg/cpu.stat" 2>/dev/null) && [ -n "$u" ]; then k6u=$u; fi
+    echo "$peak $k6u" > "$out.tmp" && mv "$out.tmp" "$out"   # a kill mid-write never leaves $out empty
+    sleep 1
+  done
+}
+
+run_k6() {  # $1 k6 scenario, $2 seconds, $3 PHASE (0 warm-up, 1 measured), $4 summary path or empty. Detached.
+  local mnt=() sum=/tmp/warmup.json
+  if [ -n "$4" ]; then mnt=(-v "$(cd "$(dirname "$4")" && pwd):/out"); sum="/out/$(basename "$4")"; fi
+  docker run -d --name "${P}k6" --network "$NET" --cpuset-cpus "$K6_CPUS" --user "$(id -u):$(id -g)" \
+    -v "$PWD/k6:/scripts:ro" "${mnt[@]}" \
+    -e SCENARIO="$1" -e DUR="$2" -e PHASE="$3" -e VUS="$VUS" -e RATE="$FIXED_RATE" \
+    -e RAMP_LO="$RAMP_LO" -e RAMP_HI="$RAMP_HI" -e STEP_S="$STEP_S" -e SUMMARY="$sum" \
+    "$K6_IMAGE" run --quiet /scripts/shop.js >/dev/null
+}
+
+finish_k6() {  # wait for k6; exit 99 means a threshold crossed, which only an empty no-op trend can cause
+  local rc
+  rc=$(docker wait "${P}k6")
+  docker logs "${P}k6" >> "$LOGS/k6.log" 2>&1 || true
+  docker rm "${P}k6" >/dev/null
+  [ "$rc" = 0 ] || [ "$rc" = 99 ]
+}
+
+RETRY=()
+measure() {  # $1 config, $2 label, $3 k6 scenario, $4 run, $5 seconds, $6 VUs
+  local c=$1 label=$2 sc=$3 r=$4 dur=$5 d; d=$(design_of "$c")
+  local VUS=$6  # dynamic scope: run_k6 reads it
+  local f="$OUT/$PHASE_DIR/$c/$label-r$r.json" status=ok idle=0 nd="0 0" t0=0 t1=0 spid x svcs cgs=()
+  LOGS="$OUT/logs/$PHASE_DIR/$c/$label-r$r"
+  mkdir -p "$(dirname "$f")" "$LOGS"
+  svcs=$(services "$d")
+  if { start_pg "$d" && start_app "$d" "$c"; }; then
+    for x in $svcs; do cgs+=("$(cg "$P$x")"); done
+    for x in "${cgs[@]}"; do idle=$(( idle + $(cat "$x/memory.current") )); done
+    { run_k6 warmup 10 0 "" && finish_k6; } || status=failed
+  else
+    status=failed
+  fi
+  if [ $status = ok ]; then
+    snap $svcs pg > "$f.before"; noise_snap > "$f.noise0"; t0=$(date +%s%N)
+    run_k6 "$sc" "$dur" 1 "$f.k6.json"
+    sampler "$f.sampler" "$(cg "${P}k6")" "${cgs[@]}" & spid=$!
+    finish_k6 || status=failed
+    snap $svcs pg > "$f.after"; noise_snap > "$f.noise1"; t1=$(date +%s%N)
+    nd=$(noise_delta "$f.noise0" "$f.noise1")
+    kill $spid; wait $spid 2>/dev/null || true
+    for x in $svcs; do docker stop -t 10 "$P$x" >/dev/null; done  # pool stats print on SIGTERM
+  fi
+  cleanup
+  status=$(F=$f STATUS=$status PHASE_DIR=$PHASE_DIR D=$d C=$c SC=$label R=$r DUR=$dur VUS=$VUS B=${B:-} \
+    NOISE=$nd T0=$t0 T1=$t1 IDLE=$idle STEP_S=$STEP_S FIXED_RATE=$FIXED_RATE RAMP_LO=$RAMP_LO \
+    RAMP_HI=$RAMP_HI NOISE_LIMIT=$NOISE_LIMIT python3 - <<'PY'
+import json, os
+e = os.environ
+f = e["F"]
+out = {"phase": e["PHASE_DIR"], "design": e["D"], "config": e["C"], "budget": int(e["B"]) if e["B"] else None,
+       "scenario": e["SC"], "run": int(e["R"]), "dur_s": int(e["DUR"]), "step_s": int(e["STEP_S"]),
+       "vus": int(e["VUS"]), "rate_iters": float(e["FIXED_RATE"]),
+       "ramp_iters": [float(e["RAMP_LO"]), float(e["RAMP_HI"])], "status": e["STATUS"]}
+if out["status"] == "ok" and not os.path.exists(f + ".k6.json"):
+    out["status"] = "failed"
+if out["status"] == "ok":
+    try:
+        rows = lambda p: {l.split()[0]: [int(x) for x in l.split()[1:]] for l in open(p)}
+        b, a = rows(f + ".before"), rows(f + ".after")
+        wall = (int(e["T1"]) - int(e["T0"])) / 1e9
+        peak, k6u = (int(x) for x in open(f + ".sampler").read().split())
+        used, gone = (int(x) for x in e["NOISE"].split())
+        out.update(
+            wall_s=wall,
+            cpu_s={k: (a[k][0] - b[k][0]) / 1e6 for k in a},
+            nr_throttled={k: a[k][1] - b[k][1] for k in a},
+            throttled_s={k: (a[k][2] - b[k][2]) / 1e6 for k in a},
+            k6_cores=k6u / 1e6 / wall,
+            noise_cores=used / 1e6 / wall, noise_gone=gone,
+            mem_idle_bytes=int(e["IDLE"]), mem_peak_bytes=peak,
+            k6=json.load(open(f + ".k6.json"))["metrics"],
+        )
+        # A vanished child or a negative sum means the noise number is not trustworthy.
+        if out["noise_cores"] > float(e["NOISE_LIMIT"]) or gone or used < 0:
+            out["status"] = "noisy"
+    except (OSError, ValueError, KeyError) as ex:  # missing or malformed measurement file; update() never ran
+        out.update(status="failed", error=repr(ex))
+for ext in (".before", ".after", ".sampler", ".sampler.tmp", ".noise0", ".noise1", ".k6.json"):
+    if os.path.exists(f + ext):
+        os.remove(f + ext)
+json.dump(out, open(f, "w"))
+print(out["status"])
+PY
+)
+  echo "  $c $label run $r: $status"
+  if [ "$status" != ok ]; then RETRY+=("$c $label $sc $r $dur $VUS"); fi
+}
+
+write_env() {  # provenance for this phase
+  local s i
+  {
+    echo "date: $(date -u +%FT%TZ)"
+    # The box gets the kit by rsync without .git, so the sync step writes KIT_REV first.
+    if [ -f KIT_REV ]; then echo "kit: $(cat KIT_REV)"
+    else echo "kit: $(git rev-parse --short HEAD 2>/dev/null || echo unknown)$(git diff --quiet HEAD -- . 2>/dev/null || echo ' (dirty)')"; fi
+    echo "kernel: $(uname -r)"; lscpu | grep 'Model name'
+    echo "os: $(. /etc/os-release && echo "$PRETTY_NAME")"
+    echo "docker: $(docker version -f '{{.Server.Version}}')"
+    echo "phase: $PHASE_DIR duration: ${DUR}s runs: $RUNS step: ${STEP_S}s budget: ${B:-none}"
+    echo "cpus: k6=$K6_CPUS pg=$PG_CPUS app=$APP_CPUS"
+    echo "resolved: VUS=$VUS FIXED_RATE=$FIXED_RATE RAMP_LO=$RAMP_LO RAMP_HI=$RAMP_HI NOISE_LIMIT=$NOISE_LIMIT"
+    echo "--- sibling map (lscpu -e=CPU,CORE)"; lscpu -e=CPU,CORE
+    echo "--- bench.env"; cat bench.env
+    if [ "$PHASE" = scaling ] && [ -f "tuned-B$B.env" ]; then echo "--- tuned-B$B.env"; cat "tuned-B$B.env"; fi
+    echo "--- images"
+    for s in monolith gateway catalog cart orders; do
+      echo "image mvm-$s:bench $(docker image inspect -f '{{.Size}} {{.Id}}' "mvm-$s:bench")"
+    done
+    for i in "$PG_IMAGE" "$K6_IMAGE" "$GO_IMAGE" "$DISTROLESS_IMAGE"; do echo "image $i $(docker image inspect -f '{{.Size}} {{index .RepoDigests 0}}' "$i")"; done
+    echo "--- docker stats before the run"; docker stats --no-stream --format '{{.Name}} {{.CPUPerc}} {{.MemUsage}}'
+  } > "$OUT/$PHASE_DIR/env.txt"
+}
+
+build
+mkdir -p "$OUT/$PHASE_DIR"
+write_env
+noise_snap > "$OUT/.noise0"; sleep 10; noise_snap > "$OUT/.noise1"
+read -r nd gone < <(noise_delta "$OUT/.noise0" "$OUT/.noise1"); rm -f "$OUT"/.noise[01]
+if [ "$gone" != 0 ] || awk -v d="$nd" -v lim="$NOISE_LIMIT" 'BEGIN{exit !(d < 0 || d / 10e6 > lim)}'; then
+  echo "background CPU is $(awk -v d="$nd" 'BEGIN{printf "%.2f", d / 10e6}') cores, $gone service(s) exited meanwhile (limit $NOISE_LIMIT). Pause something, then retry."
+  docker stats --no-stream
+  rm -rf "${OUT:?}/$PHASE_DIR"
+  exit 1
+fi
+
+for c in $CONFIGS; do
+  LOGS="$OUT/logs/$PHASE_DIR/$c/contract"; contract_check "$(design_of "$c")"
+  for r in $(seq 1 "$RUNS"); do
+    for label in $SCENARIOS; do
+      if ! calibrated "$label"; then echo "  skip $label: not calibrated in bench.env"; continue; fi
+      sc=$label; vus=$VUS; dur=$DUR
+      if [[ $label == mix-max-v* ]]; then sc=mix-max; vus=${label#mix-max-v}; fi
+      if [ "$label" = mix-ramp ]; then dur=$(( 10 * STEP_S )); fi
+      measure "$c" "$label" "$sc" "$r" "$dur" "$vus"
+    done
+  done
+  if [ "$PHASE" = matrix ] && [ "${SUSTAINED:-1}" = 1 ]; then measure "$c" mix-sustained mix-sustained 1 90 "$VUS"; fi
+done
+
+if [ ${#RETRY[@]} -gt 0 ]; then
+  todo=("${RETRY[@]}"); RETRY=()
+  echo "re-running ${#todo[@]} failed or noisy test(s) once"
+  for t in "${todo[@]}"; do
+    read -r c label sc r dur vus <<<"$t"
+    f="$OUT/$PHASE_DIR/$c/$label-r$r.json"
+    mv "$f" "${f%.json}.$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["status"])' "$f").json"
+    measure "$c" "$label" "$sc" "$r" "$dur" "$vus"
+  done
+fi
+grep -rh GOMAXPROCS "$OUT/logs/$PHASE_DIR" 2>/dev/null | sed 's/^[0-9/: ]*//' | sort -u | sed 's/^/gomaxprocs: /' >> "$OUT/$PHASE_DIR/env.txt" || true
+echo "done. ${#RETRY[@]} test(s) still not ok. Run: python3 summarize.py $OUT"
