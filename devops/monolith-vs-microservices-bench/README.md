@@ -60,7 +60,9 @@ Run everything from this directory on the test box. Use a new `results-YYYY-MM-D
    python3 summarize.py calibrate results-calib
    ```
 
-   Copy the printed `VUS`, `FIXED_RATE`, `RAMP_LO`, and `RAMP_HI` into `bench.env`. Any line starting with `WARN` means Postgres, not the app, is the limit (see Limits).
+   Copy the printed `VUS`, `FIXED_RATE`, `RAMP_LO`, and `RAMP_HI` into `bench.env`. A `# WARN ... Postgres` line means Postgres is the limit (see Limits). A `# WARN ... k6` line means the load generator is.
+
+   Calibrated values in `bench.env`: `VUS=16`, `FIXED_RATE=3428`, ramp 1371-10285 iter/s (`RAMP_LO`, `RAMP_HI`).
 
 4. Full matrix (30 s per test, 3 runs, plus the 90 s sustained test):
 
@@ -125,8 +127,9 @@ Each result is one JSON file per run: `<phase>/<config>/<scenario>-r<run>.json`.
 ## Limits
 
 - One host. The load generator, Postgres, and the app share one 8-core machine, split by CPU pinning. The network is a local Docker bridge.
+- GOMAXPROCS as logged in each `env.txt`: 3 everywhere in the matrix; 2 for every container at B=2 and for every microservices container at B=3; 3 for the monolith at B=3.
 - Postgres data lives on tmpfs, so there is no disk I/O.
-- Postgres caps both designs on this split. `results-calib/calibrate.txt` shows Postgres at 1.94 cores (monolith) and 1.83 cores (micro) of its 2 CPUs at the knee, which is above 90% in both designs. The app is not the only limit.
+- Postgres capped both designs in `mix-max` and `browse-max` on this split. `results-calib/calibrate.txt` shows Postgres at 1.94 cores (monolith) and 1.83 cores (micro) of its 2 CPUs at 16 VUs in `mix-max`. In `cart-max` and `checkout-max` the microservices app used about 2.8 of its 3 cores while Postgres used about 1.1 to 1.2 (from `results-2026-10-30/summary.md`), so those loads were app-bound.
 - CPU quotas model a resource budget, not replicas. There is no horizontal scaling and no cross-host network.
 - No stock reservation: checkout does not decrement stock.
 - Microservices checkout is not atomic: the cart is cleared after the order commits, so a failed clear leaves the order in place. The monolith clears the cart inside its transaction.
