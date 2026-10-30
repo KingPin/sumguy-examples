@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write tuned-B2.env and tuned-B4.env from the matrix micro mix-max runs.
+"""Write tuned-B2.env and tuned-B3.env from the matrix micro mix-max runs.
 Usage: tune_split.py results-YYYY-MM-DD"""
 import glob, json, statistics, sys
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     files = sorted(glob.glob(f"{sys.argv[1]}/matrix/micro/mix-max-r[0-9].json"))
     runs = [d for d in map(lambda f: json.load(open(f)), files) if d["status"] == "ok"]
     sh = shares(runs)
-    for b in (2, 4):
+    for b in (2, 3):
         q = split(sh, b)
         with open(f"tuned-B{b}.env", "w") as f:
             f.write(f"# from {sys.argv[1]} matrix micro mix-max, shares {json.dumps({s: round(v, 4) for s, v in sh.items()})}\n")

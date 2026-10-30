@@ -2,7 +2,7 @@
 # Monolith vs microservices on one box, with CPU pinning.
 # Usage: ./bench.sh [duration_seconds] [runs]   run PHASE (default matrix; 30 s per test, 3 runs)
 #        ./bench.sh contract [record]            contract check on both designs (record: monolith only, rewrites expected/)
-# Env: PHASE=matrix|sweep|scaling, B=2|4 (scaling), DESIGNS, SCENARIOS, CONFIGS, SWEEP_VUS, SUSTAINED=0|1,
+# Env: PHASE=matrix|sweep|scaling, B=2|3 (scaling), DESIGNS, SCENARIOS, CONFIGS, SWEEP_VUS, SUSTAINED=0|1,
 #      OUT, APP_PORT, K6_CPUS, PG_CPUS, APP_CPUS, plus the image and calibration values in bench.env
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -132,10 +132,10 @@ case $PHASE in
     CONFIGS=${CONFIGS:-${DESIGNS:-monolith micro}}
     SCENARIOS=${SCENARIOS:-$(for v in ${SWEEP_VUS:-16 32 64 128 256}; do printf 'mix-max-v%s ' "$v"; done)} ;;
   scaling)
-    [[ ${B:-} == 2 || ${B:-} == 4 ]] || { echo "scaling needs B=2 or B=4"; exit 1; }
+    [[ ${B:-} == 2 || ${B:-} == 3 ]] || { echo "scaling needs B=2 or B=3"; exit 1; }
     PHASE_DIR=scaling-B$B
     CONFIGS=${CONFIGS:-mono micro-even micro-tuned}
-    if [ "$B" = 4 ]; then SCENARIOS=${SCENARIOS:-mix-max mix-ramp}; else SCENARIOS=${SCENARIOS:-mix-max}; fi
+    if [ "$B" = 3 ]; then SCENARIOS=${SCENARIOS:-mix-max mix-ramp}; else SCENARIOS=${SCENARIOS:-mix-max}; fi
     if [[ $CONFIGS == *micro-tuned* ]]; then
       [ -f "tuned-B$B.env" ] || { echo "tuned-B$B.env missing: run tune_split.py first"; exit 1; }
       source "tuned-B$B.env"

@@ -97,7 +97,7 @@ def test_split():
     assert q == {"gateway": 0.9, "catalog": 0.6, "cart": 0.4, "orders": 0.1}, q
     q = T.split({"gateway": 0.28, "catalog": 0.28, "cart": 0.28, "orders": 0.16}, 2)
     assert q == {"gateway": 0.5, "catalog": 0.6, "cart": 0.6, "orders": 0.3}, q   # tie -> gateway gives
-    for b in (2, 4):
+    for b in (2, 3):
         q = T.split({"gateway": 0.97, "catalog": 0.01, "cart": 0.01, "orders": 0.01}, b)
         assert round(sum(q.values()), 6) == b and min(q.values()) >= 0.1, q
 

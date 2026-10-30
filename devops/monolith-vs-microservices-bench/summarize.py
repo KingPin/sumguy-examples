@@ -227,7 +227,7 @@ def report(root):
             for name, rows in sorted(pools(root, ph, dsg, sc).items()):
                 print(f"| {sc} | {dsg} | {name} | " + " | ".join(f"{med([r[i] for r in rows]):,.0f}" for i in range(4)) + " |")
 
-    for b in (2, 4):
+    for b in (2, 3):
         ph = f"scaling-B{b}"
         if not os.path.isdir(f"{root}/{ph}"):
             print(f"\n## CPU-quota allocation, budget B = {b}\n\nincomplete (phase not run)")
@@ -244,10 +244,10 @@ def report(root):
             print(f"| {c} | {cell(rps)} | {cell([p(d, 'p(99)') for d in runs], '{:.1f}')} "
                   f"| {cell([cpu_per_1k(d, APP[c]) for d in runs], '{:.2f}')} "
                   f"| {cell([sum(d['throttled_s'][s] for s in APP[c]) for d in runs], '{:.1f}')} | {v} |")
-        if b == 4:
+        if b == 3:
             print_capacity(root, ph, cfgs)
 
-    for ph in ("matrix", "scaling-B2", "scaling-B4"):
+    for ph in ("matrix", "scaling-B2", "scaling-B3"):
         if os.path.exists(f"{root}/{ph}/env.txt"):
             print(f"\n## Environment ({ph})\n\n```text\n" + open(f"{root}/{ph}/env.txt").read() + "```")
 
