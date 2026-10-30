@@ -1,0 +1,2 @@
+2026/10/30 17:21:24 orders: GOMAXPROCS=3
+2026/10/30 17:22:07 pool orders: max=10 acquires=3158 empty_acquires=16 acquire_ms=168

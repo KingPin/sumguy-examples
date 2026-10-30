@@ -1,0 +1,274 @@
+[
+ {
+  "method": "GET",
+  "path": "/products?page=1",
+  "status": 200,
+  "response": {
+   "products": [
+    {
+     "id": 1,
+     "name": "Product 1",
+     "description": "Item 1 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 137,
+     "stock": 100
+    },
+    {
+     "id": 2,
+     "name": "Product 2",
+     "description": "Item 2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 174,
+     "stock": 100
+    },
+    {
+     "id": 3,
+     "name": "Product 3",
+     "description": "Item 3 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 211,
+     "stock": 100
+    },
+    {
+     "id": 4,
+     "name": "Product 4",
+     "description": "Item 4 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 248,
+     "stock": 100
+    },
+    {
+     "id": 5,
+     "name": "Product 5",
+     "description": "Item 5 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 285,
+     "stock": 100
+    },
+    {
+     "id": 6,
+     "name": "Product 6",
+     "description": "Item 6 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 322,
+     "stock": 100
+    },
+    {
+     "id": 7,
+     "name": "Product 7",
+     "description": "Item 7 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 359,
+     "stock": 100
+    },
+    {
+     "id": 8,
+     "name": "Product 8",
+     "description": "Item 8 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 396,
+     "stock": 100
+    },
+    {
+     "id": 9,
+     "name": "Product 9",
+     "description": "Item 9 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 433,
+     "stock": 100
+    },
+    {
+     "id": 10,
+     "name": "Product 10",
+     "description": "Item 10 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 470,
+     "stock": 100
+    },
+    {
+     "id": 11,
+     "name": "Product 11",
+     "description": "Item 11 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 507,
+     "stock": 100
+    },
+    {
+     "id": 12,
+     "name": "Product 12",
+     "description": "Item 12 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 544,
+     "stock": 100
+    },
+    {
+     "id": 13,
+     "name": "Product 13",
+     "description": "Item 13 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 581,
+     "stock": 100
+    },
+    {
+     "id": 14,
+     "name": "Product 14",
+     "description": "Item 14 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 618,
+     "stock": 100
+    },
+    {
+     "id": 15,
+     "name": "Product 15",
+     "description": "Item 15 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 655,
+     "stock": 100
+    },
+    {
+     "id": 16,
+     "name": "Product 16",
+     "description": "Item 16 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 692,
+     "stock": 100
+    },
+    {
+     "id": 17,
+     "name": "Product 17",
+     "description": "Item 17 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 729,
+     "stock": 100
+    },
+    {
+     "id": 18,
+     "name": "Product 18",
+     "description": "Item 18 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 766,
+     "stock": 100
+    },
+    {
+     "id": 19,
+     "name": "Product 19",
+     "description": "Item 19 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 803,
+     "stock": 100
+    },
+    {
+     "id": 20,
+     "name": "Product 20",
+     "description": "Item 20 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "price_cents": 840,
+     "stock": 100
+    }
+   ]
+  }
+ },
+ {
+  "method": "GET",
+  "path": "/products?page=501",
+  "status": 200,
+  "response": {
+   "products": []
+  }
+ },
+ {
+  "method": "GET",
+  "path": "/products?page=0",
+  "status": 400,
+  "response": {
+   "error": "Bad Request"
+  }
+ },
+ {
+  "method": "GET",
+  "path": "/products/42",
+  "status": 200,
+  "response": {
+   "id": 42,
+   "name": "Product 42",
+   "description": "Item 42 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "price_cents": 1654,
+   "stock": 100
+  }
+ },
+ {
+  "method": "GET",
+  "path": "/products/99999",
+  "status": 404,
+  "response": {
+   "error": "Not Found"
+  }
+ },
+ {
+  "method": "POST",
+  "path": "/cart/900001/items",
+  "body": {
+   "product_id": 42,
+   "qty": 2
+  },
+  "status": 200,
+  "response": {
+   "product_id": 42,
+   "qty": 2
+  }
+ },
+ {
+  "method": "POST",
+  "path": "/cart/900001/items",
+  "body": {
+   "product_id": 42,
+   "qty": 3
+  },
+  "status": 200,
+  "response": {
+   "product_id": 42,
+   "qty": 5
+  }
+ },
+ {
+  "method": "POST",
+  "path": "/cart/900001/items",
+  "body": {
+   "product_id": 7,
+   "qty": 11
+  },
+  "status": 400,
+  "response": {
+   "error": "Bad Request"
+  }
+ },
+ {
+  "method": "POST",
+  "path": "/cart/900001/items",
+  "raw": "not json",
+  "status": 400,
+  "response": {
+   "error": "Bad Request"
+  }
+ },
+ {
+  "method": "GET",
+  "path": "/cart/900001",
+  "status": 200,
+  "response": {
+   "items": [
+    {
+     "product_id": 42,
+     "qty": 5,
+     "price_cents": 1654
+    }
+   ],
+   "total_cents": 8270
+  }
+ },
+ {
+  "method": "POST",
+  "path": "/checkout/900002",
+  "status": 409,
+  "response": {
+   "error": "Conflict"
+  }
+ },
+ {
+  "method": "POST",
+  "path": "/checkout/900001",
+  "status": 201,
+  "response": {
+   "total_cents": 8270
+  }
+ },
+ {
+  "method": "GET",
+  "path": "/cart/900001",
+  "status": 200,
+  "response": {
+   "items": [],
+   "total_cents": 0
+  }
+ }
+]

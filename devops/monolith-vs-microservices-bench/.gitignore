@@ -1,0 +1,6 @@
+results-smoke*/
+results-local*/
+KIT_REV
+!results-*/logs/**/*.log
+results-*/logs/**/k6.log
+results-*/logs/**/pg.log

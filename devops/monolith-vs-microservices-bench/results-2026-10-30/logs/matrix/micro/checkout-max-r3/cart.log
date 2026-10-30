@@ -1,0 +1,2 @@
+2026/10/30 17:22:10 cart: GOMAXPROCS=3
+2026/10/30 17:22:54 pool cart: max=10 acquires=255108 empty_acquires=2866 acquire_ms=531

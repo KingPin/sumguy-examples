@@ -1,0 +1,2 @@
+2026/10/30 16:17:28 catalog: GOMAXPROCS=3
+2026/10/30 16:18:11 pool catalog: max=10 acquires=216269 empty_acquires=215565 acquire_ms=1757386
