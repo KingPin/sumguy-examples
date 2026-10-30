@@ -324,7 +324,10 @@ write_env() {  # provenance for this phase
       echo "image mvm-$s:bench $(docker image inspect -f '{{.Size}} {{.Id}}' "mvm-$s:bench")"
     done
     for i in "$PG_IMAGE" "$K6_IMAGE" "$GO_IMAGE" "$DISTROLESS_IMAGE"; do echo "image $i $(docker image inspect -f '{{.Size}} {{index .RepoDigests 0}}' "$i")"; done
-    echo "--- docker stats before the run"; docker stats --no-stream --format '{{.Name}} {{.CPUPerc}} {{.MemUsage}}'
+    # Only this kit's containers by name: the results are published, other containers are only counted.
+    echo "--- docker stats before the run"
+    docker stats --no-stream --format '{{.Name}} {{.CPUPerc}} {{.MemUsage}}' | grep '^mvm-' || true
+    echo "other containers running: $(docker ps --format '{{.Names}}' | grep -vc '^mvm-' || true)"
   } > "$OUT/$PHASE_DIR/env.txt"
 }
 
