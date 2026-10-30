@@ -158,17 +158,20 @@ calibrated() {  # $1 scenario label
 }
 
 noise_snap() {  # "name usage_usec" for user.slice and every system.slice child except this invocation's containers
+  # and the Docker daemons, whose CPU is the bench's own container starts and stops.
   local mine dir u h
   mine=$(docker ps -q --no-trunc --filter "name=^${P}" | sed 's/^/docker-/; s/$/.scope/')
   u=$(awk '/^usage_usec/{print $2}' /sys/fs/cgroup/user.slice/cpu.stat)
-  # Minus the harness cgroup, a subtree of user.slice, so the value never goes down. If it cannot be
-  # read, the full user.slice counts: noise is overstated, never dropped.
+  # Minus the harness cgroup, a subtree of user.slice. The two reads are not atomic, so the difference
+  # jitters by a few ms (noise_delta floors a negative user.slice delta at 0). If the harness cgroup
+  # cannot be read, the full user.slice counts: noise is overstated, never dropped.
   if [ -n "$HARNESS_CG" ] && h=$(awk '/^usage_usec/{print $2}' "/sys/fs/cgroup$HARNESS_CG/cpu.stat" 2>/dev/null) \
     && [ -n "$h" ]; then u=$(( u - h )); fi
   echo "user.slice $u"
   for dir in /sys/fs/cgroup/system.slice/*/; do
     dir=${dir%/}
     if grep -qxF "${dir##*/}" <<<"$mine"; then continue; fi
+    case ${dir##*/} in docker.service|containerd.service) continue ;; esac
     # A child that exits between the glob and the read is left out, so noise_delta counts it as gone.
     u=$(awk '/^usage_usec/{print $2}' "$dir/cpu.stat" 2>/dev/null) || continue
     if [ -n "$u" ]; then echo "${dir##*/} $u"; fi
@@ -179,8 +182,10 @@ noise_snap() {  # "name usage_usec" for user.slice and every system.slice child 
 # child counters are used instead of the system.slice parent. A child that exited in between
 # would drop its CPU from the sum and hide noise, so it is reported and the test counts as noisy.
 # A child whose counter went down was restarted under the same name: its CPU is unknown, so it is gone too.
+# user.slice is a persistent parent, not a child: its negative delta is read jitter and counts as 0.
 noise_delta() {  # $1 before, $2 after -> "usec_used gone_children"
-  awk 'NR == FNR {a[$1] = $2; next} {v = $2 - a[$1]; if (v < 0) n++; else d += v; delete a[$1]}
+  awk 'NR == FNR {a[$1] = $2; next}
+       {v = $2 - a[$1]; if (v >= 0) d += v; else if ($1 != "user.slice") n++; delete a[$1]}
        END {for (k in a) n++; print d + 0, n + 0}' "$1" "$2"
 }
 
@@ -309,6 +314,7 @@ write_env() {  # provenance for this phase
     echo "phase: $PHASE_DIR duration: ${DUR}s runs: $RUNS step: ${STEP_S}s budget: ${B:-none}"
     echo "cpus: os=$OS_CPUS k6=$K6_CPUS pg=$PG_CPUS app=$APP_CPUS"
     echo "noise excludes harness cgroup: ${HARNESS_CG:-none (not under user.slice)}"
+    echo "noise excludes daemons: docker.service containerd.service"
     echo "resolved: VUS=$VUS FIXED_RATE=$FIXED_RATE RAMP_LO=$RAMP_LO RAMP_HI=$RAMP_HI NOISE_LIMIT=$NOISE_LIMIT"
     echo "--- sibling map (lscpu -e=CPU,CORE)"; lscpu -e=CPU,CORE
     echo "--- bench.env"; cat bench.env
