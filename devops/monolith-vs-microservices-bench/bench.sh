@@ -154,27 +154,33 @@ calibrated() {  # $1 scenario label
 }
 
 noise_snap() {  # "name usage_usec" for user.slice and every system.slice child except this invocation's containers
-  local mine dir
+  local mine dir u
   mine=$(docker ps -q --no-trunc --filter "name=^${P}" | sed 's/^/docker-/; s/$/.scope/')
   echo "user.slice $(awk '/^usage_usec/{print $2}' /sys/fs/cgroup/user.slice/cpu.stat)"
   for dir in /sys/fs/cgroup/system.slice/*/; do
     dir=${dir%/}
-    grep -qxF "${dir##*/}" <<<"$mine" || echo "${dir##*/} $(awk '/^usage_usec/{print $2}' "$dir/cpu.stat" 2>/dev/null)"
+    if grep -qxF "${dir##*/}" <<<"$mine"; then continue; fi
+    # A child that exits between the glob and the read is left out, so noise_delta counts it as gone.
+    u=$(awk '/^usage_usec/{print $2}' "$dir/cpu.stat" 2>/dev/null) || continue
+    if [ -n "$u" ]; then echo "${dir##*/} $u"; fi
   done
 }
 
 # k6 is never in either snapshot (it starts after the first and is gone before the second), so
 # child counters are used instead of the system.slice parent. A child that exited in between
 # would drop its CPU from the sum and hide noise, so it is reported and the test counts as noisy.
+# A child whose counter went down was restarted under the same name: its CPU is unknown, so it is gone too.
 noise_delta() {  # $1 before, $2 after -> "usec_used gone_children"
-  awk 'NR == FNR {a[$1] = $2; next} {d += $2 - a[$1]; delete a[$1]} END {n = 0; for (k in a) n++; print d + 0, n}' "$1" "$2"
+  awk 'NR == FNR {a[$1] = $2; next} {v = $2 - a[$1]; if (v < 0) n++; else d += v; delete a[$1]}
+       END {for (k in a) n++; print d + 0, n + 0}' "$1" "$2"
 }
 
-snap() {  # one line per container: name usage_usec nr_throttled throttled_usec
-  local s
+snap() {  # one line per container: name usage_usec nr_throttled throttled_usec. Fails if a container's cgroup is gone.
+  local s c
   for s in "$@"; do
+    c=$(cg "$P$s") && [ -f "$c/cpu.stat" ] || return 1
     awk -v n="$s" '/^usage_usec/{u=$2} /^nr_throttled/{t=$2} /^throttled_usec/{tu=$2} END{print n, u, t + 0, tu + 0}' \
-      "$(cg "$P$s")/cpu.stat"
+      "$c/cpu.stat" || return 1
   done
 }
 
@@ -222,14 +228,17 @@ measure() {  # $1 config, $2 label, $3 k6 scenario, $4 run, $5 seconds, $6 VUs
   else
     status=failed
   fi
+  # A container that crashed mid-test fails its snap: the test is failed and retried, the invocation goes on.
+  if [ $status = ok ] && ! snap $svcs pg > "$f.before"; then status=failed; fi
   if [ $status = ok ]; then
-    snap $svcs pg > "$f.before"; noise_snap > "$f.noise0"; t0=$(date +%s%N)
+    noise_snap > "$f.noise0"; t0=$(date +%s%N)
     run_k6 "$sc" "$dur" 1 "$f.k6.json"
     sampler "$f.sampler" "$(cg "${P}k6")" "${cgs[@]}" & spid=$!
     finish_k6 || status=failed
-    snap $svcs pg > "$f.after"; noise_snap > "$f.noise1"; t1=$(date +%s%N)
+    snap $svcs pg > "$f.after" || status=failed
+    noise_snap > "$f.noise1"; t1=$(date +%s%N)
     nd=$(noise_delta "$f.noise0" "$f.noise1")
-    kill $spid; wait $spid 2>/dev/null || true
+    kill $spid 2>/dev/null || true; wait $spid 2>/dev/null || true  # the sampler exits by itself if an app cgroup vanished
     for x in $svcs; do docker stop -t 10 "$P$x" >/dev/null; done  # pool stats print on SIGTERM
   fi
   cleanup
@@ -334,10 +343,13 @@ if [ ${#RETRY[@]} -gt 0 ]; then
   echo "re-running ${#todo[@]} failed or noisy test(s) once"
   for t in "${todo[@]}"; do
     read -r c label sc r dur vus <<<"$t"
-    f="$OUT/$PHASE_DIR/$c/$label-r$r.json"
-    mv "$f" "${f%.json}.$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["status"])' "$f").json"
+    f="$OUT/$PHASE_DIR/$c/$label-r$r.json" l="$OUT/logs/$PHASE_DIR/$c/$label-r$r"
+    st=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["status"])' "$f")
+    mv "$f" "${f%.json}.$st.json"
+    if [ -d "$l" ]; then mv "$l" "$l.$st"; fi  # keep the first attempt's logs
     measure "$c" "$label" "$sc" "$r" "$dur" "$vus"
   done
 fi
-grep -rh GOMAXPROCS "$OUT/logs/$PHASE_DIR" 2>/dev/null | sed 's/^[0-9/: ]*//' | sort -u | sed 's/^/gomaxprocs: /' >> "$OUT/$PHASE_DIR/env.txt" || true
+# Contract checks run without a quota, so their GOMAXPROCS lines would not describe the measured runs.
+grep -rh --exclude-dir=contract GOMAXPROCS "$OUT/logs/$PHASE_DIR" 2>/dev/null | sed 's/^[0-9/: ]*//' | sort -u | sed 's/^/gomaxprocs: /' >> "$OUT/$PHASE_DIR/env.txt" || true
 echo "done. ${#RETRY[@]} test(s) still not ok. Run: python3 summarize.py $OUT"
