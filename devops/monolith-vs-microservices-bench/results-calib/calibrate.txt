@@ -1,0 +1,8 @@
+# monolith: knee 16 VUs; at 16 VUs 7,200 req/s, pg 1.94 cores; k6 up to the knee 0.78 cores
+# WARN monolith: Postgres above 90% of 2 CPUs (spec risk 1)
+# micro: knee 16 VUs; at 16 VUs 5,928 req/s, pg 1.83 cores; k6 up to the knee 0.76 cores
+# WARN micro: Postgres above 90% of 2 CPUs (spec risk 1)
+VUS=16
+FIXED_RATE=3428
+RAMP_LO=1371
+RAMP_HI=10285
