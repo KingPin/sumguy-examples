@@ -1,0 +1,2 @@
+2026/10/30 16:43:04 monolith: GOMAXPROCS=3
+2026/10/30 16:43:46 pool shop: max=30 acquires=297931 empty_acquires=16 acquire_ms=301
