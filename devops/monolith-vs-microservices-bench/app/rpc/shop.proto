@@ -1,0 +1,33 @@
+syntax = "proto3";
+package shop;
+option go_package = "shopbench/rpc;rpc";
+
+message Empty {}
+message UserRequest { int64 user = 1; }
+message Product { int64 id = 1; string name = 2; string description = 3; int64 price_cents = 4; int32 stock = 5; }
+message ListProductsRequest { int32 page = 1; }
+message ProductList { repeated Product products = 1; }
+message GetProductRequest { int64 id = 1; }
+message GetPricesRequest { repeated int64 ids = 1; }
+message Prices { map<int64, int64> cents = 1; }
+message AddItemRequest { int64 user = 1; int64 product_id = 2; int32 qty = 3; }
+message CartLine { int64 product_id = 1; int32 qty = 2; }
+message CartLines { repeated CartLine lines = 1; }
+message PricedLine { int64 product_id = 1; int32 qty = 2; int64 price_cents = 3; }
+message PricedCart { repeated PricedLine items = 1; int64 total_cents = 2; }
+message CheckoutResult { int64 order_id = 1; int64 total_cents = 2; }
+
+service Catalog {
+  rpc ListProducts(ListProductsRequest) returns (ProductList);
+  rpc GetProduct(GetProductRequest) returns (Product);
+  rpc GetPrices(GetPricesRequest) returns (Prices);
+}
+service Cart {
+  rpc AddItem(AddItemRequest) returns (CartLine);
+  rpc GetLines(UserRequest) returns (CartLines);
+  rpc GetCart(UserRequest) returns (PricedCart);
+  rpc Clear(UserRequest) returns (Empty);
+}
+service Orders {
+  rpc Checkout(UserRequest) returns (CheckoutResult);
+}
