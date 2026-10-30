@@ -15,17 +15,17 @@ if (!KNOWN.includes(E.SCENARIO)) throw new Error(`unknown SCENARIO ${E.SCENARIO}
 const rnd = (n) => 1 + Math.floor(Math.random() * n);
 
 export function browse() {
-  if (Math.random() < 0.5) http.get(`${BASE}/products?page=${rnd(500)}`, { tags: { route: 'products_list' } });
-  else http.get(`${BASE}/products/${rnd(10000)}`, { tags: { route: 'product_get' } });
+  if (Math.random() < 0.5) http.get(`${BASE}/products?page=${rnd(500)}`, { tags: { route: 'products_list', name: '/products?page={n}' } });
+  else http.get(`${BASE}/products/${rnd(10000)}`, { tags: { route: 'product_get', name: '/products/{id}' } });
 }
 
 export function cart() {
   const user = rnd(10000);
   if (Math.random() < 0.5) {
     http.post(`${BASE}/cart/${user}/items`, JSON.stringify({ product_id: rnd(10000), qty: rnd(3) }),
-      { headers: JSON_HDR, tags: { route: 'cart_add' } });
+      { headers: JSON_HDR, tags: { route: 'cart_add', name: '/cart/{user}/items' } });
   } else {
-    http.get(`${BASE}/cart/${user}`, { tags: { route: 'cart_get' } });
+    http.get(`${BASE}/cart/${user}`, { tags: { route: 'cart_get', name: '/cart/{user}' } });
   }
 }
 
@@ -33,8 +33,8 @@ export function checkout() {
   // Unique per phase, VU, and iteration (__ITER never resets for a VU), far above the 1-10,000 cart users.
   const user = 1e12 * (1 + PHASE) + __VU * 1e6 + __ITER;
   const add = http.post(`${BASE}/cart/${user}/items`, JSON.stringify({ product_id: rnd(10000), qty: 1 }),
-    { headers: JSON_HDR, tags: { route: 'cart_add' } });
-  if (add.status >= 200 && add.status < 300) http.post(`${BASE}/checkout/${user}`, null, { tags: { route: 'checkout' } });
+    { headers: JSON_HDR, tags: { route: 'cart_add', name: '/cart/{user}/items' } });
+  if (add.status >= 200 && add.status < 300) http.post(`${BASE}/checkout/${user}`, null, { tags: { route: 'checkout', name: '/checkout/{user}' } });
 }
 
 export function mix() {
