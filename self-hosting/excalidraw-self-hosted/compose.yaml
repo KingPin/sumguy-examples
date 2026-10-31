@@ -1,0 +1,67 @@
+# Excalidraw + your own collaboration server, on one origin.
+#
+#   browser -> caddy :8080 -> /socket.io/*  -> room (excalidraw-room)
+#                          -> everything else -> excalidraw (rebuilt frontend)
+#
+# The collab server URL is compiled into the frontend JavaScript, so the
+# frontend is rebuilt from source with your URL. Set PUBLIC_URL to the exact
+# origin your browser uses (scheme + host + port, no trailing slash).
+#
+#   PUBLIC_URL=http://localhost:8080 docker compose up -d --build
+#
+# The first build takes several minutes (yarn install + vite build).
+services:
+  excalidraw:
+    build:
+      # Upstream master at the commit this kit was tested against (2026-10-31).
+      context: https://github.com/excalidraw/excalidraw.git#8bcdca4526867433f99fdfcb55a063668db0c9dc
+      dockerfile_inline: |
+        FROM node:24 AS build
+        WORKDIR /opt/node_app
+        COPY . .
+        RUN yarn --frozen-lockfile --network-timeout 600000
+        # Vite gives variables already in the environment priority over
+        # .env.production, so build args override the excalidraw.com defaults.
+        ARG VITE_APP_WS_SERVER_URL
+        # '{}' = no Firebase. Live sync still works peer-to-peer through the
+        # room server; room persistence and image sync do not (see README).
+        ARG VITE_APP_FIREBASE_CONFIG={}
+        RUN test -n "$$VITE_APP_WS_SERVER_URL" && yarn build:app:docker
+        # Every production build loads fonts from Excalidraw's DigitalOcean CDN
+        # and a Simple Analytics script on each page view. No env var turns
+        # that off, so strip it from the built files. Fonts then load from this
+        # image; the UI font (Assistant) is not bundled and falls back to a
+        # system font.
+        RUN cd excalidraw-app/build \
+         && perl -0pi -e 's#"https://excalidraw\.nyc3\.cdn\.digitaloceanspaces\.com/oss/",\s*##g; s#<link rel="(?:preload|preconnect)" href="https://[^>]*>##g; s#<script>// need to load this script dynamically.*?</script>##s' index.html \
+         && perl -pi -e 's#url\(https://excalidraw\.nyc3\.cdn\.digitaloceanspaces\.com/[^)]*\) format\("woff2"\),##g' assets/*.css \
+         && ! grep -rqE 'simpleanalyticscdn|digitaloceanspaces|fonts\.googleapis' index.html assets/*.css
+
+        FROM nginx:stable-alpine-slim
+        COPY --from=build /opt/node_app/excalidraw-app/build /usr/share/nginx/html
+      args:
+        VITE_APP_WS_SERVER_URL: ${PUBLIC_URL:?set PUBLIC_URL, e.g. http://localhost:8080}
+    image: excalidraw-selfhosted:local
+    restart: unless-stopped
+
+  room:
+    image: excalidraw/excalidraw-room:latest@sha256:2fe999f9be4379e3ee282fc45d75d84a691a6383dde33544514cc395287c7a70
+    environment:
+      # Default is "*". This only limits browser polling requests; it does not
+      # stop a WebSocket client from another origin connecting.
+      CORS_ORIGIN: ${PUBLIC_URL}
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Keeps issued certificates across container re-creates.
+      - caddy_data:/data
+    depends_on: [excalidraw, room]
+    restart: unless-stopped
+
+volumes:
+  caddy_data:

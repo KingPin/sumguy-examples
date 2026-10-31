@@ -1,0 +1,12 @@
+# Local test: plain HTTP on :8080. Browsers treat http://localhost as a secure
+# context, so the Web Crypto API that collab rooms need still works.
+# For a real deployment, replace ":8080" with your hostname (draw.example.com),
+# publish 80/443 instead, and set PUBLIC_URL=https://draw.example.com.
+:8080 {
+	handle /socket.io/* {
+		reverse_proxy room:80
+	}
+	handle {
+		reverse_proxy excalidraw:80
+	}
+}
