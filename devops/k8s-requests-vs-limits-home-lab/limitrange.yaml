@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: LimitRange
+metadata: {name: defaults, namespace: quota-demo}
+spec:
+  limits:
+    - type: Container
+      defaultRequest: {cpu: 50m, memory: 64Mi}
+      default: {memory: 128Mi}

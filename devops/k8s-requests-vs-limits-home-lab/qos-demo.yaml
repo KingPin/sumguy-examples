@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata: {name: qos-besteffort}
+spec:
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sleep", "3600"]
+---
+apiVersion: v1
+kind: Pod
+metadata: {name: qos-burstable}
+spec:
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sleep", "3600"]
+      resources:
+        requests: {cpu: 100m, memory: 64Mi}
+---
+apiVersion: v1
+kind: Pod
+metadata: {name: qos-guaranteed}
+spec:
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sleep", "3600"]
+      resources:
+        requests: {cpu: 100m, memory: 64Mi}
+        limits: {cpu: 100m, memory: 64Mi}

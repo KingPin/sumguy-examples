@@ -1,0 +1,8 @@
+# /etc/rancher/k3s/config.yaml
+# Sized for an 8 to 16 GB mini PC. Restart k3s after editing.
+# Setting any eviction-hard key drops the kubelet defaults for the others,
+# so list every threshold you want. k3s already sets nodefs/imagefs at 5%.
+kubelet-arg:
+  - "kube-reserved=cpu=200m,memory=512Mi"
+  - "system-reserved=cpu=200m,memory=512Mi"
+  - "eviction-hard=memory.available<256Mi,nodefs.available<5%,imagefs.available<5%"
