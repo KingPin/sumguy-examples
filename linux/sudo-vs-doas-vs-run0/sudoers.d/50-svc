@@ -1,0 +1,2 @@
+# Members of group svc may restart the web stub as root, no password.
+%svc ALL=(root) NOPASSWD: /usr/local/bin/restart-web
