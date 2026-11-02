@@ -1,0 +1,36 @@
+services:
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: yourls
+      MARIADB_USER: yourls
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - yourls-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  yourls:
+    image: yourls:1.10.6-apache
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${YOURLS_PORT:-8081}:8080"
+    environment:
+      YOURLS_SITE: ${YOURLS_SITE}
+      YOURLS_USER: ${YOURLS_USER}
+      YOURLS_PASS: ${YOURLS_PASS}
+      YOURLS_DB_HOST: db
+      YOURLS_DB_NAME: yourls
+      YOURLS_DB_USER: yourls
+      YOURLS_DB_PASS: ${DB_PASSWORD}
+
+volumes:
+  yourls-db:
