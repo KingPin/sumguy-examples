@@ -1,0 +1,18 @@
+services:
+  privatebin:
+    image: privatebin/nginx-fpm-alpine:2.1.0
+    container_name: privatebin
+    restart: unless-stopped
+    read_only: true
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./conf.php:/srv/cfg/conf.php:ro
+      - privatebin-data:/srv/data
+    tmpfs:
+      - /tmp:nodev,noexec,mode=1777
+      - /run:nodev,exec,mode=1777
+      - /var/lib/nginx/tmp:nodev,noexec,mode=1777
+
+volumes:
+  privatebin-data:
