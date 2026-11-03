@@ -1,0 +1,18 @@
+# Part 1 fixes only: banners and no-SNI handshakes.
+# Error bodies: Traefik's errors middleware needs a separate web server to serve the page,
+# so the fix for stack traces here is the app's own debug switch.
+http:
+  middlewares:
+    strip-banners:
+      headers:
+        customResponseHeaders:
+          Server: ""
+          X-Powered-By: ""
+
+tls:
+  options:
+    default:
+      sniStrict: true   # no SNI or unknown SNI: refuse instead of sending TRAEFIK DEFAULT CERT
+  certificates:
+    - certFile: /certs/app.crt
+      keyFile: /certs/app.key

@@ -1,0 +1,10 @@
+### Traefik quick-start flags only (--api.insecure=true --providers.docker, no redirect)
+  Host: npm-rp-leaks -> 200 server=openresty
+  Host: nginx-rp-leaks -> 301 server=nginx/1.31.8
+  Host: caddy-rp-leaks -> 308 server=Caddy
+
+### NPM fresh install: can a stranger claim the admin account on :81?
+{"status":"OK","setup":false,"version":{"major":2,"minor":16,"revision":0}}
+POST /api/users (no auth) -> 201
+login as the new admin -> 200
+{"status":"OK","setup":true,"version":{"major":2,"minor":16,"revision":0}}

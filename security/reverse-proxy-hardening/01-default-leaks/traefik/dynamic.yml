@@ -1,0 +1,5 @@
+# Traefik picks this cert by SNI. Requests with no SNI get Traefik's built-in default cert.
+tls:
+  certificates:
+    - certFile: /certs/app.crt
+      keyFile: /certs/app.key

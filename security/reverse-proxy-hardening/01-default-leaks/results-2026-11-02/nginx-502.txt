@@ -1,0 +1,16 @@
+### App down: the proxy's own error page
+HTTP/1.1 502 Bad Gateway
+Server: nginx/1.31.8
+Date: Tue, 03 Nov 2026 04:43:18 GMT
+Content-Type: text/html
+Content-Length: 157
+Connection: keep-alive
+
+<html>
+<head><title>502 Bad Gateway</title></head>
+<body>
+<center><h1>502 Bad Gateway</h1></center>
+<hr><center>nginx/1.31.8</center>
+</body>
+</html>
+

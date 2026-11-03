@@ -1,0 +1,17 @@
+# Part 1 fixes only: banners and error bodies. Caddy already refuses no-SNI handshakes
+# and ignores a client's X-Forwarded-For unless you configure trusted_proxies.
+app.example.test {
+	tls /certs/app.crt /certs/app.key
+	# Site-level header ops run when the response is written, after reverse_proxy adds Via.
+	header -Server
+	header -Via
+
+	reverse_proxy backend:8080 {
+		header_down -X-Powered-By
+
+		@error status 5xx
+		handle_response @error {
+			respond "Something went wrong." {rp.status_code}
+		}
+	}
+}

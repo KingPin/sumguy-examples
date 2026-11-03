@@ -1,0 +1,5 @@
+# The minimal Caddy proxy. A real deployment drops the tls line and gets an ACME cert.
+app.example.test {
+	tls /certs/app.crt /certs/app.key
+	reverse_proxy backend:8080
+}

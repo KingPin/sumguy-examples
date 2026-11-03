@@ -1,0 +1,33 @@
+### 1. HTTP, correct Host
+HTTP/1.1 301 Moved Permanently
+Location: https://app.example.test/
+### 2. HTTP, bare IP (what a scanner sees)
+HTTP/1.1 301 Moved Permanently
+Location: https://127.0.0.1/
+body: Moved Permanently
+### 3. HTTPS, correct name
+HTTP/2 200 
+server: BaseHTTP/0.6 Python/3.14.10
+x-powered-by: Express
+### 4. Forwarding headers the backend received (client sent X-Forwarded-For: 6.6.6.6)
+"X-Forwarded-For": "172.18.0.1",
+"X-Forwarded-Host": "app.example.test:10443",
+"X-Forwarded-Port": "10443",
+"X-Forwarded-Proto": "https",
+"X-Forwarded-Server": "245e131683c3",
+"X-Real-Ip": "172.18.0.1",
+### 5. TLS with no SNI (scanner hitting the IP)
+subject=CN=TRAEFIK DEFAULT CERT
+DNS:fdd2fad76a62646f36623b45277c7b4c.46f0f8af68cd667a9f45c32ef61157aa.traefik.default
+### 6. TLS with an unknown SNI
+subject=CN=TRAEFIK DEFAULT CERT
+DNS:fdd2fad76a62646f36623b45277c7b4c.46f0f8af68cd667a9f45c32ef61157aa.traefik.default
+### 7. HTTPS, right SNI, unknown Host header
+HTTP/2 404 
+x-content-type-options: nosniff
+body: 404 page not found 
+### 8. Backend error page (/boom)
+HTTP/2 500 
+server: BaseHTTP/0.6 Python/3.14.10
+x-powered-by: Express
+body: Traceback (most recent call last): File "/srv/app/views.py", line 42, in index user = session['user'] KeyError: 'u

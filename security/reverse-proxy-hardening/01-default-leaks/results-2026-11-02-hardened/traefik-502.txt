@@ -1,0 +1,6 @@
+### App down: the proxy's own error page
+HTTP/2 502 
+content-length: 11
+date: Tue, 03 Nov 2026 04:47:23 GMT
+
+Bad Gateway

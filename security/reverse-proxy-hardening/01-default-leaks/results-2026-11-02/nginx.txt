@@ -1,0 +1,31 @@
+### 1. HTTP, correct Host
+HTTP/1.1 301 Moved Permanently
+Server: nginx/1.31.8
+Location: https://app.example.test/
+### 2. HTTP, bare IP (what a scanner sees)
+HTTP/1.1 301 Moved Permanently
+Server: nginx/1.31.8
+Location: https://127.0.0.1/
+body: <html> <head><title>301 Moved Permanently</title></head> <body> <center><h1>301 Moved Permanently</h1></center> <hr><center>nginx/1.31.8</center> </body> </html> 
+### 3. HTTPS, correct name
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+X-Powered-By: Express
+### 4. Forwarding headers the backend received (client sent X-Forwarded-For: 6.6.6.6)
+"X-Forwarded-For": "6.6.6.6"
+### 5. TLS with no SNI (scanner hitting the IP)
+subject=CN=app.example.test
+DNS:app.example.test
+### 6. TLS with an unknown SNI
+subject=CN=app.example.test
+DNS:app.example.test
+### 7. HTTPS, right SNI, unknown Host header
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+X-Powered-By: Express
+body: { "Host": "backend:8080", "User-Agent": "curl/8.23.0", "Accept": "*/*" }
+### 8. Backend error page (/boom)
+HTTP/1.1 500 Internal Server Error
+Server: nginx/1.31.8
+X-Powered-By: Express
+body: Traceback (most recent call last): File "/srv/app/views.py", line 42, in index user = session['user'] KeyError: 'u

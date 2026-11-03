@@ -1,0 +1,10 @@
+### App down: the proxy's own error page
+HTTP/1.1 502 Bad Gateway
+Server: nginx
+Date: Tue, 03 Nov 2026 04:47:23 GMT
+Content-Type: text/plain
+Content-Length: 22
+Connection: keep-alive
+
+Something went wrong.
+

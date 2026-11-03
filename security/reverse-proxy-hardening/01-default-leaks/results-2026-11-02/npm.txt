@@ -1,0 +1,20 @@
+### 1. HTTP, correct Host
+HTTP/1.1 200 OK
+Server: openresty
+### 2. HTTP, bare IP (what a scanner sees)
+HTTP/1.1 200 OK
+Server: openresty
+body: <!DOCTYPE html> <html lang="en"> <head> <meta charset="utf-8"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <meta name="viewport" content="width=device-width, init
+### 3. HTTPS, correct name
+no response (curl exit 35)
+### 4. Forwarding headers the backend received (client sent X-Forwarded-For: 6.6.6.6)
+### 5. TLS with no SNI (scanner hitting the IP)
+no certificate (handshake refused)
+### 6. TLS with an unknown SNI
+no certificate (handshake refused)
+### 7. HTTPS, right SNI, unknown Host header
+no response (curl exit 35)
+body: 
+### 8. Backend error page (/boom)
+no response (curl exit 35)
+body: 

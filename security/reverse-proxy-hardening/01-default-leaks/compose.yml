@@ -1,0 +1,58 @@
+# Stock-ish reverse proxies in front of one leaky backend.
+# Every port binds to 127.0.0.1 only. Do not publish this stack.
+name: rp-leaks
+
+services:
+  backend:
+    image: python:3.14-alpine
+    command: ["python", "-u", "/app/backend.py"]
+    volumes:
+      - ./backend.py:/app/backend.py:ro
+    labels:
+      # Traefik routing, the shape from Traefik's own Docker quick start
+      - traefik.http.routers.app.rule=Host(`app.example.test`)
+      - traefik.http.routers.app.entrypoints=websecure
+      - traefik.http.routers.app.tls=true
+      - traefik.http.services.app.loadbalancer.server.port=8080
+
+  nginx:
+    image: nginx:1.31.8
+    depends_on: [backend]  # backend must be in Docker DNS before the proxy resolves it
+    ports: ["127.0.0.1:8081:80", "127.0.0.1:8443:443"]
+    volumes:
+      - ./nginx/app.conf:/etc/nginx/conf.d/app.conf:ro
+      - ./certs:/certs:ro
+
+  caddy:
+    image: caddy:2.11.7
+    depends_on: [backend]  # backend must be in Docker DNS before the proxy resolves it
+    ports: ["127.0.0.1:8082:80", "127.0.0.1:9443:443"]
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+
+  traefik:
+    image: traefik:v3.7.17
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.websecure.address=:443
+    ports: ["127.0.0.1:8083:80", "127.0.0.1:10443:443", "127.0.0.1:8090:8080"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./certs:/certs:ro
+
+  npm:
+    image: jc21/nginx-proxy-manager:2.16.0
+    ports: ["127.0.0.1:8084:80", "127.0.0.1:11443:443", "127.0.0.1:8181:81"]
+    volumes:
+      - npm-data:/data
+      - npm-letsencrypt:/etc/letsencrypt
+
+volumes:
+  npm-data:
+  npm-letsencrypt:

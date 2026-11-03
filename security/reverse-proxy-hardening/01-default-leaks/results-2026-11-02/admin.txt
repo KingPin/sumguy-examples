@@ -1,0 +1,29 @@
+### Traefik dashboard API on host :8090 -> container :8080 (--api.insecure=true)
+{"Version":"3.7.17","Codename":"langres","startDate":"2026-11-03T04:43:14.71578656Z"}
+services from this stack:
+  api@internal []
+  app@docker ['http://172.18.0.4:8080']
+  caddy-rp-leaks@docker ['http://172.18.0.2:80']
+  dashboard@internal []
+  nginx-rp-leaks@docker ['http://172.18.0.6:80']
+  noop@internal []
+  npm-rp-leaks@docker ['http://172.18.0.3:80']
+  traefik-rp-leaks@docker ['http://172.18.0.5:80']
+services built for OTHER containers on the host: 8
+  their backend ports: ['2375', '3000', '3000', '5432', '5432', '6379', '8080', '9000']
+auto-router reachable by Host header? (Host: nginx-rp-leaks, with the HTTPS redirect on)
+  :8083 -> 301 server= location=https://nginx-rp-leaks/
+  :10443 -> 404 server= location=
+  :8090 -> 301 server= location=http://nginx-rp-leaks/dashboard/
+
+### Caddy admin API (default localhost:2019)
+from inside the caddy container:
+{"apps":{"http":{"servers":{"srv0":{"listen":[":443"],"routes":[{"handle":[{"handler":"subroute","routes":[{"handle":[{"handler":"reverse_proxy","upstreams":[{"dial":"backend:8080"}]}]}]}],"match":[{"host":["app.example.test"]}],"terminal":true}],"tls_connection_policies":[{"certificate_selection":{"any_tag":["cert0"]},"match":{"sni":["app.example.test"]}},{}]}}},"tls":{"certificates":{"load_files":[{"certificate":"/certs/app.crt","key":"/certs/app.key","tags":["cert0"]}]}}}}
+
+from the backend container on the same network:
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+### NPM admin on :81
+{"status":"OK","setup":false,"version":{"major":2,"minor":16,"revision":0}}
+login with the old documented default (admin@example.com / changeme):
+{"error":{"code":400,"message":"Invalid email or password"}}

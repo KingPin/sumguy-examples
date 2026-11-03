@@ -1,0 +1,8 @@
+### App down: the proxy's own error page
+HTTP/2 502 
+alt-svc: h3=":443"; ma=2592000
+server: Caddy
+content-length: 0
+date: Tue, 03 Nov 2026 04:43:18 GMT
+
+
