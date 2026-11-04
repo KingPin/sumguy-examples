@@ -1,0 +1,26 @@
+== BAAI/bge-small-en-v1.5 ==
+0.971  PARAPHRASE 'How do I restart nginx?' vs "What's the command to restart nginx?"
+0.965  PARAPHRASE 'How do I reset my router password?' vs 'I forgot my router password, how can I reset it?'
+0.953  PARAPHRASE "How do I renew a Let's Encrypt certificate?" vs "Renewing a Let's Encrypt cert, what do I run?"
+0.958  PARAPHRASE 'Turn on the living room lights' vs 'Switch on the lights in the living room'
+0.890  NEAR-MISS  'How do I restart nginx?' vs 'How do I stop nginx?'
+0.907  NEAR-MISS  'How do I enable the firewall?' vs 'How do I disable the firewall?'
+0.936  NEAR-MISS  'How do I upgrade to PostgreSQL 16?' vs 'How do I upgrade to PostgreSQL 17?'
+0.892  NEAR-MISS  'How do I SSH into web01?' vs 'How do I SSH into db01?'
+0.882  NEAR-MISS  'Turn on the living room lights' vs 'Turn off the living room lights'
+0.900  NEAR-MISS  'Delete the backup from Monday' vs 'Restore the backup from Monday'
+0.387  UNRELATED  'How do I restart nginx?' vs 'What is the capital of France?'
+
+
+== sentence-transformers/all-MiniLM-L6-v2 ==
+0.949  PARAPHRASE 'How do I restart nginx?' vs "What's the command to restart nginx?"
+0.964  PARAPHRASE 'How do I reset my router password?' vs 'I forgot my router password, how can I reset it?'
+0.903  PARAPHRASE "How do I renew a Let's Encrypt certificate?" vs "Renewing a Let's Encrypt cert, what do I run?"
+0.904  PARAPHRASE 'Turn on the living room lights' vs 'Switch on the lights in the living room'
+0.756  NEAR-MISS  'How do I restart nginx?' vs 'How do I stop nginx?'
+0.848  NEAR-MISS  'How do I enable the firewall?' vs 'How do I disable the firewall?'
+0.899  NEAR-MISS  'How do I upgrade to PostgreSQL 16?' vs 'How do I upgrade to PostgreSQL 17?'
+0.685  NEAR-MISS  'How do I SSH into web01?' vs 'How do I SSH into db01?'
+0.886  NEAR-MISS  'Turn on the living room lights' vs 'Turn off the living room lights'
+0.837  NEAR-MISS  'Delete the backup from Monday' vs 'Restore the backup from Monday'
+0.159  UNRELATED  'How do I restart nginx?' vs 'What is the capital of France?'

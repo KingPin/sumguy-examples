@@ -1,0 +1,23 @@
+model_list:
+  # Stub chat model: returns a fixed string, so no API key is needed for the wiring test.
+  # Swap for your real model, e.g. model: ollama/gemma4 with api_base set.
+  - model_name: docs-bot
+    litellm_params:
+      model: openai/stub
+      api_key: stub
+      mock_response: "systemctl restart nginx"
+  # Embedding model used by the cache. The stub is wiring-only. Use a real one in practice.
+  - model_name: cache-embedder
+    litellm_params:
+      model: openai/stub-embed
+      api_base: http://embed-stub:8081/v1
+      api_key: stub
+
+litellm_settings:
+  cache: True
+  cache_params:
+    type: "redis-semantic"
+    redis_url: os.environ/REDIS_URL
+    similarity_threshold: 0.95
+    redis_semantic_cache_embedding_model: cache-embedder
+    ttl: 3600

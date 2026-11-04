@@ -1,0 +1,17 @@
+== How do I restart nginx?
+HTTP/1.1 200 OK
+x-litellm-semantic-similarity: 0.0
+{"id":"chatcmpl-607b5239-4895-4e52-8e82-b6f8a80c5828","model":"docs-bot","object":"chat.completion",
+== How do I restart nginx?
+HTTP/1.1 200 OK
+x-litellm-cache-key: bb84cee2db6b3ce854e3ad44728fadb164a9531c9a157f015ddd9ba27dbf4db8
+x-litellm-semantic-similarity: 0.9999999403953552
+{"id":"chatcmpl-607b5239-4895-4e52-8e82-b6f8a80c5828","model":"docs-bot","object":"chat.completion",
+== What is the command to restart nginx
+HTTP/1.1 200 OK
+x-litellm-semantic-similarity: 0.0
+{"id":"chatcmpl-5fbb96cd-58f7-4dbc-b367-7e7ff30e3c08","model":"docs-bot","object":"chat.completion",
+== How do I stop nginx?
+HTTP/1.1 200 OK
+x-litellm-semantic-similarity: 0.0
+{"id":"chatcmpl-8ae372eb-40b2-4570-99d1-98cfe0e36bab","model":"docs-bot","object":"chat.completion",

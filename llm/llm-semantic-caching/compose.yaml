@@ -1,0 +1,16 @@
+services:
+  redis:
+    image: redis:8   # query engine (vector search) is bundled since Redis 8
+  embed-stub:
+    image: python:3.14-slim
+    volumes: ["./embed_stub.py:/app/embed_stub.py:ro"]
+    command: python /app/embed_stub.py
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    volumes: ["./litellm-config.yaml:/app/config.yaml:ro"]
+    environment:
+      REDIS_URL: redis://redis:6379
+      LITELLM_MASTER_KEY: sk-local-test-key
+    ports: ["4000:4000"]
+    depends_on: [redis, embed-stub]

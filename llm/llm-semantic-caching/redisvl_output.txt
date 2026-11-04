@@ -1,0 +1,2 @@
+What's the command to restart nginx? -> ('sudo systemctl restart nginx', 0.051)
+How do I stop nginx? -> MISS
