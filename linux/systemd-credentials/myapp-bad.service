@@ -1,0 +1,8 @@
+# The version to stop writing.
+[Unit]
+Description=Demo app with a secret in Environment=
+
+[Service]
+ExecStart=/opt/myapp/app-bad.sh
+Environment=DB_PASSWORD=hunter2
+# EnvironmentFile=/etc/myapp/env is the same exposure with extra steps

@@ -1,0 +1,16 @@
+# /etc/systemd/system/myapp.service  (system service, run as root to set up)
+# One-time setup:
+#   sudo mkdir -p /etc/credstore.encrypted
+#   printf '%s' 'hunter2' | sudo systemd-creds encrypt --name=dbpass - /etc/credstore.encrypted/dbpass
+[Unit]
+Description=Demo app using an encrypted credential
+
+[Service]
+ExecStart=/opt/myapp/app.sh
+DynamicUser=yes
+# Path form (explicit):
+LoadCredentialEncrypted=dbpass:/etc/myapp/dbpass.cred
+# Short form: finds /etc/credstore.encrypted/dbpass by name
+# LoadCredentialEncrypted=dbpass
+# Point *_FILE style apps at the file (%d = credentials directory):
+# Environment=POSTGRES_PASSWORD_FILE=%d/dbpass
