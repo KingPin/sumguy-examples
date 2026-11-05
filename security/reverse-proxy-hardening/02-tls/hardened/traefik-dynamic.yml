@@ -1,0 +1,30 @@
+# Part 1 fixes plus Part 2 TLS settings (Mozilla intermediate, guidelines v6.0).
+http:
+  middlewares:
+    strip-banners:
+      headers:
+        customResponseHeaders:
+          Server: ""
+          X-Powered-By: ""
+    hsts:
+      headers:
+        stsSeconds: 63072000
+
+tls:
+  options:
+    default:
+      sniStrict: true
+      minVersion: VersionTLS12
+      # TLS 1.2 only. Go does not let you configure TLS 1.3 suites.
+      cipherSuites:
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+      # Leave curvePreferences unset: Traefik then uses Go's default list, which already starts
+      # with X25519MLKEM768. Setting it means you must list X25519MLKEM768 yourself.
+  certificates:
+    - certFile: /certs/app.crt
+      keyFile: /certs/app.key

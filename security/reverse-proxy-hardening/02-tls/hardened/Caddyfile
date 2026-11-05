@@ -1,0 +1,17 @@
+# Part 1 fixes plus Part 2. Caddy's TLS defaults already match Mozilla intermediate,
+# so the only Part 2 change is HSTS.
+app.example.test {
+	tls /certs/app.crt /certs/app.key
+	header -Server
+	header -Via
+	header Strict-Transport-Security "max-age=63072000"
+
+	reverse_proxy backend:8080 {
+		header_down -X-Powered-By
+
+		@error status 5xx
+		handle_response @error {
+			respond "Something went wrong." {rp.status_code}
+		}
+	}
+}

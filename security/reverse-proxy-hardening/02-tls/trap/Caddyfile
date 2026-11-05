@@ -1,0 +1,18 @@
+# Part 2 hardened config with ONE change: a curve list copied from an older guide.
+app.example.test {
+	tls /certs/app.crt /certs/app.key {
+		curves x25519 secp256r1 secp384r1
+	}
+	header -Server
+	header -Via
+	header Strict-Transport-Security "max-age=63072000"
+
+	reverse_proxy backend:8080 {
+		header_down -X-Powered-By
+
+		@error status 5xx
+		handle_response @error {
+			respond "Something went wrong." {rp.status_code}
+		}
+	}
+}

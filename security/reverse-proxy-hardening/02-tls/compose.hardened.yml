@@ -1,0 +1,14 @@
+# Overlay with the Part 2 fixes. Used by: ./run.sh hardened
+services:
+  backend:
+    labels:
+      - traefik.http.routers.app.middlewares=strip-banners@file,hsts@file
+  nginx:
+    volumes:
+      - ./hardened/nginx-app.conf:/etc/nginx/conf.d/app.conf:ro
+  caddy:
+    volumes:
+      - ./hardened/Caddyfile:/etc/caddy/Caddyfile:ro
+  traefik:
+    volumes:
+      - ./hardened/traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro

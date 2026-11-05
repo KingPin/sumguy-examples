@@ -1,0 +1,39 @@
+### 1. Protocol versions
+  tls1: refused
+  tls1_1: refused
+  tls1_2: offered
+  tls1_3: offered
+### 2. TLS 1.2 cipher suites the server accepts
+  ECDHE-RSA-AES256-GCM-SHA384
+  ECDHE-RSA-CHACHA20-POLY1305
+  ECDHE-RSA-AES128-GCM-SHA256
+  total 3: 3 forward secret, 0 without forward secrecy, 0 CBC
+### 3. TLS 1.3 cipher suites
+  TLS_AES_128_GCM_SHA256: offered
+  TLS_AES_256_GCM_SHA384: offered
+  TLS_CHACHA20_POLY1305_SHA256: offered
+  TLS_AES_128_CCM_SHA256: refused
+  TLS_AES_128_CCM_8_SHA256: refused
+### 4. Who picks the cipher (client sends two suites in both orders)
+  TLS 1.2: client picks
+  TLS 1.3: client picks
+### 5. TLS 1.3 key exchange groups
+  X25519MLKEM768: refused
+  X25519: offered
+  prime256v1: offered
+  secp384r1: offered
+  secp521r1: refused
+  ffdhe2048: refused
+  a default OpenSSL 3.6.5 client gets: X25519
+### 6. Session resumption
+  tls1_2 session ticket issued: no
+  tls1_2 reconnect: resumed
+  tls1_2 reconnect without tickets (server session cache): resumed
+  tls1_3 reconnect: resumed, lifetime hint 86400s
+### 7. TLS 1.3 early data (0-RTT)
+  0-RTT off: the server's tickets allow no early data
+### 8. HSTS
+  Strict-Transport-Security: max-age=63072000
+### 9. Certificate key
+  Public Key Algorithm: rsaEncryption
+  Public-Key: (2048 bit)

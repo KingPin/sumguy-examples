@@ -1,0 +1,49 @@
+# Part 2 baseline: the three proxies exactly as Part 1 left them (banner and catch-all fixes,
+# TLS settings untouched). Overlays: compose.hardened.yml (Part 2 fixes), compose.trap.yml
+# (a curve list copied from an older guide). Every port binds to 127.0.0.1 only.
+name: rp-tls
+
+services:
+  backend:
+    image: python:3.14-alpine
+    command: ["python", "-u", "/app/backend.py"]
+    volumes:
+      - ../01-default-leaks/backend.py:/app/backend.py:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.app.rule=Host(`app.example.test`)
+      - traefik.http.routers.app.entrypoints=websecure
+      - traefik.http.routers.app.tls=true
+      - traefik.http.routers.app.middlewares=strip-banners@file
+      - traefik.http.services.app.loadbalancer.server.port=8080
+
+  nginx:
+    image: nginx:1.31.8
+    depends_on: [backend]
+    ports: ["127.0.0.1:8081:80", "127.0.0.1:8443:443"]
+    volumes:
+      - ../01-default-leaks/hardened/nginx-app.conf:/etc/nginx/conf.d/app.conf:ro
+      - ./certs:/certs:ro
+
+  caddy:
+    image: caddy:2.11.7
+    depends_on: [backend]
+    ports: ["127.0.0.1:8082:80", "127.0.0.1:9443:443"]
+    volumes:
+      - ../01-default-leaks/hardened/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+
+  traefik:
+    image: traefik:v3.7.17
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.websecure.address=:443
+    ports: ["127.0.0.1:8083:80", "127.0.0.1:10443:443"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../01-default-leaks/hardened/traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./certs:/certs:ro

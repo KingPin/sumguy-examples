@@ -1,0 +1,11 @@
+### The Part 2 curve list on an older nginx image (OpenSSL 3.0)
+OpenSSL 3.0.15 3 Sep 2024 (Library: OpenSSL 3.0.15 3 Sep 2024)
+2026/11/03 06:13:46 [emerg] 8#8: SSL_CTX_set1_curves_list("X25519MLKEM768:X25519:prime256v1:secp384r1") failed (SSL: error:0A080106:SSL routines::passed invalid argument:group 'X25519MLKEM768' cannot be set)
+nginx: [emerg] SSL_CTX_set1_curves_list("X25519MLKEM768:X25519:prime256v1:secp384r1") failed (SSL: error:0A080106:SSL routines::passed invalid argument:group 'X25519MLKEM768' cannot be set)
+nginx: configuration file /etc/nginx/nginx.conf test failed
+
+### ssl_stapling on with a certificate that has no OCSP URL (as Let's Encrypt certs have had since 2025)
+2026/11/03 06:13:47 [warn] 1#1: "ssl_stapling" ignored, no OCSP responder URL in the certificate "/t/fullchain.crt"
+nginx: [warn] "ssl_stapling" ignored, no OCSP responder URL in the certificate "/t/fullchain.crt"
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
