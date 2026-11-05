@@ -1,0 +1,10 @@
+# Goes in scripts.yaml
+bedtime_fade:
+  alias: Bedtime fade
+  use_blueprint:
+    path: sumguy/fade_lights_off.yaml
+    input:
+      lights:
+        entity_id: light.bedroom
+      steps: 10
+      step_seconds: 30

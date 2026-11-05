@@ -1,0 +1,62 @@
+blueprint:
+  name: Door Open Alert (SumGuy)
+  description: >
+    Run your own actions when a door stays open too long. Optionally repeat
+    at :00 and :30 of each hour while it is still open.
+  domain: automation
+  author: SumGuy
+  source_url: https://github.com/KingPin/sumguy-examples/blob/main/home-automation/home-assistant-blueprints/blueprints/automation/sumguy/door_open_alert.yaml
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    door_sensor:
+      name: Door sensor
+      selector:
+        entity:
+          filter:
+            - domain: binary_sensor
+              device_class: door
+    open_minutes:
+      name: Minutes open
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 120
+          unit_of_measurement: minutes
+    repeat_reminder:
+      name: Repeat reminder (on the half hour)
+      default: false
+      selector:
+        boolean:
+    alert_actions:
+      name: Alert actions
+      description: What to run. Notify your phone, flash a light, anything.
+      default: []
+      selector:
+        action:
+
+mode: single
+
+# Limited templates only. Evaluated when the triggers are set up.
+trigger_variables:
+  repeat_reminder: !input repeat_reminder
+
+triggers:
+  - trigger: state
+    entity_id: !input door_sensor
+    to: "on"
+    for:
+      minutes: !input open_minutes
+  - trigger: time_pattern
+    minutes: "/30"
+    enabled: "{{ repeat_reminder }}"
+
+conditions:
+  - condition: state
+    entity_id: !input door_sensor
+    state: "on"
+    for:
+      minutes: !input open_minutes
+
+actions: !input alert_actions

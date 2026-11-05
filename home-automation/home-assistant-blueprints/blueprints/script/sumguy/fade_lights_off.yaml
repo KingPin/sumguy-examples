@@ -1,0 +1,49 @@
+blueprint:
+  name: Fade Lights Off (SumGuy)
+  description: Dim lights in steps, then turn them off. Good for bedtime.
+  domain: script
+  author: SumGuy
+  source_url: https://github.com/KingPin/sumguy-examples/blob/main/home-automation/home-assistant-blueprints/blueprints/script/sumguy/fade_lights_off.yaml
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    lights:
+      name: Lights
+      selector:
+        target:
+          entity:
+            domain: light
+    steps:
+      name: Number of steps
+      default: 5
+      selector:
+        number:
+          min: 2
+          max: 30
+    step_seconds:
+      name: Seconds per step
+      default: 60
+      selector:
+        number:
+          min: 1
+          max: 600
+          unit_of_measurement: seconds
+
+mode: restart
+
+variables:
+  steps: !input steps
+
+sequence:
+  - repeat:
+      count: !input steps
+      sequence:
+        - action: light.turn_on
+          target: !input lights
+          data:
+            brightness_pct: >
+              {{ [ (100 * (steps - repeat.index) / steps) | round(0), 1 ] | max }}
+        - delay:
+            seconds: !input step_seconds
+  - action: light.turn_off
+    target: !input lights

@@ -1,0 +1,124 @@
+blueprint:
+  name: Motion Light (SumGuy)
+  description: >
+    Turn lights on when motion is detected, keep them on for a while after
+    the last motion, then turn them off. Optionally only when it is dark.
+  domain: automation
+  author: SumGuy
+  source_url: https://github.com/KingPin/sumguy-examples/blob/main/home-automation/home-assistant-blueprints/blueprints/automation/sumguy/motion_light.yaml
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    motion_sensor:
+      name: Motion sensor
+      selector:
+        entity:
+          filter:
+            - domain: binary_sensor
+              device_class: motion
+            - domain: binary_sensor
+              device_class: occupancy
+    lights:
+      name: Lights
+      description: Lights, devices, or areas to control.
+      selector:
+        target:
+          entity:
+            domain: light
+    no_motion_wait:
+      name: Wait time
+      description: Seconds to keep the light on after the last motion.
+      default: 120
+      selector:
+        number:
+          min: 0
+          max: 3600
+          unit_of_measurement: seconds
+    extras:
+      name: Extras
+      icon: mdi:tune
+      description: Optional tweaks. Safe to leave alone.
+      collapsed: true
+      input:
+        brightness:
+          name: Brightness
+          default: 100
+          selector:
+            number:
+              min: 1
+              max: 100
+              unit_of_measurement: "%"
+        only_when_dark:
+          name: Only when dark
+          default: false
+          selector:
+            boolean:
+        lux_sensor:
+          name: Lux sensor
+          description: Used only when "Only when dark" is on.
+          default: ""
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  device_class: illuminance
+        dark_below:
+          name: Dark below
+          default: 20
+          selector:
+            number:
+              min: 0
+              max: 500
+              unit_of_measurement: lx
+        active_after:
+          name: Active after
+          description: Ignore motion before this time of day.
+          default: "00:00:00"
+          selector:
+            time:
+
+# Restart so a second motion event resets the wait timer.
+mode: restart
+max_exceeded: silent
+
+# Inputs are YAML tags, not template variables. Copy them into variables
+# first, then templates can read them.
+variables:
+  brightness: !input brightness
+  only_when_dark: !input only_when_dark
+  lux_sensor: !input lux_sensor
+  dark_below: !input dark_below
+
+triggers:
+  - trigger: state
+    entity_id: !input motion_sensor
+    from: "off"
+    to: "on"
+
+conditions:
+  - condition: time
+    after: !input active_after
+  - condition: template
+    value_template: >
+      {{ not only_when_dark
+         or lux_sensor == ''
+         or states(lux_sensor) | float(0) < dark_below | float(0) }}
+
+actions:
+  - alias: Turn on the light
+    action: light.turn_on
+    target: !input lights
+    data:
+      brightness_pct: "{{ brightness }}"
+  - alias: Wait for motion to stop
+    wait_for_trigger:
+      - trigger: state
+        entity_id: !input motion_sensor
+        from: "on"
+        to: "off"
+  - alias: Wait the configured time
+    delay:
+      seconds: !input no_motion_wait
+  - alias: Turn off the light
+    action: light.turn_off
+    target: !input lights

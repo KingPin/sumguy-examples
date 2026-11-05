@@ -1,0 +1,35 @@
+# One blueprint, three rooms. Inputs are flat by name,
+# even the ones declared inside a section.
+- alias: Hallway motion light
+  use_blueprint:
+    path: sumguy/motion_light.yaml
+    input:
+      motion_sensor: binary_sensor.hallway_motion
+      lights:
+        entity_id: light.hallway
+      no_motion_wait: 60
+
+- alias: Kitchen motion light
+  use_blueprint:
+    path: sumguy/motion_light.yaml
+    input:
+      motion_sensor: binary_sensor.kitchen_motion
+      lights:
+        area_id: kitchen
+      no_motion_wait: 300
+      only_when_dark: true
+      lux_sensor: sensor.kitchen_lux
+      dark_below: 30
+
+- alias: Garage door alert
+  use_blueprint:
+    path: sumguy/door_open_alert.yaml
+    input:
+      door_sensor: binary_sensor.garage_door
+      open_minutes: 10
+      repeat_reminder: true
+      alert_actions:
+        - action: notify.notify
+          data:
+            message: Garage door has been open a while.
+
