@@ -1,0 +1,32 @@
+### GET /
+1 Content-Security-Policy: frame-ancestors 'self'
+1 HTTP/1.1 200 OK
+1 Referrer-Policy: strict-origin-when-cross-origin
+1 Strict-Transport-Security: max-age=63072000
+1 X-Content-Type-Options: nosniff
+### GET /app
+2 Content-Security-Policy: frame-ancestors 'self'
+1 HTTP/1.1 200 OK
+1 Referrer-Policy: no-referrer
+1 Strict-Transport-Security: max-age=63072000
+1 X-Content-Type-Options: nosniff
+1 X-Frame-Options: SAMEORIGIN
+### GET /static/a.css
+1 Cache-Control: public, max-age=86400
+1 Content-Security-Policy: frame-ancestors 'self'
+1 HTTP/1.1 200 OK
+1 Referrer-Policy: strict-origin-when-cross-origin
+1 Strict-Transport-Security: max-age=63072000
+1 X-Content-Type-Options: nosniff
+### GET /missing
+1 Content-Security-Policy: frame-ancestors 'self'
+1 HTTP/1.1 404 Not Found
+1 Referrer-Policy: strict-origin-when-cross-origin
+1 Strict-Transport-Security: max-age=63072000
+1 X-Content-Type-Options: nosniff
+### GET /boom
+1 Content-Security-Policy: frame-ancestors 'self'
+1 HTTP/1.1 500 Internal Server Error
+1 Referrer-Policy: strict-origin-when-cross-origin
+1 Strict-Transport-Security: max-age=63072000
+1 X-Content-Type-Options: nosniff

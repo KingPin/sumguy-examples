@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Server: nginx
+Date: Thu, 05 Nov 2026 05:42:03 GMT
+Content-Type: text/html
+Content-Length: 51
+Connection: keep-alive
+X-Frame-Options: SAMEORIGIN
+Content-Security-Policy: frame-ancestors 'self'
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=63072000
+X-Content-Type-Options: nosniff
+Content-Security-Policy: frame-ancestors 'self'
+

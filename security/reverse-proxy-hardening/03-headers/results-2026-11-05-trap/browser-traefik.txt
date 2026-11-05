@@ -1,0 +1,4 @@
+frame /        same-origin: blocked  cross-origin: blocked
+frame /app     same-origin: blocked  cross-origin: blocked
+frame /legacy  same-origin: blocked  cross-origin: blocked
+referer sent from /app to another site: https://app.example.test:10443/

@@ -1,0 +1,31 @@
+### GET /
+1 content-security-policy: frame-ancestors 'self'
+1 HTTP/2 200 
+1 referrer-policy: strict-origin-when-cross-origin
+1 strict-transport-security: max-age=63072000
+1 x-content-type-options: nosniff
+### GET /app
+1 content-security-policy: frame-ancestors 'self'
+1 HTTP/2 200 
+1 referrer-policy: no-referrer
+1 strict-transport-security: max-age=63072000
+1 x-content-type-options: nosniff
+1 x-frame-options: SAMEORIGIN
+### GET /static/a.css
+1 content-security-policy: frame-ancestors 'self'
+1 HTTP/2 200 
+1 referrer-policy: strict-origin-when-cross-origin
+1 strict-transport-security: max-age=63072000
+1 x-content-type-options: nosniff
+### GET /missing
+1 content-security-policy: frame-ancestors 'self'
+1 HTTP/2 404 
+1 referrer-policy: strict-origin-when-cross-origin
+1 strict-transport-security: max-age=63072000
+1 x-content-type-options: nosniff
+### GET /boom
+1 content-security-policy: frame-ancestors 'self'
+1 HTTP/2 500 
+1 referrer-policy: strict-origin-when-cross-origin
+1 strict-transport-security: max-age=63072000
+1 x-content-type-options: nosniff

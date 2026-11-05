@@ -1,0 +1,21 @@
+# Overlay with the Part 3 fixes. Used by: ./run.sh hardened
+# Traefik: one backend plays two apps here. /app and /legacy stand in for an app that sets its own
+# policy headers, so they get their own router without policy-headers. In real life that is one router per app.
+services:
+  backend:
+    labels:
+      - traefik.http.routers.app.middlewares=strip-banners@file,hsts@file,base-headers@file,policy-headers@file
+      - traefik.http.routers.app-own.rule=Host(`app.example.test`) && (Path(`/app`) || Path(`/legacy`))
+      - traefik.http.routers.app-own.entrypoints=websecure
+      - traefik.http.routers.app-own.tls=true
+      - traefik.http.routers.app-own.service=app
+      - traefik.http.routers.app-own.middlewares=strip-banners@file,hsts@file,base-headers@file
+  nginx:
+    volumes:
+      - ./hardened/nginx-app.conf:/etc/nginx/conf.d/app.conf:ro
+  caddy:
+    volumes:
+      - ./hardened/Caddyfile:/etc/caddy/Caddyfile:ro
+  traefik:
+    volumes:
+      - ./hardened/traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro

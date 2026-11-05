@@ -1,0 +1,12 @@
+HTTP/2 200 
+alt-svc: h3=":443"; ma=2592000
+content-security-policy: frame-ancestors 'self'
+content-security-policy: frame-ancestors 'self'
+content-type: text/html
+date: Thu, 05 Nov 2026 05:42:13 GMT
+referrer-policy: no-referrer
+strict-transport-security: max-age=63072000
+x-content-type-options: nosniff
+x-frame-options: SAMEORIGIN
+content-length: 51
+

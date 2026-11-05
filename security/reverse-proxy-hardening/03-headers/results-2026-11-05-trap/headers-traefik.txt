@@ -1,0 +1,45 @@
+### GET /
+1 content-security-policy: default-src 'self'
+1 HTTP/2 200 
+1 permissions-policy: camera=(), microphone=(), geolocation=()
+1 referrer-policy: strict-origin-when-cross-origin
+1 strict-transport-security: max-age=63072000
+1 x-content-type-options: nosniff
+1 x-frame-options: DENY
+1 x-xss-protection: 1; mode=block
+### GET /app
+1 content-security-policy: default-src 'self'
+1 HTTP/2 200 
+1 permissions-policy: camera=(), microphone=(), geolocation=()
+1 referrer-policy: strict-origin-when-cross-origin
+1 strict-transport-security: max-age=63072000
+1 x-content-type-options: nosniff
+1 x-frame-options: DENY
+1 x-xss-protection: 1; mode=block
+### GET /static/a.css
+1 content-security-policy: default-src 'self'
+1 HTTP/2 200 
+1 permissions-policy: camera=(), microphone=(), geolocation=()
+1 referrer-policy: strict-origin-when-cross-origin
+1 strict-transport-security: max-age=63072000
+1 x-content-type-options: nosniff
+1 x-frame-options: DENY
+1 x-xss-protection: 1; mode=block
+### GET /missing
+1 content-security-policy: default-src 'self'
+1 HTTP/2 404 
+1 permissions-policy: camera=(), microphone=(), geolocation=()
+1 referrer-policy: strict-origin-when-cross-origin
+1 strict-transport-security: max-age=63072000
+1 x-content-type-options: nosniff
+1 x-frame-options: DENY
+1 x-xss-protection: 1; mode=block
+### GET /boom
+1 content-security-policy: default-src 'self'
+1 HTTP/2 500 
+1 permissions-policy: camera=(), microphone=(), geolocation=()
+1 referrer-policy: strict-origin-when-cross-origin
+1 strict-transport-security: max-age=63072000
+1 x-content-type-options: nosniff
+1 x-frame-options: DENY
+1 x-xss-protection: 1; mode=block

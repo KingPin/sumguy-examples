@@ -1,0 +1,14 @@
+# Overlay: security headers the way most guides add them. Used by: ./run.sh trap
+services:
+  backend:
+    labels:
+      - traefik.http.routers.app.middlewares=strip-banners@file,hsts@file,security-headers@file
+  nginx:
+    volumes:
+      - ./trap/nginx-app.conf:/etc/nginx/conf.d/app.conf:ro
+  caddy:
+    volumes:
+      - ./trap/Caddyfile:/etc/caddy/Caddyfile:ro
+  traefik:
+    volumes:
+      - ./trap/traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro

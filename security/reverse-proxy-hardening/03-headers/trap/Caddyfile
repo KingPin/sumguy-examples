@@ -1,0 +1,24 @@
+# Part 2 config plus security headers the way most guides add them.
+app.example.test {
+	tls /certs/app.crt /certs/app.key
+	header -Server
+	header -Via
+	header {
+		Strict-Transport-Security "max-age=63072000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Content-Security-Policy "default-src 'self'"
+		X-XSS-Protection "1; mode=block"
+	}
+
+	reverse_proxy backend:8080 {
+		header_down -X-Powered-By
+
+		@error status 5xx
+		handle_response @error {
+			respond "Something went wrong." {rp.status_code}
+		}
+	}
+}

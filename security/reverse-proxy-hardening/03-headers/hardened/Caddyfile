@@ -1,0 +1,24 @@
+# Part 1 and Part 2 fixes plus Part 3 security headers.
+app.example.test {
+	tls /certs/app.crt /certs/app.key
+	header -Server
+	header -Via
+	header {
+		# > sets the field after the app's headers arrive, so ours replaces the app's copy
+		>Strict-Transport-Security "max-age=63072000"
+		>X-Content-Type-Options "nosniff"
+		# ? sets it only if the app sent none
+		?Referrer-Policy "strict-origin-when-cross-origin"
+		# + adds a second CSP next to the app's. Browsers enforce both, so it can only tighten.
+		+Content-Security-Policy "frame-ancestors 'self'"
+	}
+
+	reverse_proxy backend:8080 {
+		header_down -X-Powered-By
+
+		@error status 5xx
+		handle_response @error {
+			respond "Something went wrong." {rp.status_code}
+		}
+	}
+}

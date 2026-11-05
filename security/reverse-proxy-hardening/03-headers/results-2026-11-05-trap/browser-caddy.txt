@@ -1,0 +1,4 @@
+frame /        same-origin: blocked  cross-origin: blocked
+frame /app     same-origin: loaded   cross-origin: blocked
+frame /legacy  same-origin: blocked  cross-origin: blocked
+referer sent from /app to another site: (none)

@@ -1,0 +1,38 @@
+### 1. HTTP, correct Host
+HTTP/1.1 308 Permanent Redirect
+Location: https://app.example.test/
+Server: Caddy
+### 2. HTTP, bare IP (what a scanner sees)
+HTTP/1.1 308 Permanent Redirect
+Location: https://127.0.0.1/
+Server: Caddy
+body: 
+### 3. HTTPS, correct name
+HTTP/2 200 
+alt-svc: h3=":443"; ma=2592000
+content-security-policy: default-src 'self'
+permissions-policy: camera=(), microphone=(), geolocation=()
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=63072000
+x-content-type-options: nosniff
+x-frame-options: DENY
+### 4. Forwarding headers the backend received (client sent X-Forwarded-For: 6.6.6.6)
+### 5. TLS with no SNI (scanner hitting the IP)
+no certificate (handshake refused)
+### 6. TLS with an unknown SNI
+no certificate (handshake refused)
+### 7. HTTPS, right SNI, unknown Host header
+HTTP/2 200 
+alt-svc: h3=":443"; ma=2592000
+server: Caddy
+body: 
+### 8. Backend error page (/boom)
+HTTP/2 500 
+alt-svc: h3=":443"; ma=2592000
+content-security-policy: default-src 'self'
+permissions-policy: camera=(), microphone=(), geolocation=()
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=63072000
+x-content-type-options: nosniff
+x-frame-options: DENY
+body: Something went wrong.

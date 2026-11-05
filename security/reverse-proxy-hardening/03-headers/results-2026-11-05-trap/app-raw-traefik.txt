@@ -1,0 +1,12 @@
+HTTP/2 200 
+content-security-policy: default-src 'self'
+content-type: text/html
+date: Thu, 05 Nov 2026 05:41:36 GMT
+permissions-policy: camera=(), microphone=(), geolocation=()
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=63072000
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+content-length: 51
+

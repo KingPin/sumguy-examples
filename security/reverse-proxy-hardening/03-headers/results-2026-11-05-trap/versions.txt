@@ -1,0 +1,10 @@
+CONTAINER              REPOSITORY          TAG                 PLATFORM            IMAGE ID            SIZE                CREATED
+rp-headers-backend-1   python              3.14-alpine         linux/amd64         099f0370b8a1        48MB                9 days ago
+rp-headers-caddy-1     caddy               2.11.7              linux/amd64         3067cc4e02c0        66.3MB              2 weeks ago
+rp-headers-nginx-1     nginx               1.31.8              linux/amd64         1ebe58b0003b        163MB               8 days ago
+rp-headers-traefik-1   traefik             v3.7.17             linux/amd64         a72cb2f4a210        191MB               5 days ago
+caddy go	go1.26.8
+Version:      3.7.17
+Go version:   go1.27.3
+browser: playwright 1.58.0 Chromium 156.0.8078.47 Arch Linux
+host: curl 8.23.0, Docker version 29.9.2, build a82e528901
