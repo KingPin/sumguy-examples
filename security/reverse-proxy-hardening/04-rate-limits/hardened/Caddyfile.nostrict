@@ -1,0 +1,65 @@
+{
+	servers {
+		# Believe X-Forwarded-For only when the CDN sent the request.
+		# Behind Cloudflare: list its ranges (or the caddy-cloudflare-ip module) and use client_ip_headers CF-Connecting-IP.
+		trusted_proxies static 172.31.40.10/32
+		client_ip_headers X-Forwarded-For
+	}
+}
+
+# One change off the hardened Caddyfile: no trusted_proxies_strict. Used by ./run.sh hardened as caddy-nostrict.
+# Needs a Caddy built with github.com/mholt/caddy-ratelimit (Dockerfile.caddy). Stock Caddy rejects rate_limit.
+# Part 3 headers as a snippet, so the 429 error route below can import them too.
+(security_headers) {
+	header {
+		>Strict-Transport-Security "max-age=63072000"
+		>X-Content-Type-Options "nosniff"
+		?Referrer-Policy "strict-origin-when-cross-origin"
+		+Content-Security-Policy "frame-ancestors 'self'"
+	}
+}
+
+app.example.test {
+	tls /certs/app.crt /certs/app.key
+	header -Server
+	header -Via
+	import security_headers
+
+	rate_limit {
+		zone login {
+			match {
+				method POST
+				path /login
+			}
+			# {client_ip} is the address trusted_proxies resolved; {remote_host} would be the CDN
+			key {client_ip}
+			events 5
+			window 1m
+		}
+		zone api {
+			match {
+				path /api/*
+			}
+			key {client_ip}
+			events 20
+			window 2s
+		}
+	}
+
+	reverse_proxy backend:8080 {
+		header_down -X-Powered-By
+
+		@error status 5xx
+		handle_response @error {
+			respond "Something went wrong." {rp.status_code}
+		}
+	}
+
+	# rate_limit answers with an error, and error routes skip the site's header directives.
+	# Without this block a 429 carries Retry-After and none of the Part 3 headers.
+	handle_errors 429 {
+		import security_headers
+		header -Server
+		respond "Too many requests." 429
+	}
+}

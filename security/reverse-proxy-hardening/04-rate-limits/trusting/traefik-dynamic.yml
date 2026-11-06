@@ -1,0 +1,55 @@
+# The trap config plus ipStrategy.depth, with the entrypoint trusting forwarded headers from anyone
+# (--entrypoints.websecure.forwardedHeaders.insecure=true in compose.trusting.yml).
+http:
+  middlewares:
+    strip-banners:
+      headers:
+        customResponseHeaders:
+          Server: ""
+          X-Powered-By: ""
+    hsts:
+      headers:
+        stsSeconds: 63072000
+    # Every router: overwriting these is safe, they have one correct value.
+    base-headers:
+      headers:
+        contentTypeNosniff: true
+    # Only routers for apps that send no framing or referrer policy of their own.
+    policy-headers:
+      headers:
+        referrerPolicy: "strict-origin-when-cross-origin"
+        contentSecurityPolicy: "frame-ancestors 'self'"
+
+    # --- Part 4 ---
+    login-limit:
+      rateLimit:
+        average: 5
+        period: 1m
+        burst: 5
+        sourceCriterion:
+          ipStrategy:
+            depth: 1   # rightmost X-Forwarded-For entry: the address the CDN appended
+    api-limit:
+      rateLimit:
+        average: 10
+        period: 1s
+        burst: 20
+        sourceCriterion:
+          ipStrategy:
+            depth: 1   # rightmost X-Forwarded-For entry: the address the CDN appended
+
+tls:
+  options:
+    default:
+      sniStrict: true
+      minVersion: VersionTLS12
+      cipherSuites:
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+  certificates:
+    - certFile: /certs/app.crt
+      keyFile: /certs/app.key

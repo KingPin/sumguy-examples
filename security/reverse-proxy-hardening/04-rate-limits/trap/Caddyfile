@@ -1,0 +1,43 @@
+# Part 3 hardened config plus rate limits the way the plugin's README example writes them.
+# Needs a Caddy built with github.com/mholt/caddy-ratelimit (Dockerfile.caddy). Stock Caddy rejects rate_limit.
+app.example.test {
+	tls /certs/app.crt /certs/app.key
+	header -Server
+	header -Via
+	header {
+		>Strict-Transport-Security "max-age=63072000"
+		>X-Content-Type-Options "nosniff"
+		?Referrer-Policy "strict-origin-when-cross-origin"
+		+Content-Security-Policy "frame-ancestors 'self'"
+	}
+
+	rate_limit {
+		zone login {
+			match {
+				method POST
+				path /login
+			}
+			# {remote_host} is the TCP peer. Behind a CDN that is the CDN.
+			key {remote_host}
+			events 5
+			window 1m
+		}
+		zone api {
+			match {
+				path /api/*
+			}
+			key {remote_host}
+			events 20
+			window 2s
+		}
+	}
+
+	reverse_proxy backend:8080 {
+		header_down -X-Powered-By
+
+		@error status 5xx
+		handle_response @error {
+			respond "Something went wrong." {rp.status_code}
+		}
+	}
+}

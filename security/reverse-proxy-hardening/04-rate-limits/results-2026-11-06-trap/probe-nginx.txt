@@ -1,0 +1,54 @@
+### nginx (CDN port 9001, origin 172.31.40.21)
+== whoami: what the app sees for client-b (172.31.40.102) through the CDN
+{"x-forwarded-for": "172.31.40.10", "x-real-ip": "172.31.40.10", "socket-peer": "172.31.40.21"}
+== brute force: client-a sends 20 logins at once through the CDN; client-b tries 3 one second later
+attacker  (client-a): 20 sent, 5 got through (401) | 503 x14 | 504 x1 | slowest 60.06s
+bystander (client-b): 3 sent, 0 got through (401) | 503 x3 | slowest 0.00s
+-- attacker, every request by time
+503 0.004350s retry-after=
+503 0.004671s retry-after=
+503 0.004680s retry-after=
+503 0.004711s retry-after=
+503 0.004936s retry-after=
+503 0.005124s retry-after=
+503 0.005149s retry-after=
+401 0.005185s retry-after=
+503 0.005312s retry-after=
+503 0.005545s retry-after=
+503 0.005601s retry-after=
+503 0.005683s retry-after=
+503 0.005854s retry-after=
+503 0.006027s retry-after=
+503 0.006144s retry-after=
+401 12.063972s retry-after=
+401 24.125599s retry-after=
+401 36.186589s retry-after=
+401 48.246580s retry-after=
+504 60.064172s retry-after=
+-- bystander
+503 0.004193s retry-after=
+503 0.004514s retry-after=
+503 0.004412s retry-after=
+-- one more attacker login, full response (minus the CDN's own Date, Server, Connection):
+HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+Content-Length: 26
+Strict-Transport-Security: max-age=63072000
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Content-Security-Policy: frame-ancestors 'self'
+
+{"error": "bad password"}
+== spoof, direct: client-c skips the CDN, 20 logins, each with a different fake X-Forwarded-For
+      6 401 retry-after=
+     14 503 retry-after=
+client-c: 20 sent, 6 got through (401) | 503 x14 | slowest 60.32s
+== spoof, through the CDN: client-d, 20 logins, each with a different fake X-Forwarded-For on the left
+      5 401 retry-after=
+     14 503 retry-after=
+      1 504 retry-after=
+client-d: 20 sent, 5 got through (401) | 503 x14 | 504 x1 | slowest 60.02s
+== page load: client-e fires 30 API calls at once through the CDN
+     21 200 retry-after=
+      9 503 retry-after=
+client-e: 30 sent, 21 got through (200) | 503 x9 | slowest 2.00s

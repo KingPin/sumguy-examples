@@ -1,0 +1,84 @@
+# Part 4 baseline: the three proxies exactly as Part 3 left them (no rate limits), behind a stand-in CDN.
+# Overlays: compose.trap.yml (limits the way most guides add them), compose.trusting.yml (trap limits plus
+# a real-IP setup that trusts every source), compose.hardened.yml (Part 4 fixes).
+# Clients sit on the lab network at fixed addresses so each one is a distinct source IP.
+# Host ports bind to 127.0.0.1 only and exist for ../audit.sh.
+name: rp-ratelimit
+
+networks:
+  lab:
+    ipam:
+      config: [{subnet: 172.31.40.0/24}]
+
+x-client: &client
+  image: curlimages/curl:8.23.0
+  command: ["sleep", "infinity"]
+  init: true
+
+services:
+  backend:
+    image: python:3.14-alpine
+    command: ["python", "-u", "/app/backend.py"]
+    volumes: ["./backend.py:/app/backend.py:ro"]
+    networks: {lab: {ipv4_address: 172.31.40.30}}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.app.rule=Host(`app.example.test`)
+      - traefik.http.routers.app.entrypoints=websecure
+      - traefik.http.routers.app.tls=true
+      - traefik.http.routers.app.middlewares=strip-banners@file,hsts@file,base-headers@file,policy-headers@file
+      - traefik.http.services.app.loadbalancer.server.port=8080
+
+  nginx:
+    image: nginx:1.31.8
+    depends_on: [backend]
+    ports: ["127.0.0.1:8081:80", "127.0.0.1:8443:443"]
+    networks: {lab: {ipv4_address: 172.31.40.21}}
+    volumes:
+      - ../03-headers/hardened/nginx-app.conf:/etc/nginx/conf.d/app.conf:ro
+      - ./certs:/certs:ro
+
+  caddy:
+    image: caddy:2.11.9
+    depends_on: [backend]
+    ports: ["127.0.0.1:8082:80", "127.0.0.1:9443:443"]
+    networks: {lab: {ipv4_address: 172.31.40.22}}
+    volumes:
+      - ../03-headers/hardened/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+
+  traefik:
+    image: traefik:v3.7.17
+    command: &traefik-cmd
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=rp-ratelimit_lab
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.websecure.address=:443
+    ports: ["127.0.0.1:8083:80", "127.0.0.1:10443:443"]
+    networks: {lab: {ipv4_address: 172.31.40.23}}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../03-headers/hardened/traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./certs:/certs:ro
+
+  cdn:
+    image: nginx:1.31.8
+    depends_on: [nginx, caddy, traefik]
+    networks: {lab: {ipv4_address: 172.31.40.10}}
+    volumes:
+      - ./cdn.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./cdn-headers.conf:/etc/nginx/cdn-headers.conf:ro
+
+  # attacker: brute-forces /login through the CDN
+  client-a: {<<: *client, networks: {lab: {ipv4_address: 172.31.40.101}}}
+  # bystander: one honest login attempt through the CDN while the attack runs
+  client-b: {<<: *client, networks: {lab: {ipv4_address: 172.31.40.102}}}
+  # skips the CDN and talks to the origin proxy directly, with a fake X-Forwarded-For
+  client-c: {<<: *client, networks: {lab: {ipv4_address: 172.31.40.103}}}
+  # goes through the CDN with a fake X-Forwarded-For on the left
+  client-d: {<<: *client, networks: {lab: {ipv4_address: 172.31.40.104}}}
+  # a browser loading a page: a burst of API calls through the CDN
+  client-e: {<<: *client, networks: {lab: {ipv4_address: 172.31.40.105}}}

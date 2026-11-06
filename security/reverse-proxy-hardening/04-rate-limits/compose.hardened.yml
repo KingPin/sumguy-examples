@@ -1,0 +1,63 @@
+# Overlay with the Part 4 fixes. Used by: ./run.sh hardened
+# Also starts two one-change-off variants so the run shows what each line is for:
+#   caddy-nostrict   the hardened Caddyfile without trusted_proxies_strict (CDN port 9004)
+#   traefik-notrust  the hardened Traefik without forwardedHeaders.trustedIPs (CDN port 9005)
+services:
+  backend:
+    labels:
+      - traefik.http.routers.login.rule=Host(`app.example.test`) && Path(`/login`)
+      - traefik.http.routers.login.entrypoints=websecure
+      - traefik.http.routers.login.tls=true
+      - traefik.http.routers.login.service=app
+      - traefik.http.routers.login.middlewares=strip-banners@file,hsts@file,base-headers@file,policy-headers@file,login-limit@file
+      - traefik.http.routers.api.rule=Host(`app.example.test`) && PathPrefix(`/api/`)
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.tls=true
+      - traefik.http.routers.api.service=app
+      - traefik.http.routers.api.middlewares=strip-banners@file,hsts@file,base-headers@file,policy-headers@file,api-limit@file
+  nginx:
+    volumes:
+      - ./hardened/nginx-app.conf:/etc/nginx/conf.d/app.conf:ro
+      - ./certs:/certs:ro
+  caddy:
+    image: rp-ratelimit-caddy:2.11.9-rl
+    build: {context: ., dockerfile: Dockerfile.caddy}
+    volumes:
+      - ./hardened/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+  traefik:
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=rp-ratelimit_lab
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.forwardedHeaders.trustedIPs=172.31.40.10/32
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./hardened/traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./certs:/certs:ro
+  caddy-nostrict:
+    image: rp-ratelimit-caddy:2.11.9-rl
+    depends_on: [backend]
+    networks: {lab: {ipv4_address: 172.31.40.24}}
+    volumes:
+      - ./hardened/Caddyfile.nostrict:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+  traefik-notrust:
+    image: traefik:v3.7.17
+    networks: {lab: {ipv4_address: 172.31.40.25}}
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=rp-ratelimit_lab
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.websecure.address=:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./hardened/traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./certs:/certs:ro

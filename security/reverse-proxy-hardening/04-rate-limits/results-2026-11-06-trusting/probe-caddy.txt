@@ -1,0 +1,47 @@
+### caddy (CDN port 9002, origin 172.31.40.22)
+== whoami: what the app sees for client-b (172.31.40.102) through the CDN
+{"x-forwarded-for": "172.31.40.102, 172.31.40.10", "x-real-ip": null, "socket-peer": "172.31.40.22"}
+== brute force: client-a sends 20 logins at once through the CDN; client-b tries 3 one second later
+attacker  (client-a): 20 sent, 5 got through (401) | 429 x15 | slowest 0.01s
+bystander (client-b): 3 sent, 3 got through (401) | slowest 0.00s
+-- attacker, every request by time
+429 0.006212s retry-after=60
+429 0.006359s retry-after=60
+429 0.006414s retry-after=60
+429 0.006451s retry-after=60
+429 0.006483s retry-after=60
+401 0.006584s retry-after=
+429 0.006747s retry-after=60
+429 0.006802s retry-after=60
+429 0.006845s retry-after=60
+429 0.007025s retry-after=60
+429 0.007122s retry-after=60
+401 0.007236s retry-after=
+429 0.007335s retry-after=60
+429 0.007378s retry-after=60
+401 0.007443s retry-after=
+429 0.007725s retry-after=60
+429 0.007854s retry-after=60
+401 0.007871s retry-after=
+429 0.007991s retry-after=60
+401 0.008069s retry-after=
+-- bystander
+401 0.003101s retry-after=
+401 0.003458s retry-after=
+401 0.003489s retry-after=
+-- one more attacker login, full response (minus the CDN's own Date, Server, Connection):
+HTTP/1.1 429 Too Many Requests
+Content-Length: 0
+Alt-Svc: h3=":443"; ma=2592000
+Retry-After: 59
+
+== spoof, direct: client-c skips the CDN, 20 logins, each with a different fake X-Forwarded-For
+     20 401 retry-after=
+client-c: 20 sent, 20 got through (401) | slowest 0.04s
+== spoof, through the CDN: client-d, 20 logins, each with a different fake X-Forwarded-For on the left
+     20 401 retry-after=
+client-d: 20 sent, 20 got through (401) | slowest 0.01s
+== page load: client-e fires 30 API calls at once through the CDN
+     20 200 retry-after=
+     10 429 retry-after=2
+client-e: 30 sent, 20 got through (200) | 429 x10 | slowest 0.01s

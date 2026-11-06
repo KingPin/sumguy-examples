@@ -1,0 +1,51 @@
+### caddy (CDN port 9002, origin 172.31.40.22)
+== whoami: what the app sees for client-b (172.31.40.102) through the CDN
+{"x-forwarded-for": "172.31.40.10", "x-real-ip": null, "socket-peer": "172.31.40.22"}
+== brute force: client-a sends 20 logins at once through the CDN; client-b tries 3 one second later
+attacker  (client-a): 20 sent, 20 got through (401) | slowest 0.01s
+bystander (client-b): 3 sent, 3 got through (401) | slowest 0.00s
+-- attacker, every request by time
+401 0.007539s retry-after=
+401 0.007590s retry-after=
+401 0.008079s retry-after=
+401 0.008484s retry-after=
+401 0.008702s retry-after=
+401 0.009396s retry-after=
+401 0.009396s retry-after=
+401 0.009633s retry-after=
+401 0.010255s retry-after=
+401 0.010286s retry-after=
+401 0.010496s retry-after=
+401 0.010957s retry-after=
+401 0.010992s retry-after=
+401 0.011654s retry-after=
+401 0.011677s retry-after=
+401 0.011774s retry-after=
+401 0.012107s retry-after=
+401 0.012348s retry-after=
+401 0.012805s retry-after=
+401 0.013038s retry-after=
+-- bystander
+401 0.002811s retry-after=
+401 0.002796s retry-after=
+401 0.003276s retry-after=
+-- one more attacker login, full response (minus the CDN's own Date, Server, Connection):
+HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+Content-Length: 26
+Alt-Svc: h3=":443"; ma=2592000
+Content-Security-Policy: frame-ancestors 'self'
+Referrer-Policy: strict-origin-when-cross-origin
+Strict-Transport-Security: max-age=63072000
+X-Content-Type-Options: nosniff
+
+{"error": "bad password"}
+== spoof, direct: client-c skips the CDN, 20 logins, each with a different fake X-Forwarded-For
+     20 401 retry-after=
+client-c: 20 sent, 20 got through (401) | slowest 0.02s
+== spoof, through the CDN: client-d, 20 logins, each with a different fake X-Forwarded-For on the left
+     20 401 retry-after=
+client-d: 20 sent, 20 got through (401) | slowest 0.01s
+== page load: client-e fires 30 API calls at once through the CDN
+     30 200 retry-after=
+client-e: 30 sent, 30 got through (200) | slowest 0.02s

@@ -1,0 +1,7 @@
+# Stock Caddy has no rate limiter. This adds the third-party mholt/caddy-ratelimit module,
+# pinned to the commit the Part 4 results were measured with.
+FROM caddy:2.11.9-builder AS build
+RUN xcaddy build --with github.com/mholt/caddy-ratelimit@5625512f24f6
+
+FROM caddy:2.11.9
+COPY --from=build /usr/bin/caddy /usr/bin/caddy

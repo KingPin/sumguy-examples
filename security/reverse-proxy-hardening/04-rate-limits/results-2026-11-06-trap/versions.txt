@@ -1,0 +1,17 @@
+CONTAINER                 REPOSITORY           TAG                 PLATFORM            IMAGE ID            SIZE                CREATED
+rp-ratelimit-backend-1    python               3.14-alpine         linux/amd64         05318f6e99ea        48MB                19 hours ago
+rp-ratelimit-caddy-1      rp-ratelimit-caddy   2.11.9-rl           linux/amd64         fd8b07bec16c        116MB               9 minutes ago
+rp-ratelimit-cdn-1        nginx                1.31.8              linux/amd64         c05939e13a61        163MB               31 hours ago
+rp-ratelimit-client-a-1   curlimages/curl      8.23.0              linux/amd64         08dd54208921        24.2MB              8 days ago
+rp-ratelimit-client-b-1   curlimages/curl      8.23.0              linux/amd64         08dd54208921        24.2MB              8 days ago
+rp-ratelimit-client-c-1   curlimages/curl      8.23.0              linux/amd64         08dd54208921        24.2MB              8 days ago
+rp-ratelimit-client-d-1   curlimages/curl      8.23.0              linux/amd64         08dd54208921        24.2MB              8 days ago
+rp-ratelimit-client-e-1   curlimages/curl      8.23.0              linux/amd64         08dd54208921        24.2MB              8 days ago
+rp-ratelimit-nginx-1      nginx                1.31.8              linux/amd64         c05939e13a61        163MB               31 hours ago
+rp-ratelimit-traefik-1    traefik              v3.7.17             linux/amd64         a72cb2f4a210        191MB               6 days ago
+caddy go	go1.27.3
+dep	github.com/mholt/caddy-ratelimit	v0.1.1-0.20260612195517-5625512f24f6	h1:XLJEIxNlf80gg+nc7Oea070+veJffHYKiX6UaYVY+tM=
+Version:      3.7.17
+Go version:   go1.27.3
+client: curl 8.23.0
+host: curl 8.23.0, Docker version 29.9.2, build a82e528901
