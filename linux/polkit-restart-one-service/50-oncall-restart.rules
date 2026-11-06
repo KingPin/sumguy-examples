@@ -1,0 +1,11 @@
+// Members of group oncall may restart demo-web.service without a password.
+// Scoped on action id + unit + verb. Everything else falls through to the
+// defaults (auth_admin for manage-units).
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units" &&
+        action.lookup("unit") == "demo-web.service" &&
+        action.lookup("verb") == "restart" &&
+        subject.isInGroup("oncall")) {
+        return polkit.Result.YES;
+    }
+});

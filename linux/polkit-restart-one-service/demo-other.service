@@ -1,0 +1,8 @@
+[Unit]
+Description=Demo other service
+
+[Service]
+ExecStart=/bin/sleep infinity
+
+[Install]
+WantedBy=multi-user.target

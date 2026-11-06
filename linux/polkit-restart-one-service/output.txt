@@ -1,0 +1,61 @@
+polkit: pkaction version 126
+systemd: systemd 257 (257.13-1~deb13u1)
+
+== Phase 1: no rule installed (defaults) ==
+PASS  alice restart demo-web, no rule
+        Failed to restart demo-web.service: Interactive authentication required.
+        See system logs and 'systemctl status demo-web.service' for details.
+
+== Phase 2: polkit rule installed ==
+PASS  alice (oncall) restarts demo-web
+PASS  MainPID changed (75 -> 128)
+PASS  alice stop demo-web refused
+        Failed to stop demo-web.service: Interactive authentication required.
+        See system logs and 'systemctl status demo-web.service' for details.
+PASS  alice restart demo-other refused
+        Failed to restart demo-other.service: Interactive authentication required.
+        See system logs and 'systemctl status demo-other.service' for details.
+PASS  alice enable demo-web refused (manage-unit-files)
+        Failed to enable unit: Interactive authentication required.
+PASS  bob (not in oncall) restart demo-web refused
+        Failed to restart demo-web.service: Interactive authentication required.
+        See system logs and 'systemctl status demo-web.service' for details.
+PASS  demo-web still active after the refused stop
+
+== Phase 3: pkcheck (root asks about alice's process) ==
+verb=restart
+unit=demo\55web\56service
+        verb=restart pkcheck rc=0
+verb=stop
+unit=demo\55web\56service
+Authorization requires authentication and -u wasn't passed.
+        verb=stop pkcheck rc=2
+
+== Phase 4: polkit.log and the verbs systemctl sends ==
+default unit (polkitd --no-debug), lines logged: 0
+        unit=demo-web.service verb=start user=alice local=false active=false
+        unit=demo-web.service verb=stop user=alice local=false active=false
+        unit=demo-web.service verb=restart user=alice local=false active=false
+        unit=demo-web.service verb=try-restart user=alice local=false active=false
+        unit=demo-web.service verb=reload user=alice local=false active=false
+        unit=demo-web.service verb=reload-or-restart user=alice local=false active=false
+        unit=demo-web.service verb=kill user=alice local=false active=false
+        unit=demo-web.service verb=restart user=alice local=false active=false
+
+== Phase 5: sudoers alternative ==
+PASS  visudo validates the drop-in
+        /etc/sudoers: parsed OK
+        /etc/sudoers.d/50-oncall: parsed OK
+        /etc/sudoers.d/README: parsed OK
+PASS  sudo: alice restarts demo-web
+PASS  sudo: alice stop demo-web refused
+        sudo: a password is required
+PASS  sudo: alice restart demo-other refused
+        sudo: a password is required
+PASS  sudo: bob restart demo-web refused
+        sudo: a password is required
+PASS  polkit rule removed: alice plain restart refused again
+        Failed to restart demo-web.service: Interactive authentication required.
+        See system logs and 'systemctl status demo-web.service' for details.
+
+ALL PASS

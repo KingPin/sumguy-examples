@@ -1,0 +1,2 @@
+# Same job in sudo: group oncall may restart demo-web.service, nothing else.
+%oncall ALL=(root) NOPASSWD: /usr/bin/systemctl restart demo-web.service
