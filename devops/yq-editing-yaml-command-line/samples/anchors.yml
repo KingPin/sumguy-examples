@@ -1,0 +1,11 @@
+defaults: &d
+  cpu: 1
+  mem: 512
+
+# prod gets more memory
+prod:
+  <<: *d
+  mem: 2048
+
+# staging is the default
+staging: *d

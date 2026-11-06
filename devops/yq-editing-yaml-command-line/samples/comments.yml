@@ -1,0 +1,9 @@
+# top comment
+name: demo   # trailing comment
+
+
+version: 1
+list:
+  - a   # item a
+  # before b
+  - b

@@ -1,0 +1,22 @@
+# Media stack
+x-defaults: &defaults
+  restart: unless-stopped
+
+services:
+  web:
+    <<: *defaults
+    image: nginx:1.27
+    ports:
+      - "8080:80"
+    environment:
+      - TZ=UTC
+
+  db:
+    <<: *defaults
+    image: postgres:16.3
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_DB: app
+
+  cache:
+    image: redis:7.2

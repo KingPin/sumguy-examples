@@ -1,0 +1,9 @@
+app:
+  name: demo
+  log_level: info
+  features:
+    - auth
+    - search
+db:
+  host: localhost
+  port: 5432

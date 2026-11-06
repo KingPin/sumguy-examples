@@ -1,0 +1,6 @@
+app:
+  log_level: debug
+  features:
+    - metrics
+db:
+  host: db.internal
