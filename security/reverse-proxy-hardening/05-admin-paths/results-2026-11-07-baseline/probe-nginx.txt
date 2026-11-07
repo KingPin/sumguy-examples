@@ -1,0 +1,30 @@
+### nginx (172.31.50.21)
+== 1. admin path variants from a stranger (client-out, 172.31.50.102, no session)
+200  /admin                     -> ADMIN PANEL "path":"/admin" "host":"app.example.test" "remote_user":null 
+200  /admin/                    -> ADMIN PANEL "path":"/admin/" "host":"app.example.test" "remote_user":null 
+200  /admin/users               -> ADMIN PANEL "path":"/admin/users" "host":"app.example.test" "remote_user":null 
+200  /ADMIN                     -> ADMIN PANEL "path":"/ADMIN" "host":"app.example.test" "remote_user":null 
+200  /Admin/users               -> ADMIN PANEL "path":"/Admin/users" "host":"app.example.test" "remote_user":null 
+404  //admin                    -> {"error":"not found","path":"//admin","host":"app.example.test","remote_user":null} 
+404  /./admin                   -> {"error":"not found","path":"/./admin","host":"app.example.test","remote_user":null} 
+404  /api/../admin              -> {"error":"not found","path":"/api/../admin","host":"app.example.test","remote_user":null} 
+404  /%61dmin                   -> {"error":"not found","path":"/%61dmin","host":"app.example.test","remote_user":null} 
+404  /%41DMIN                   -> {"error":"not found","path":"/%41DMIN","host":"app.example.test","remote_user":null} 
+404  /admin%2Fusers             -> {"error":"not found","path":"/admin%2Fusers","host":"app.example.test","remote_user":null}
+404  /admin%20                  -> {"error":"not found","path":"/admin%20","host":"app.example.test","remote_user":null} 
+404  /admin.                    -> {"error":"not found","path":"/admin.","host":"app.example.test","remote_user":null} 
+== 2. the real admin (client-lan, 172.31.50.101, with a session cookie)
+200  /admin                     -> ADMIN PANEL "path":"/admin" "host":"app.example.test" "remote_user":null 
+200  /admin/                    -> ADMIN PANEL "path":"/admin/" "host":"app.example.test" "remote_user":null 
+200  /admin/users               -> ADMIN PANEL "path":"/admin/users" "host":"app.example.test" "remote_user":null 
+-- client-lan without a session
+200  /admin/                    -> ADMIN PANEL "path":"/admin/" "host":"app.example.test" "remote_user":null 
+== 3. identity header: can a client choose who the app thinks it is?
+-- stranger, public route, sends Remote-User: alice
+200  /whoami                    -> {"path":"/whoami","host":"app.example.test","remote_user":"alice"} 
+-- admin with a valid session as alice, also sends Remote-User: root
+200  /admin/                    -> ADMIN PANEL "path":"/admin/" "host":"app.example.test" "remote_user":"root" 
+-- LAN client, no session, a path the auth server bypasses (200 with no Remote-User), sends Remote-User: root
+200  /admin/health              -> ADMIN PANEL "path":"/admin/health" "host":"app.example.test" "remote_user":"root" 
+== 4. control plane
+-- nginx open source has no admin API (no test)

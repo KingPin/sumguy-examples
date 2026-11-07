@@ -1,0 +1,90 @@
+# Part 5 baseline: the three proxies exactly as Part 4 left them, in front of an Express app with an admin panel.
+# Overlays: compose.trap.yml (admin protection the way most guides add it) and compose.hardened.yml (Part 5 fixes).
+# No CDN this time: the clients talk to the proxies directly. The Part 4 configs still trust only the
+# Part 4 CDN address (172.31.40.10), which is not on this network, so every proxy sees the real client.
+# Host ports bind to 127.0.0.1 only and exist for ../audit.sh.
+name: rp-admin
+
+networks:
+  lab:
+    ipam:
+      config: [{subnet: 172.31.50.0/24}]
+
+x-client: &client
+  image: curlimages/curl:8.23.0
+  command: ["sleep", "infinity"]
+  init: true
+
+services:
+  backend:
+    image: rp-admin-app:express-5.3.0
+    build: ./app
+    networks: {lab: {ipv4_address: 172.31.50.30}}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.app.loadbalancer.server.port=8080
+      - traefik.http.routers.app.rule=Host(`app.example.test`)
+      - traefik.http.routers.app.entrypoints=websecure
+      - traefik.http.routers.app.tls=true
+      - traefik.http.routers.app.middlewares=strip-banners@file,hsts@file,base-headers@file,policy-headers@file
+      - traefik.http.routers.login.rule=Host(`app.example.test`) && Path(`/login`)
+      - traefik.http.routers.login.entrypoints=websecure
+      - traefik.http.routers.login.tls=true
+      - traefik.http.routers.login.service=app
+      - traefik.http.routers.login.middlewares=strip-banners@file,hsts@file,base-headers@file,policy-headers@file,login-limit@file
+      - traefik.http.routers.api.rule=Host(`app.example.test`) && PathPrefix(`/api/`)
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.tls=true
+      - traefik.http.routers.api.service=app
+      - traefik.http.routers.api.middlewares=strip-banners@file,hsts@file,base-headers@file,policy-headers@file,api-limit@file
+
+  # stand-in forward-auth server (Authelia-shaped stub, see auth.py)
+  auth:
+    image: python:3.14-alpine
+    command: ["python", "-u", "/app/auth.py"]
+    volumes: ["./auth.py:/app/auth.py:ro"]
+    networks: {lab: {ipv4_address: 172.31.50.31}}
+
+  nginx:
+    image: nginx:1.31.8
+    depends_on: [backend, auth]
+    ports: ["127.0.0.1:8081:80", "127.0.0.1:8443:443"]
+    networks: {lab: {ipv4_address: 172.31.50.21}}
+    volumes:
+      - ../04-rate-limits/hardened/nginx-app.conf:/etc/nginx/conf.d/app.conf:ro
+      - ./certs:/certs:ro
+
+  caddy:
+    # Part 4's Caddy build: stock 2.11.9 plus mholt/caddy-ratelimit
+    image: rp-ratelimit-caddy:2.11.9-rl
+    build: {context: ../04-rate-limits, dockerfile: Dockerfile.caddy}
+    depends_on: [backend, auth]
+    ports: ["127.0.0.1:8082:80", "127.0.0.1:9443:443"]
+    networks: {lab: {ipv4_address: 172.31.50.22}}
+    volumes:
+      - ../04-rate-limits/hardened/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+
+  traefik:
+    image: traefik:v3.7.17
+    depends_on: [backend, auth]
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=rp-admin_lab
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.forwardedHeaders.trustedIPs=172.31.40.10/32
+    ports: ["127.0.0.1:8083:80", "127.0.0.1:10443:443"]
+    networks: {lab: {ipv4_address: 172.31.50.23}}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../04-rate-limits/hardened/traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./certs:/certs:ro
+
+  # the admin's own machine on the LAN: the one address the admin allow-lists name
+  client-lan: {<<: *client, networks: {lab: {ipv4_address: 172.31.50.101}}}
+  # a stranger, and in the control-plane tests a compromised container on the same Docker network
+  client-out: {<<: *client, networks: {lab: {ipv4_address: 172.31.50.102}}}

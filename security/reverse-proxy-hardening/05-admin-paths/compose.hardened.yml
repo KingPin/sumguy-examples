@@ -1,0 +1,48 @@
+# Overlay with the Part 5 fixes. Used by: ./run.sh hardened
+#   nginx    case-insensitive admin location, Remote-User set at server level (hardened/nginx-app.conf)
+#   Caddy    @admin path /admin*, request_header -Remote-User, admin API left on localhost (hardened/Caddyfile)
+#   Traefik  a case-insensitive PathRegexp admin router, strip-identity on every router, no api.insecure,
+#            dashboard only through its own router (hardened/traefik-dynamic.yml)
+services:
+  backend:
+    labels:
+      - traefik.http.routers.app.middlewares=strip-identity@file,strip-banners@file,hsts@file,base-headers@file,policy-headers@file
+      - traefik.http.routers.login.middlewares=strip-identity@file,strip-banners@file,hsts@file,base-headers@file,policy-headers@file,login-limit@file
+      - traefik.http.routers.api.middlewares=strip-identity@file,strip-banners@file,hsts@file,base-headers@file,policy-headers@file,api-limit@file
+      # (?i) because Express routes case-insensitively. Traefik matches the cleaned, decoded path.
+      - traefik.http.routers.admin.rule=Host(`app.example.test`) && PathRegexp(`(?i)^/admin`)
+      - traefik.http.routers.admin.entrypoints=websecure
+      - traefik.http.routers.admin.tls=true
+      - traefik.http.routers.admin.service=app
+      - traefik.http.routers.admin.middlewares=strip-identity@file,admin-lan@file,authelia@file,strip-banners@file,hsts@file,base-headers@file,policy-headers@file
+  nginx:
+    volumes:
+      - ./hardened/nginx-app.conf:/etc/nginx/conf.d/app.conf:ro
+      - ./certs:/certs:ro
+  caddy:
+    volumes:
+      - ./hardened/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+  traefik:
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=rp-admin_lab
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.forwardedHeaders.trustedIPs=172.31.40.10/32
+      # the dashboard without api.insecure: no port 8080, reachable only through the router below
+      - --api.dashboard=true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dashboard.rule=Host(`traefik.example.test`)
+      - traefik.http.routers.dashboard.entrypoints=websecure
+      - traefik.http.routers.dashboard.tls=true
+      - traefik.http.routers.dashboard.service=api@internal
+      - traefik.http.routers.dashboard.middlewares=admin-lan@file,authelia@file
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./hardened/traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./certs:/certs:ro

@@ -1,0 +1,30 @@
+### nginx (172.31.50.21)
+== 1. admin path variants from a stranger (client-out, 172.31.50.102, no session)
+403  /admin                     -> Forbidden.  
+403  /admin/                    -> Forbidden.  
+403  /admin/users               -> Forbidden.  
+403  /ADMIN                     -> Forbidden.  
+403  /Admin/users               -> Forbidden.  
+403  //admin                    -> Forbidden.  
+403  /./admin                   -> Forbidden.  
+403  /api/../admin              -> Forbidden.  
+403  /%61dmin                   -> Forbidden.  
+403  /%41DMIN                   -> Forbidden.  
+403  /admin%2Fusers             -> Forbidden.  
+403  /admin%20                  -> Forbidden.  
+403  /admin.                    -> Forbidden.  
+== 2. the real admin (client-lan, 172.31.50.101, with a session cookie)
+200  /admin                     -> ADMIN PANEL "path":"/admin" "host":"app.example.test" "remote_user":"alice" 
+200  /admin/                    -> ADMIN PANEL "path":"/admin/" "host":"app.example.test" "remote_user":"alice" 
+200  /admin/users               -> ADMIN PANEL "path":"/admin/users" "host":"app.example.test" "remote_user":"alice" 
+-- client-lan without a session
+401  /admin/                    -> Login required.  
+== 3. identity header: can a client choose who the app thinks it is?
+-- stranger, public route, sends Remote-User: alice
+200  /whoami                    -> {"path":"/whoami","host":"app.example.test","remote_user":null} 
+-- admin with a valid session as alice, also sends Remote-User: root
+200  /admin/                    -> ADMIN PANEL "path":"/admin/" "host":"app.example.test" "remote_user":"alice" 
+-- LAN client, no session, a path the auth server bypasses (200 with no Remote-User), sends Remote-User: root
+200  /admin/health              -> ADMIN PANEL "path":"/admin/health" "host":"app.example.test" "remote_user":null 
+== 4. control plane
+-- nginx open source has no admin API (no test)

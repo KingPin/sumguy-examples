@@ -1,0 +1,30 @@
+### 1. HTTP, correct Host
+HTTP/1.1 301 Moved Permanently
+Server: nginx
+Location: https://app.example.test/
+### 2. HTTP, bare IP (what a scanner sees)
+no response (curl exit 52)
+body: 
+### 3. HTTPS, correct name
+HTTP/1.1 200 OK
+Server: nginx
+Strict-Transport-Security: max-age=63072000
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Content-Security-Policy: frame-ancestors 'self'
+### 4. Forwarding headers the backend received (client sent X-Forwarded-For: 6.6.6.6)
+### 5. TLS with no SNI (scanner hitting the IP)
+no certificate (handshake refused)
+### 6. TLS with an unknown SNI
+no certificate (handshake refused)
+### 7. HTTPS, right SNI, unknown Host header
+no response (curl exit 56)
+body: 
+### 8. Backend error page (/boom)
+HTTP/1.1 500 Internal Server Error
+Server: nginx
+Strict-Transport-Security: max-age=63072000
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Content-Security-Policy: frame-ancestors 'self'
+body: Something went wrong. 

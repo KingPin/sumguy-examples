@@ -1,0 +1,37 @@
+### traefik (172.31.50.23)
+== 1. admin path variants from a stranger (client-out, 172.31.50.102, no session)
+403  /admin                     -> Forbidden 
+403  /admin/                    -> Forbidden 
+403  /admin/users               -> Forbidden 
+200  /ADMIN                     -> ADMIN PANEL "path":"/ADMIN" "host":"app.example.test" "remote_user":null 
+200  /Admin/users               -> ADMIN PANEL "path":"/Admin/users" "host":"app.example.test" "remote_user":null 
+403  //admin                    -> Forbidden 
+403  /./admin                   -> Forbidden 
+403  /api/../admin              -> Forbidden 
+403  /%61dmin                   -> Forbidden 
+200  /%41DMIN                   -> ADMIN PANEL "path":"/ADMIN" "host":"app.example.test" "remote_user":null 
+403  /admin%2Fusers             -> Forbidden 
+403  /admin%20                  -> Forbidden 
+403  /admin.                    -> Forbidden 
+== 2. the real admin (client-lan, 172.31.50.101, with a session cookie)
+200  /admin                     -> ADMIN PANEL "path":"/admin" "host":"app.example.test" "remote_user":"alice" 
+200  /admin/                    -> ADMIN PANEL "path":"/admin/" "host":"app.example.test" "remote_user":"alice" 
+200  /admin/users               -> ADMIN PANEL "path":"/admin/users" "host":"app.example.test" "remote_user":"alice" 
+-- client-lan without a session
+401  /admin/                    ->  
+== 3. identity header: can a client choose who the app thinks it is?
+-- stranger, public route, sends Remote-User: alice
+200  /whoami                    -> {"path":"/whoami","host":"app.example.test","remote_user":"alice"} 
+-- admin with a valid session as alice, also sends Remote-User: root
+200  /admin/                    -> ADMIN PANEL "path":"/admin/" "host":"app.example.test" "remote_user":"alice" 
+-- LAN client, no session, a path the auth server bypasses (200 with no Remote-User), sends Remote-User: root
+200  /admin/health              -> ADMIN PANEL "path":"/admin/health" "host":"app.example.test" "remote_user":null 
+== 4. control plane
+-- stranger to Traefik's own API port, http://172.31.50.23:8080/api/rawdata
+200
+routers: 8, services: 2, backend address shown: http://172.31.50.30:8080
+forward-auth address shown: http://auth:9091/verify, allow list shown: 172.31.50.101/32
+-- dashboard hostname, stranger / LAN with session
+403  /dashboard/                -> Forbidden 
+200  /dashboard/                -> <!DOCTYPE html> <html lang="en">   <head>           <script>       window.APIUrl = "\/api\
+200  /api/version               -> {"Version":"3.7.17","Codename":"langres","startDate":"2026-11-07T16:48:46.316533539Z"} 

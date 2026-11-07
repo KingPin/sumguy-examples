@@ -1,0 +1,45 @@
+# Overlay: admin protection the way most guides add it. Used by: ./run.sh trap
+#   nginx    location /admin with an allow list and auth_request (trap/nginx-app.conf)
+#   Caddy    @admin path /admin/* with client_ip and forward_auth, admin API on 0.0.0.0:2019 (trap/Caddyfile)
+#   Traefik  a PathPrefix(`/admin`) router with ipAllowList and forwardAuth, plus the quick-start
+#            api.insecure dashboard and a "secured" dashboard router on its own hostname
+services:
+  backend:
+    labels:
+      - traefik.http.routers.admin.rule=Host(`app.example.test`) && PathPrefix(`/admin`)
+      - traefik.http.routers.admin.entrypoints=websecure
+      - traefik.http.routers.admin.tls=true
+      - traefik.http.routers.admin.service=app
+      - traefik.http.routers.admin.middlewares=admin-lan@file,authelia@file,strip-banners@file,hsts@file,base-headers@file,policy-headers@file
+  nginx:
+    volumes:
+      - ./trap/nginx-app.conf:/etc/nginx/conf.d/app.conf:ro
+      - ./certs:/certs:ro
+  caddy:
+    volumes:
+      - ./trap/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+  traefik:
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=rp-admin_lab
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.forwardedHeaders.trustedIPs=172.31.40.10/32
+      - --api.insecure=true
+    # the quick start publishes 8080:8080; bound to loopback here
+    ports: ["127.0.0.1:8083:80", "127.0.0.1:10443:443", "127.0.0.1:8090:8080"]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dashboard.rule=Host(`traefik.example.test`)
+      - traefik.http.routers.dashboard.entrypoints=websecure
+      - traefik.http.routers.dashboard.tls=true
+      - traefik.http.routers.dashboard.service=api@internal
+      - traefik.http.routers.dashboard.middlewares=admin-lan@file,authelia@file
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./trap/traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./certs:/certs:ro

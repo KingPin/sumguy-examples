@@ -1,0 +1,38 @@
+### caddy (172.31.50.22)
+== 1. admin path variants from a stranger (client-out, 172.31.50.102, no session)
+200  /admin                     -> ADMIN PANEL "path":"/admin" "host":"app.example.test" "remote_user":null 
+401  /admin/                    ->  
+401  /admin/users               ->  
+200  /ADMIN                     -> ADMIN PANEL "path":"/ADMIN" "host":"app.example.test" "remote_user":null 
+401  /Admin/users               ->  
+404  //admin                    -> {"error":"not found","path":"//admin","host":"app.example.test","remote_user":null} 
+404  /./admin                   -> {"error":"not found","path":"/./admin","host":"app.example.test","remote_user":null} 
+404  /api/../admin              -> {"error":"not found","path":"/api/../admin","host":"app.example.test","remote_user":null} 
+404  /%61dmin                   -> {"error":"not found","path":"/%61dmin","host":"app.example.test","remote_user":null} 
+404  /%41DMIN                   -> {"error":"not found","path":"/%41DMIN","host":"app.example.test","remote_user":null} 
+401  /admin%2Fusers             ->  
+404  /admin%20                  -> {"error":"not found","path":"/admin%20","host":"app.example.test","remote_user":null} 
+404  /admin.                    -> {"error":"not found","path":"/admin.","host":"app.example.test","remote_user":null} 
+== 2. the real admin (client-lan, 172.31.50.101, with a session cookie)
+200  /admin                     -> ADMIN PANEL "path":"/admin" "host":"app.example.test" "remote_user":null 
+200  /admin/                    -> ADMIN PANEL "path":"/admin/" "host":"app.example.test" "remote_user":"alice" 
+200  /admin/users               -> ADMIN PANEL "path":"/admin/users" "host":"app.example.test" "remote_user":"alice" 
+-- client-lan without a session
+401  /admin/                    ->  
+== 3. identity header: can a client choose who the app thinks it is?
+-- stranger, public route, sends Remote-User: alice
+200  /whoami                    -> {"path":"/whoami","host":"app.example.test","remote_user":"alice"} 
+-- admin with a valid session as alice, also sends Remote-User: root
+200  /admin/                    -> ADMIN PANEL "path":"/admin/" "host":"app.example.test" "remote_user":"alice" 
+-- LAN client, no session, a path the auth server bypasses (200 with no Remote-User), sends Remote-User: root
+200  /admin/health              -> ADMIN PANEL "path":"/admin/health" "host":"app.example.test" "remote_user":null 
+== 4. control plane
+-- stranger to Caddy's admin API, http://172.31.50.22:2019/config/
+200 {"admin":{"listen":"0.0.0.0:2019"},"apps":{"http":{"servers":{"srv0":{"client_ip_headers":["X-Forwarded-For"],"errors":{"routes":[{"handle":[{"handler":"subrout
+-- same, with Host: localhost:2019
+200 {"admin":{"listen":"0.0.0.0:2019"},"apps":{"http":{"servers":{"srv0":{"client_ip_headers":["X-Forwarded-For"],"errors":{"routes":[{"handle":[{"handler":"subrout
+-- stranger replaces the whole config (POST /load), then fetches http://172.31.50.22/
+200  
+200 owned 
+-- caddy reload from inside the container (the admin's own tool)
+exit 0

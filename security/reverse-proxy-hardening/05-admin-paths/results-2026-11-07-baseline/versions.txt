@@ -1,0 +1,15 @@
+CONTAINER               REPOSITORY           TAG                 PLATFORM            IMAGE ID            SIZE                CREATED
+rp-admin-auth-1         python               3.14-alpine         linux/amd64         05318f6e99ea        48MB                45 hours ago
+rp-admin-backend-1      rp-admin-app         express-5.3.0       linux/amd64         6d55d5917e76        189MB               24 minutes ago
+rp-admin-caddy-1        rp-ratelimit-caddy   2.11.9-rl           linux/amd64         cb541ceb64c3        116MB               27 hours ago
+rp-admin-client-lan-1   curlimages/curl      8.23.0              linux/amd64         08dd54208921        24.2MB              10 days ago
+rp-admin-client-out-1   curlimages/curl      8.23.0              linux/amd64         08dd54208921        24.2MB              10 days ago
+rp-admin-nginx-1        nginx                1.31.8              linux/amd64         c05939e13a61        163MB               2 days ago
+rp-admin-traefik-1      traefik              v3.7.17             linux/amd64         d848e658dbc9        191MB               46 hours ago
+caddy go	go1.27.3
+dep	github.com/mholt/caddy-ratelimit	v0.1.1-0.20260612195517-5625512f24f6	h1:XLJEIxNlf80gg+nc7Oea070+veJffHYKiX6UaYVY+tM=
+Version:      3.7.17
+Go version:   go1.27.3
+app: node v26.13.0, express 5.3.0
+client: curl 8.23.0
+host: curl 8.23.0, Docker version 29.9.2, build a82e528901
