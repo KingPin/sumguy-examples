@@ -1,0 +1,51 @@
+
+== systemd version
+systemd 262 (262.1-1-arch)
+
+== 1. a throwaway user
+uid=61245(run-p268-i18978904) gid=61245(run-p268-i18978904) groups=61245(run-p268-i18978904)
+
+== 2. writes outside the allowed dirs fail
+touch: cannot touch '/etc/nope': Read-only file system
+/tmp write ok (private /tmp)
+
+== 3. the user exists only while the unit runs
+sleeper:x:63741:63741:Dynamic User:/:/usr/bin/nologin
+sleeper: gone after stop
+
+== 4. StateDirectory= and the private/ symlink
+USER       UID CMD
+webdemo  62871 /usr/bin/python -m http.server 8080 --bind 127.0.0.1
+hello
+lrwxrwxrwx  1 root  root    15 Nov  7 14:04 webdemo -> private/webdemo
+total 4
+drwxr-xr-x 2 65534 65534 4096 Nov  7 14:04 webdemo
+
+== 5. same UID across restarts
+62871
+62871
+62871
+
+== 6. root-only config file vs LoadCredential=
+cat: /etc/demo.conf: Permission denied
+secret
+
+== 7. ReadWritePaths= leaves files behind
+62317
+total 0
+-rw-r--r-- 1 62317 62317 0 Nov  7 14:04 x
+
+== 8. migration from a static user
+-- static user still exists:
+olddemo    969 /usr/bin/python -m http.server 8081 --bind 127.0.0.1
+-- after userdel:
+olddemo  61337 /usr/bin/python -m http.server 8081 --bind 127.0.0.1
+total 4
+-rw-r--r-- 1 61337 61337 5 Nov  7 14:05 keep.txt
+Nov 07 14:05:01 20097db440ec (python)[465]: olddemo.service: Apparently, service previously had DynamicUser= turned off, and has now turned it on.
+
+== 9. systemd-analyze security scores
+→ Overall exposure level for rootdemo.service: 9.6 UNSAFE :-{
+→ Overall exposure level for webdemo.service: 8.2 EXPOSED :-(
+hello
+→ Overall exposure level for webdemo.service: 1.4 OK :-)

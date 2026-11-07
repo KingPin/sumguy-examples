@@ -1,0 +1,14 @@
+[Unit]
+Description=Tiny static web server (DynamicUser demo)
+
+[Service]
+DynamicUser=yes
+StateDirectory=webdemo
+CacheDirectory=webdemo
+LogsDirectory=webdemo
+WorkingDirectory=/srv/www
+ExecStart=/usr/bin/python -m http.server 8080 --bind 127.0.0.1
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
