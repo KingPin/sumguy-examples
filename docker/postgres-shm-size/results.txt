@@ -1,0 +1,16 @@
+== pg-default (64M /dev/shm)
+ERROR:  could not resize shared memory segment "/PostgreSQL.1363081192" to 67244032 bytes: No space left on device
+== pg-shm (1.0G /dev/shm)
+ 5000000
+(1 row)
+
+== pg-mindsm (64M /dev/shm)
+ 5000000
+(1 row)
+
+== pg-tight (1.0G /dev/shm)
+	This probably means the server terminated abnormally
+	before or while processing the request.
+connection to server was lost
+== pg-tight OOMKilled: true
+Clean up with: docker compose down -v
