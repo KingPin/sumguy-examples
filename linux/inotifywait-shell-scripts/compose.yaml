@@ -1,0 +1,7 @@
+services:
+  kit:
+    build: .
+    # Scripts are baked into the image. Mount your own copy to edit live:
+    # volumes:
+    #   - ./:/kit
+    command: ["bash", "./run-tests.sh"]
