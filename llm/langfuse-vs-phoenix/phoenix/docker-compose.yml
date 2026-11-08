@@ -1,0 +1,34 @@
+services:
+  phoenix:
+    image: arizephoenix/phoenix:version-21.0.0
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:6106:6006"   # UI + OTLP/HTTP
+      - "127.0.0.1:4417:4317"   # OTLP/gRPC
+    environment:
+      PHOENIX_SQL_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
+      # v21 turns auth on when bound to a non-loopback address (always true in Docker).
+      PHOENIX_SECRET: ${PHOENIX_SECRET}
+      # Bearer token for scripts. Authenticates as the first admin user.
+      PHOENIX_ADMIN_SECRET: ${PHOENIX_ADMIN_SECRET}
+
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: postgres
+    volumes:
+      - phoenix_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  phoenix_db:
