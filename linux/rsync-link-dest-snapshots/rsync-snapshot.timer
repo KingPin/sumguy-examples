@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily rsync snapshot
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+RandomizedDelaySec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=rsync hard-link snapshot of /home/you
+RequiresMountsFor=/srv/backups
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/snapshot.sh /home/you /srv/backups/home 14
+Nice=10
+IOSchedulingClass=idle
