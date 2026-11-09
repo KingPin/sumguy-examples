@@ -1,0 +1,10 @@
+[Unit]
+Description=Watch the inbox directory
+
+[Path]
+DirectoryNotEmpty=%h/inbox
+MakeDirectory=yes
+DirectoryMode=0700
+
+[Install]
+WantedBy=default.target

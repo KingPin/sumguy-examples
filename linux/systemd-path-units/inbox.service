@@ -1,0 +1,7 @@
+[Unit]
+Description=Process everything in the inbox directory
+
+[Service]
+Type=oneshot
+SyslogIdentifier=process-inbox
+ExecStart=%h/.local/bin/process-inbox.sh %h/inbox %h/processed
