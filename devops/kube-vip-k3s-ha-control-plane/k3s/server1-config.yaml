@@ -1,0 +1,7 @@
+# /etc/rancher/k3s/config.yaml on the FIRST server only.
+# The VIP must be in tls-san, or kubectl through the VIP fails certificate checks.
+cluster-init: true
+token: "change-me-to-a-long-random-string"
+tls-san:
+  - 192.168.1.50
+  - k3s.home.arpa

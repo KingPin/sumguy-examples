@@ -1,0 +1,8 @@
+# /etc/rancher/k3s/config.yaml on servers 2 and 3.
+# Join through a real server IP. The VIP works too once kube-vip is up,
+# but server 1's address has no dependency on kube-vip at all.
+server: https://192.168.1.11:6443
+token: "change-me-to-a-long-random-string"
+tls-san:
+  - 192.168.1.50
+  - k3s.home.arpa

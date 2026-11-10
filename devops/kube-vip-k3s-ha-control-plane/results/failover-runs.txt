@@ -1,0 +1,183 @@
+## run 1
+waiting for server1...
+waiting for 3 Ready servers...
+NAME         STATUS   ROLES                AGE   VERSION
+kv-server1   Ready    control-plane,etcd   32s   v1.37.2+k3s1
+kv-server2   Ready    <none>               1s    v1.37.2+k3s1
+kv-server3   Ready    control-plane,etcd   13s   v1.37.2+k3s1
+waiting for kube-vip pods on all 3 servers...
+NAME                READY   STATUS    RESTARTS   AGE   IP              NODE         NOMINATED NODE   READINESS GATES
+kube-vip-ds-2bqh4   1/1     Running   0          16s   172.31.250.13   kv-server3   <none>           <none>
+kube-vip-ds-8hrpk   1/1     Running   0          4s    172.31.250.12   kv-server2   <none>           <none>
+kube-vip-ds-8nfpr   1/1     Running   0          30s   172.31.250.11   kv-server1   <none>           <none>
+waiting for the VIP to answer...
+VIP answers with HTTP 401 (401 is fine: it means the API server replied)
+lease plndr-cp-lock holder: kv-server1
+VIP is on kv-server1
+serving cert lists 172.31.250.100
+killing kv-server1 (docker kill = pulled power cord)...
+VIP answered again after 21.6 s (down=1)
+new holder: kv-server2
+## run 2
+waiting for server1...
+waiting for 3 Ready servers...
+Error response from daemon: container e246a9e2b96cc45fecfee2e266e56d67a1ba726f2228543f1fe89ce041aace21 is not running
+## run 3
+waiting for server1...
+waiting for 3 Ready servers...
+NAME         STATUS   ROLES                AGE   VERSION
+kv-server1   Ready    control-plane,etcd   33s   v1.37.2+k3s1
+kv-server2   Ready    control-plane,etcd   2s    v1.37.2+k3s1
+kv-server3   Ready    control-plane,etcd   15s   v1.37.2+k3s1
+waiting for kube-vip pods on all 3 servers...
+NAME                READY   STATUS    RESTARTS   AGE   IP              NODE         NOMINATED NODE   READINESS GATES
+kube-vip-ds-ddvrb   1/1     Running   0          15s   172.31.250.13   kv-server3   <none>           <none>
+kube-vip-ds-hmjkm   1/1     Running   0          3s    172.31.250.12   kv-server2   <none>           <none>
+kube-vip-ds-wwqfd   1/1     Running   0          29s   172.31.250.11   kv-server1   <none>           <none>
+waiting for the VIP to answer...
+VIP answers with HTTP 401 (401 is fine: it means the API server replied)
+lease plndr-cp-lock holder: kv-server1
+VIP is on kv-server1
+serving cert lists 172.31.250.100
+killing kv-server1 (docker kill = pulled power cord)...
+VIP answered again after 16.2 s (down=1)
+new holder: kv-server3
+## run 4
+waiting for server1...
+waiting for 3 Ready servers...
+NAME         STATUS   ROLES                AGE   VERSION
+kv-server1   Ready    control-plane,etcd   33s   v1.37.2+k3s1
+kv-server2   Ready    control-plane,etcd   14s   v1.37.2+k3s1
+kv-server3   Ready    control-plane,etcd   2s    v1.37.2+k3s1
+waiting for kube-vip pods on all 3 servers...
+NAME                READY   STATUS    RESTARTS   AGE   IP              NODE         NOMINATED NODE   READINESS GATES
+kube-vip-ds-8t49g   1/1     Running   0          18s   172.31.250.12   kv-server2   <none>           <none>
+kube-vip-ds-wfcgn   1/1     Running   0          32s   172.31.250.11   kv-server1   <none>           <none>
+kube-vip-ds-wtcxd   1/1     Running   0          6s    172.31.250.13   kv-server3   <none>           <none>
+waiting for the VIP to answer...
+VIP answers with HTTP 401 (401 is fine: it means the API server replied)
+lease plndr-cp-lock holder: kv-server1
+VIP is on kv-server1
+serving cert lists 172.31.250.100
+killing kv-server1 (docker kill = pulled power cord)...
+VIP answered again after 17.5 s (down=1)
+new holder: kv-server2
+/kv-server1 exited exit=137
+/kv-server2 running exit=0
+/kv-server3 running exit=0
+## run 5
+waiting for server1...
+waiting for 3 Ready servers...
+NAME         STATUS   ROLES                AGE   VERSION
+kv-server1   Ready    control-plane,etcd   32s   v1.37.2+k3s1
+kv-server2   Ready    control-plane,etcd   14s   v1.37.2+k3s1
+kv-server3   Ready    control-plane,etcd   2s    v1.37.2+k3s1
+waiting for kube-vip pods on all 3 servers...
+NAME                READY   STATUS    RESTARTS   AGE   IP              NODE         NOMINATED NODE   READINESS GATES
+kube-vip-ds-ghd9n   1/1     Running   0          29s   172.31.250.11   kv-server1   <none>           <none>
+kube-vip-ds-wvx5v   1/1     Running   0          16s   172.31.250.12   kv-server2   <none>           <none>
+kube-vip-ds-xrj4w   1/1     Running   0          3s    172.31.250.13   kv-server3   <none>           <none>
+waiting for the VIP to answer...
+VIP answers with HTTP 401 (401 is fine: it means the API server replied)
+lease plndr-cp-lock holder: kv-server1
+VIP is on kv-server1
+serving cert lists 172.31.250.100
+killing kv-server1 (docker kill = pulled power cord)...
+VIP answered again after 17.5 s (down=1)
+new holder: kv-server3
+/kv-server1 exited exit=137
+/kv-server2 running exit=0
+/kv-server3 running exit=0
+## run 6 (separate review session, same script)
+waiting for server1...
+waiting for 3 Ready servers...
+NAME         STATUS   ROLES                AGE   VERSION
+kv-server1   Ready    control-plane,etcd   43s   v1.37.2+k3s1
+kv-server2   Ready    control-plane,etcd   9s    v1.37.2+k3s1
+kv-server3   Ready    control-plane,etcd   34s   v1.37.2+k3s1
+waiting for kube-vip pods on all 3 servers...
+NAME                READY   STATUS    RESTARTS   AGE   IP              NODE         NOMINATED NODE   READINESS GATES
+kube-vip-ds-45tg6   1/1     Running   0          42s   172.31.250.11   kv-server1   <none>           <none>
+kube-vip-ds-jhvf5   1/1     Running   0          7s    172.31.250.12   kv-server2   <none>           <none>
+kube-vip-ds-jknz4   1/1     Running   0          38s   172.31.250.13   kv-server3   <none>           <none>
+waiting for the VIP to answer...
+VIP answers with HTTP 401 (401 is fine: it means the API server replied)
+lease plndr-cp-lock holder: kv-server1
+VIP is on kv-server1
+serving cert lists 172.31.250.100
+killing kv-server1 (docker kill = pulled power cord)...
+VIP answered again after 48.3 s (down=1)
+new holder: kv-server2
+/kv-server1 exited exit=137
+/kv-server2 running exit=0
+/kv-server3 running exit=0
+exit=0
+## run 7
+waiting for server1...
+waiting for 3 Ready servers...
+NAME         STATUS   ROLES                AGE   VERSION
+kv-server1   Ready    control-plane,etcd   36s   v1.37.2+k3s1
+kv-server2   Ready    control-plane,etcd   17s   v1.37.2+k3s1
+kv-server3   Ready    <none>               1s    v1.37.2+k3s1
+waiting for kube-vip pods on all 3 servers...
+NAME                READY   STATUS    RESTARTS   AGE   IP              NODE         NOMINATED NODE   READINESS GATES
+kube-vip-ds-d97k9   1/1     Running   0          33s   172.31.250.11   kv-server1   <none>           <none>
+kube-vip-ds-jcmrp   1/1     Running   0          4s    172.31.250.13   kv-server3   <none>           <none>
+kube-vip-ds-s87n5   1/1     Running   0          20s   172.31.250.12   kv-server2   <none>           <none>
+waiting for the VIP to answer...
+VIP answers with HTTP 401 (401 is fine: it means the API server replied)
+lease plndr-cp-lock holder: kv-server1
+VIP is on kv-server1
+serving cert lists 172.31.250.100
+killing kv-server1 (docker kill = pulled power cord)...
+VIP answered again after 25.9 s (down=1)
+new holder: kv-server3
+/kv-server1 exited exit=137
+/kv-server2 running exit=0
+/kv-server3 running exit=0
+## run 8
+waiting for server1...
+waiting for 3 Ready servers...
+NAME         STATUS   ROLES                AGE   VERSION
+kv-server1   Ready    control-plane,etcd   33s   v1.37.2+k3s1
+kv-server2   Ready    control-plane,etcd   14s   v1.37.2+k3s1
+kv-server3   Ready    control-plane,etcd   2s    v1.37.2+k3s1
+waiting for kube-vip pods on all 3 servers...
+NAME                READY   STATUS    RESTARTS   AGE   IP              NODE         NOMINATED NODE   READINESS GATES
+kube-vip-ds-5dc2h   1/1     Running   0          15s   172.31.250.12   kv-server2   <none>           <none>
+kube-vip-ds-fqghc   1/1     Running   0          3s    172.31.250.13   kv-server3   <none>           <none>
+kube-vip-ds-prcs5   1/1     Running   0          29s   172.31.250.11   kv-server1   <none>           <none>
+waiting for the VIP to answer...
+VIP answers with HTTP 401 (401 is fine: it means the API server replied)
+lease plndr-cp-lock holder: kv-server1
+VIP is on kv-server1
+serving cert lists 172.31.250.100
+killing kv-server1 (docker kill = pulled power cord)...
+VIP answered again after 17.4 s (down=1)
+new holder: kv-server2
+/kv-server1 exited exit=137
+/kv-server2 running exit=0
+/kv-server3 running exit=0
+## run 9
+waiting for server1...
+waiting for 3 Ready servers...
+NAME         STATUS   ROLES                AGE   VERSION
+kv-server1   Ready    control-plane,etcd   34s   v1.37.2+k3s1
+kv-server2   Ready    <none>               1s    v1.37.2+k3s1
+kv-server3   Ready    control-plane,etcd   17s   v1.37.2+k3s1
+waiting for kube-vip pods on all 3 servers...
+NAME                READY   STATUS    RESTARTS   AGE   IP              NODE         NOMINATED NODE   READINESS GATES
+kube-vip-ds-4r77l   1/1     Running   0          3s    172.31.250.12   kv-server2   <none>           <none>
+kube-vip-ds-c2pvw   1/1     Running   0          20s   172.31.250.13   kv-server3   <none>           <none>
+kube-vip-ds-sxc7t   1/1     Running   0          31s   172.31.250.11   kv-server1   <none>           <none>
+waiting for the VIP to answer...
+VIP answers with HTTP 401 (401 is fine: it means the API server replied)
+lease plndr-cp-lock holder: kv-server1
+VIP is on kv-server1
+serving cert lists 172.31.250.100
+killing kv-server1 (docker kill = pulled power cord)...
+VIP answered again after 18.6 s (down=1)
+new holder: kv-server3
+/kv-server1 exited exit=137
+/kv-server2 running exit=0
+/kv-server3 running exit=0

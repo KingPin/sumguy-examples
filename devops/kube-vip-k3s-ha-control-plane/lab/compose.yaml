@@ -1,0 +1,48 @@
+# Throwaway 3-server k3s cluster in Docker, for testing kube-vip failover
+# on a laptop. Not for real use: privileged containers, no persistence.
+x-server: &server
+  image: rancher/k3s:${K3S_TAG:-v1.37.2-k3s1}
+  privileged: true
+  # Joining servers exit if server1 is still starting; this retries them.
+  restart: on-failure
+  tmpfs:
+    - /run
+    - /var/run
+  environment:
+    K3S_TOKEN: lab-token-not-a-secret
+
+services:
+  server1:
+    <<: *server
+    container_name: kv-server1
+    hostname: kv-server1
+    command: server --cluster-init --tls-san 172.31.250.100 --disable traefik,servicelb,metrics-server
+    volumes:
+      - ./manifests:/var/lib/rancher/k3s/server/manifests/kube-vip:ro
+    networks:
+      kvlab:
+        ipv4_address: 172.31.250.11
+
+  server2:
+    <<: *server
+    container_name: kv-server2
+    hostname: kv-server2
+    command: server --server https://172.31.250.11:6443 --tls-san 172.31.250.100 --disable traefik,servicelb,metrics-server
+    networks:
+      kvlab:
+        ipv4_address: 172.31.250.12
+
+  server3:
+    <<: *server
+    container_name: kv-server3
+    hostname: kv-server3
+    command: server --server https://172.31.250.11:6443 --tls-san 172.31.250.100 --disable traefik,servicelb,metrics-server
+    networks:
+      kvlab:
+        ipv4_address: 172.31.250.13
+
+networks:
+  kvlab:
+    ipam:
+      config:
+        - subnet: 172.31.250.0/24

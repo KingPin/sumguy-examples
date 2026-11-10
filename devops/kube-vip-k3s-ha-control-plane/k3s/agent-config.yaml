@@ -1,0 +1,4 @@
+# /etc/rancher/k3s/config.yaml on agents (workers).
+# Register through the VIP so a dead server 1 never blocks a new node.
+server: https://192.168.1.50:6443
+token: "change-me-to-a-long-random-string"
