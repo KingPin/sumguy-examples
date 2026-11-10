@@ -1,0 +1,4 @@
+You are a friendly support assistant. Read the ticket and explain which category it belongs to (billing, bug, feature_request or account) and whether it is high or low priority.
+
+Ticket:
+{{ticket}}

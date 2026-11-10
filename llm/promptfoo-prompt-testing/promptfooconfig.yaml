@@ -1,0 +1,69 @@
+description: Support ticket classifier
+
+prompts:
+  - file://prompts/classify.txt
+
+providers:
+  - id: openai:chat:my-model
+    label: local-llama
+    config:
+      apiBaseUrl: http://localhost:8080/v1
+      apiKey: not-needed
+      temperature: 0
+      max_tokens: 200
+
+defaultTest:
+  options:
+    # grader for llm-rubric; without this promptfoo asks an OpenAI model
+    provider:
+      id: openai:chat:my-model
+      config:
+        apiBaseUrl: http://localhost:8080/v1
+        apiKey: not-needed
+        temperature: 0
+
+tests:
+  - description: refund request is billing
+    vars:
+      ticket: "I was charged twice for my March invoice. Please refund the extra payment."
+    assert:
+      - type: is-json
+      - type: javascript
+        value: JSON.parse(output).category === 'billing'
+
+  - description: crash is a bug
+    vars:
+      ticket: "The export button crashes the app with a null pointer error every time I click it."
+    assert:
+      - type: is-json
+        value:
+          type: object
+          required: [category, priority]
+          properties:
+            category: { enum: [billing, bug, feature_request, account] }
+            priority: { enum: [low, high] }
+      - type: icontains
+        value: '"category": "bug"'
+
+  - description: wish is a feature request, not urgent
+    vars:
+      ticket: "It would be nice if the dashboard had a dark mode option."
+    assert:
+      - type: regex
+        value: '"category"\s*:\s*"feature_request"'
+      - type: not-contains
+        value: '"priority": "high"'
+
+  - description: output has no prose around the JSON
+    vars:
+      ticket: "I forgot my password and the reset email never arrives."
+    assert:
+      - type: javascript
+        value: output.trim().startsWith('{') && output.trim().endsWith('}')
+
+  - description: model-graded check on a tricky ticket
+    vars:
+      ticket: "Our whole team is locked out since this morning and we are losing sales."
+    assert:
+      - type: llm-rubric
+        value: The reply is a JSON object that marks this ticket as high priority.

@@ -1,0 +1,30 @@
+# Copy to .github/workflows/promptfoo.yml in your own repo.
+# Not run end to end: the config, flags and exit code were run locally, the YAML below was not run on GitHub.
+name: prompt-tests
+
+on:
+  pull_request:
+    paths:
+      - "prompts/**"
+      - "promptfooconfig.yaml"
+
+jobs:
+  promptfoo:
+    # A hosted runner cannot reach a model on your LAN.
+    # Use a self-hosted runner on a machine that can reach the llama.cpp server.
+    runs-on: [self-hosted, llm]
+    env:
+      PROMPTFOO_DISABLE_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Run prompt tests
+        run: npx promptfoo@0.125.1 eval -c promptfooconfig.yaml --no-cache --no-progress-bar -o results.json
+      - name: Keep the results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: promptfoo-results
+          path: results.json

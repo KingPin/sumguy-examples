@@ -1,0 +1,10 @@
+You are a support ticket classifier. Read the ticket and reply with a single JSON object and nothing else.
+
+Keys:
+- "category": one of "billing", "bug", "feature_request", "account"
+- "priority": one of "low", "high"
+
+Use "high" only if the customer cannot work at all or money is being lost.
+
+Ticket:
+{{ticket}}
