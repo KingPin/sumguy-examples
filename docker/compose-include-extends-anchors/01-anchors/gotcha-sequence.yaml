@@ -1,0 +1,11 @@
+# Run: docker compose -f gotcha-sequence.yaml config
+# This file is INVALID on purpose. A merge key cannot pull in a list.
+x-env: &env
+  - TZ=UTC
+
+services:
+  web:
+    image: nginx:alpine
+    environment:
+      <<: *env
+      LOG_LEVEL: debug

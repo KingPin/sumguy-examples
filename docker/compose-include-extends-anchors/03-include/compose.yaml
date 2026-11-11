@@ -1,0 +1,15 @@
+include:
+  - db/compose.yaml
+  - path: cache/compose.yaml
+    env_file: cache/cache.env
+
+services:
+  app:
+    image: nginx:alpine
+    ports:
+      - "8082:80"
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started

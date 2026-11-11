@@ -1,0 +1,8 @@
+services:
+  base:
+    image: busybox
+    restart: unless-stopped
+    command: ["sleep", "3600"]
+  child:
+    extends: base
+    command: ["sleep", "60"]

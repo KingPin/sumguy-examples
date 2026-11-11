@@ -1,0 +1,17 @@
+services:
+  web:
+    extends:
+      file: shared/common.yaml
+      service: base
+    image: nginx:alpine
+    ports:
+      - "8081:80"
+    environment:
+      LOG_LEVEL: debug
+
+  worker:
+    extends:
+      file: shared/common.yaml
+      service: base
+    image: busybox
+    command: ["sleep", "3600"]

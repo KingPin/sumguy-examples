@@ -1,0 +1,13 @@
+# Run: docker compose -f multi-merge.yaml config
+x-a: &a
+  restart: always
+  mem_limit: 64m
+x-b: &b
+  restart: "no"
+  cpu_shares: 512
+
+services:
+  app:
+    image: busybox
+    command: ["sleep", "3600"]
+    <<: [*a, *b]

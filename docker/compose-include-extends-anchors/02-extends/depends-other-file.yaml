@@ -1,0 +1,7 @@
+# Run: docker compose -f depends-other-file.yaml config
+# child extends a service whose depends_on points at "cache", which is not defined here.
+services:
+  child:
+    extends:
+      file: depends-base.yaml
+      service: base

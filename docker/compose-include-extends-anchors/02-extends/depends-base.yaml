@@ -1,0 +1,8 @@
+services:
+  cache:
+    image: redis:alpine
+  base:
+    image: busybox
+    command: ["sleep", "3600"]
+    depends_on:
+      - cache

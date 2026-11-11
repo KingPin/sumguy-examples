@@ -1,0 +1,6 @@
+services:
+  cache:
+    image: redis:alpine
+    command: ["redis-server", "--maxmemory", "${CACHE_MEM}"]
+    volumes:
+      - ./cache-data:/data

@@ -1,0 +1,17 @@
+services:
+  base:
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+      LOG_LEVEL: info
+    env_file:
+      - ./base.env
+    ports:
+      - "9100"
+    volumes:
+      - ./conf:/etc/app:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

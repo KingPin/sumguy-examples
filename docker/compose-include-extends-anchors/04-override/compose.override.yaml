@@ -1,0 +1,7 @@
+services:
+  app:
+    ports:
+      - "8443:443"
+    environment:
+      DEBUG: "1"
+    command: ["nginx-debug", "-g", "daemon off;"]

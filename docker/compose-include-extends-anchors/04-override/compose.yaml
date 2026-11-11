@@ -1,0 +1,9 @@
+services:
+  app:
+    image: nginx:alpine
+    ports:
+      - "8083:80"
+    environment:
+      TZ: UTC
+      DEBUG: "0"
+    command: ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,7 @@
+# Run: docker compose -f conflict.yaml config
+# "db" exists in the main file AND in db/compose.yaml.
+include:
+  - db/compose.yaml
+services:
+  db:
+    image: postgres:17-alpine
