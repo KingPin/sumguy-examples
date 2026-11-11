@@ -1,0 +1,21 @@
+services:
+  homebox:
+    image: ghcr.io/sysadminsmedia/homebox:0.27.1
+    restart: unless-stopped
+    environment:
+      - TZ=UTC
+      - HBOX_LOG_LEVEL=info
+      - HBOX_WEB_MAX_UPLOAD_SIZE=10
+      - HBOX_OPTIONS_ALLOW_ANALYTICS=false
+      - HBOX_OPTIONS_ALLOW_REGISTRATION=true
+      # Base URL printed inside label QR codes. Without it, labels made over the API encode a bare path.
+      - HBOX_OPTIONS_HOSTNAME=https://homebox.example.com
+      # Change this. It hashes API keys. Generate one with: openssl rand -base64 48
+      - HBOX_AUTH_API_KEY_PEPPER=change-me-to-a-long-random-string
+    volumes:
+      - homebox-data:/data
+    ports:
+      - "3190:7745"
+
+volumes:
+  homebox-data:
