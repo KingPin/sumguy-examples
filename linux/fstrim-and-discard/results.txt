@@ -1,0 +1,18 @@
+# demo.sh output, 2026-11-12
+# Host kernel 6.8.0-138-generic, container debian:trixie, Docker 29.8.0
+# docker run --rm --privileged -v "$PWD":/work debian:trixie /work/demo.sh
+6.8.0-138-generic
+NAME   DISC-ALN DISC-GRAN DISC-MAX DISC-ZERO
+loop12        0        4K       4G         0
+--- Part 1: periodic TRIM (mount without discard, run fstrim) ---
+after mkfs:      66M on disk
+after 1 GiB:     1.1G on disk
+after rm:        1.1G on disk
+/mnt/t: 1.9 GiB (2039824384 bytes) trimmed
+after fstrim:    66M on disk
+/mnt/t: 0 B (0 bytes) trimmed
+after remount:
+/mnt/t: 1.9 GiB (2039824384 bytes) trimmed
+--- Part 2: continuous discard (mount -o discard) ---
+after 1 GiB:     1.1G on disk
+after rm:        66M on disk
