@@ -1,0 +1,19 @@
+# measured 2026-11-13, Docker Engine 29.9.2, docker-init plugin v1.4.1 (from Docker Desktop 4.99.0 Linux .deb), kernel 7.3.0
+# run 1
+lang    variant    warnings  size     env-leak    pid1                               stop_s   exit
+python  generated  2         127MB    LEAKED      /bin/sh -c gunicorn 'app:app' --bi 10.1     137
+python  fixed      0         127MB    clean       /usr/local/bin/python /usr/local/b 0.2      0
+node    generated  2         168MB    LEAKED      npm start                          0.6      1
+node    execonly   0         168MB    clean       node server.js                     10.2     137
+node    fixed      0         168MB    clean       /sbin/tini -- node server.js       0.3      143
+go      generated  0         17MB     clean       /bin/server                        0.1      2
+go      fixed      0         17MB     clean       /bin/server                        0.1      2
+# run 2
+lang    variant    warnings  size     env-leak    pid1                               stop_s   exit
+python  generated  2         127MB    LEAKED      /bin/sh -c gunicorn 'app:app' --bi 10.1     137
+python  fixed      0         127MB    clean       /usr/local/bin/python /usr/local/b 0.2      0
+node    generated  2         168MB    LEAKED      npm start                          0.6      1
+node    execonly   0         168MB    clean       node server.js                     10.3     137
+node    fixed      0         168MB    clean       /sbin/tini -- node server.js       0.3      143
+go      generated  0         17MB     clean       /bin/server                        0.2      2
+go      fixed      0         17MB     clean       /bin/server                        0.2      2
