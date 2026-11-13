@@ -1,0 +1,11 @@
+# Override for the "point NextExplorer at Nextcloud's data dir" test.
+# Mounts Nextcloud's data directory into NextExplorer as a volume called "Nextcloud".
+# Do not run this on a real install; it exists to show why you shouldn't.
+services:
+  nextexplorer:
+    volumes:
+      - type: volume
+        source: nc_html
+        target: /mnt/Nextcloud
+        volume:
+          subpath: data

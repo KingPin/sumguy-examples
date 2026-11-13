@@ -1,0 +1,39 @@
+# NextExplorer and Nextcloud side by side, for the measurements in measure.sh.
+# Nextcloud uses SQLite here to keep the comparison to one container each.
+# A real Nextcloud install wants MariaDB/Postgres + Redis on top.
+services:
+  nextexplorer:
+    image: nxzai/explorer:v4.0.1
+    container_name: nx-explorer
+    restart: unless-stopped
+    ports:
+      - "3017:3000"
+    volumes:
+      - ./nx/config:/config
+      - ./nx/cache:/cache
+      - ./files:/mnt/Files
+    environment:
+      NODE_ENV: production
+      PUBLIC_URL: "http://localhost:3017"
+      PUID: "${PUID:-1000}"
+      PGID: "${PGID:-1000}"
+      SESSION_SECRET: "${SESSION_SECRET:-change-me-to-32-plus-random-chars-please}"
+      AUTH_ADMIN_EMAIL: "admin@example.com"
+      AUTH_ADMIN_PASSWORD: "${ADMIN_PASS:-correct-horse-battery}"
+
+  nextcloud:
+    image: nextcloud:35.0.2-apache
+    container_name: nx-nextcloud
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - nc_html:/var/www/html
+    environment:
+      SQLITE_DATABASE: nextcloud
+      NEXTCLOUD_ADMIN_USER: admin
+      NEXTCLOUD_ADMIN_PASSWORD: "${ADMIN_PASS:-correct-horse-battery}"
+      NEXTCLOUD_TRUSTED_DOMAINS: "localhost"
+
+volumes:
+  nc_html:

@@ -1,0 +1,46 @@
+# startup + idle memory lines from every full run of measure.sh on 2026-11-13 (same host)
+## nx_measure.log
+run1 nextexplorer_ready_s 1.4
+run1 nextcloud_ready_s 27.4
+run2 nextexplorer_ready_s 1.5
+run2 nextcloud_ready_s 12.4
+run3 nextexplorer_ready_s 3.5
+run3 nextcloud_ready_s 17.9
+nx-explorer docker_stats_mem 77.56MiB
+nx-nextcloud docker_stats_mem 216MiB
+## nx_measure2.log
+run1 nextexplorer_ready_s 1.6
+run1 nextcloud_ready_s 10.2
+run2 nextexplorer_ready_s 1.4
+run2 nextcloud_ready_s 12.0
+run3 nextexplorer_ready_s 1.4
+run3 nextcloud_ready_s 16.2
+nx-explorer docker_stats_mem 75.01MiB
+nx-nextcloud docker_stats_mem 197.1MiB
+## nx_measure4.log
+run1 nextexplorer_ready_s 1.6
+run1 nextcloud_ready_s 13.1
+run2 nextexplorer_ready_s 1.8
+run2 nextcloud_ready_s 10.0
+run3 nextexplorer_ready_s 1.2
+run3 nextcloud_ready_s 10.0
+nx-explorer docker_stats_mem 69.31MiB
+nx-nextcloud docker_stats_mem 185.4MiB
+## nx_measure5.log
+run1 nextexplorer_ready_s 1.2
+run1 nextcloud_ready_s 9.5
+run2 nextexplorer_ready_s 1.4
+run2 nextcloud_ready_s 12.6
+run3 nextexplorer_ready_s 1.6
+run3 nextcloud_ready_s 10.0
+nx-explorer docker_stats_mem 85.64MiB
+nx-nextcloud docker_stats_mem 198.9MiB
+## nx_measure6.log
+run1 nextexplorer_ready_s 2.9
+run1 nextcloud_ready_s 71.6
+run2 nextexplorer_ready_s 1.9
+run2 nextcloud_ready_s 14.8
+run3 nextexplorer_ready_s 3.9
+run3 nextcloud_ready_s 58.2
+nx-explorer docker_stats_mem 60.3MiB
+nx-nextcloud docker_stats_mem 241.7MiB

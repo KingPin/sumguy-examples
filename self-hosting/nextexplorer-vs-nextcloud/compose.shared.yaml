@@ -1,0 +1,14 @@
+# The way that works: one neutral folder, mounted into both containers.
+# Nextcloud sees it through the External Storage app ("Local" backend),
+# NextExplorer sees it as a normal volume. Both run as uid/gid 33 (www-data)
+# so either side can edit what the other wrote.
+services:
+  nextexplorer:
+    environment:
+      PUID: "33"
+      PGID: "33"
+    volumes:
+      - ./shared:/mnt/Shared
+  nextcloud:
+    volumes:
+      - ./shared:/srv/shared

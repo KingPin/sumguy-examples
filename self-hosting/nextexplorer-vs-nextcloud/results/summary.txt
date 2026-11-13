@@ -1,0 +1,34 @@
+== host: 16 cores, docker 29.9.2, 2026-11-13
+run1 nextexplorer_ready_s 2.9
+run1 nextcloud_ready_s 71.6
+run2 nextexplorer_ready_s 1.9
+run2 nextcloud_ready_s 14.8
+run3 nextexplorer_ready_s 3.9
+run3 nextcloud_ready_s 58.2
+nx-explorer docker_stats_mem 60.3MiB process_rss_mib 111
+nx-nextcloud docker_stats_mem 241.7MiB process_rss_mib 478
+nextcloud:35.0.2-apache 1.48GB
+nxzai/explorer:v4.0.1 390MB
+bob volumes: [{"name":"Files","path":"Files","kind":"volume","readOnly":null}]
+bob access on Files: {'canRead': True, 'canWrite': True, 'canUpload': True, 'canDelete': True, 'canCreateFolder': True, 'canCreateFile': True, 'canShare': True, 'canDownload': True, 'canSeeVersions': True, 'readOnly': None}
+bob upload: 200
+host owner of bob.txt: 1000:1000
+nextcloud data dir owner: 33:33 755
+trap PUID:PGID=1000:1000 upload_http=403 body={"success":false,"error":{"message":"The server is not allowed to write in this folder.","statusCode":403,"requestId":"f3b35582-d8e5-479d-b348-061c5faa0213","ti
+trap PUID:PGID=33:33 upload_http=200 body=[{"name":"note.txt","path":"Nextcloud/admin/files","dateModified":"2026-11-13T20:22:19.190Z","size":24,"kind":"txt"}]
+on disk: Documents Nextcloud Manual.pdf Nextcloud intro.mp4 Nextcloud.png Photos Readme.md Reasons to use Nextcloud.pdf Templates Templates credits.md note.txt 
+nextcloud WebDAV lists note.txt before scan: 0
+nextcloud WebDAV lists note.txt before scan, second look: 0
+| Folders | Files | New | Updated | Removed | Errors | Elapsed time |
++---------+-------+-----+---------+---------+--------+--------------+
+| 6       | 65    | 0   | 2       | 0       | 0      | 00:00:00     |
++---------+-------+-----+---------+---------+--------+--------------+
+nextcloud WebDAV lists note.txt after scan: 1
+external mount 1 options: [{'enable_sharing': False}]
+mount visible after 1 retries
+shared upload via nextexplorer: 200
+check option unset, nextcloud WebDAV lists shared-note.txt: 0
+after filesystem_check_changes=1, nextcloud WebDAV lists shared-note.txt: 1
+upload via nextcloud WebDAV: 201
+nextexplorer lists: ['nc-note.txt', 'shared-note.txt']
+owners on host: shared/nc-note.txt 33:33 shared/shared-note.txt 33:33 
