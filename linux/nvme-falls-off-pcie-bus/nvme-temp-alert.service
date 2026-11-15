@@ -1,0 +1,11 @@
+[Unit]
+Description=Desktop alert when NVMe temperature is high
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=%h/.local/bin/nvme-temp-alert
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target

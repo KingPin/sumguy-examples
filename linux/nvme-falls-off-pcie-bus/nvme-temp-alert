@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Desktop alert when any NVMe composite temp reaches LIMIT (°C).
+# Re-alerts every REPEAT seconds while it stays hot.
+LIMIT=${LIMIT:-70}
+INTERVAL=${INTERVAL:-10}
+REPEAT=${REPEAT:-300}
+declare -A last
+while :; do
+  for h in /sys/class/hwmon/hwmon*; do
+    [[ $(<"$h/name") == nvme ]] || continue
+    t=$(( $(<"$h/temp1_input") / 1000 ))
+    dev=$(basename "$(readlink -f "$h/device")")
+    now=$(date +%s)
+    if (( t >= LIMIT )); then
+      if (( now - ${last[$dev]:-0} >= REPEAT )); then
+        echo "$dev at ${t}°C (limit ${LIMIT}°C)"
+        notify-send -u critical -a "NVMe temp" "$dev at ${t}°C" "Limit is ${LIMIT}°C"
+        last[$dev]=$now
+      fi
+    else
+      unset "last[$dev]"
+    fi
+  done
+  [[ $ONCE ]] && exit 0
+  sleep "$INTERVAL"
+done
