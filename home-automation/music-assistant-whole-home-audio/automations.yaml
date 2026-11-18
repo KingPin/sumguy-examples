@@ -1,0 +1,64 @@
+# Example Home Assistant automations for Music Assistant players.
+# Replace every entity ID with your own. Field names match the
+# music_assistant services in Home Assistant 2026.11.2.
+
+- alias: "Morning playlist"
+  triggers:
+    - trigger: time
+      at: "07:00:00"
+  conditions:
+    - condition: time
+      weekday: [mon, tue, wed, thu, fri]
+  actions:
+    - action: music_assistant.play_media
+      target:
+        entity_id: media_player.kitchen
+      data:
+        media_id: "Morning Coffee"
+        media_type: playlist
+        enqueue: replace
+
+- alias: "Dinner announcement"
+  triggers:
+    - trigger: state
+      entity_id: input_boolean.dinner_ready
+      to: "on"
+  actions:
+    - action: music_assistant.play_announcement
+      target:
+        entity_id: media_player.living_room
+      data:
+        message: "Dinner is ready!"
+        tts_entity_id: tts.piper
+        announce_volume: 70
+
+- alias: "Music follows me to the office"
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.office_motion
+      to: "on"
+  conditions:
+    - condition: state
+      entity_id: media_player.living_room
+      state: "playing"
+  actions:
+    - action: music_assistant.transfer_queue
+      target:
+        entity_id: media_player.office
+      data:
+        source_player: media_player.living_room
+        auto_play: true
+
+- alias: "Party mode"
+  triggers:
+    - trigger: state
+      entity_id: input_boolean.party_mode
+      to: "on"
+  actions:
+    - action: media_player.join
+      target:
+        entity_id: media_player.living_room
+      data:
+        group_members:
+          - media_player.kitchen
+          - media_player.patio

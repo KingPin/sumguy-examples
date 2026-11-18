@@ -1,0 +1,15 @@
+# Music Assistant server, pinned to the stable release current in November 2026.
+# Host networking is required for player discovery (mDNS/uPnP) and for
+# AirPlay, Cast, DLNA and Sonos streaming.
+services:
+  music-assistant-server:
+    image: ghcr.io/music-assistant/server:2.10.12
+    container_name: music-assistant-server
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./data:/data/
+      # Mount your music on the host (NAS share via fstab is fine), then bind it read-only.
+      - /path/to/your/music:/media:ro
+    environment:
+      - LOG_LEVEL=info
