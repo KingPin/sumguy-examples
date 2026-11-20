@@ -1,0 +1,19 @@
+# Recyclarr in cron mode. Sonarr and Radarr already run on the external
+# network below. Create it once with: docker network create media
+networks:
+  media:
+    external: true
+
+services:
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:8
+    container_name: recyclarr
+    user: 1000:1000
+    restart: unless-stopped
+    networks: [media]
+    env_file: .env
+    environment:
+      - TZ=UTC
+      - CRON_SCHEDULE=0 4 * * *
+    volumes:
+      - ./config:/config

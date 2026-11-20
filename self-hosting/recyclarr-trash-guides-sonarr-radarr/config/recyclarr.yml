@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://schemas.recyclarr.dev/v8/config-schema.json
+sonarr:
+  series:
+    base_url: !env_var SONARR_URL
+    api_key: !env_var SONARR_API_KEY
+    delete_old_custom_formats: true
+
+    quality_definition:
+      type: series
+
+    quality_profiles:
+      - trash_id: 72dae194fc92bf828f32cde7744e51a1  # WEB-1080p
+        reset_unmatched_scores:
+          enabled: true
+
+    # Override: allow x265 (HD) releases. The guide default is -10000.
+    custom_formats:
+      - trash_ids:
+          - 47435ece6b99a0b477caf360e79ba0bb  # x265 (HD)
+        assign_scores_to:
+          - trash_id: 72dae194fc92bf828f32cde7744e51a1  # WEB-1080p
+            score: 0
+
+    media_naming:
+      series: default
+      season: default
+      episodes:
+        rename: true
+        standard: default
+
+radarr:
+  movies:
+    base_url: !env_var RADARR_URL
+    api_key: !env_var RADARR_API_KEY
+    delete_old_custom_formats: true
+
+    quality_definition:
+      type: movie
+
+    quality_profiles:
+      - trash_id: 9ca12ea80aa55ef916e3751f4b874151  # Remux + WEB 1080p
+        reset_unmatched_scores:
+          enabled: true
+
+    media_naming:
+      folder: default
+      movie:
+        rename: true
+        standard: standard
