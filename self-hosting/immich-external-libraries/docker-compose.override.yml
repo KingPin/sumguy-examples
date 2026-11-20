@@ -1,0 +1,9 @@
+# Drop this next to Immich's stock docker-compose.yml.
+# Docker Compose merges it automatically, so the stock file stays untouched.
+# Left side = host path, right side = container path.
+# In the Immich UI you enter the right side (container path) as the import path.
+services:
+  immich-server:
+    volumes:
+      - /srv/nas/pictures:/mnt/photos/pictures:ro
+      - /srv/nas/videos:/mnt/photos/videos:ro

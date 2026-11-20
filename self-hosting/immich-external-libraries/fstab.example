@@ -1,0 +1,4 @@
+# Host-side NFS mount for the photo share (placeholder hostname and paths).
+# No x-systemd.automount: an autofs mount point bind-mounted into a container
+# can fail with "Too many levels of symbolic links".
+nas.local:/export/pictures  /srv/nas/pictures  nfs  ro,_netdev,nofail  0  0
