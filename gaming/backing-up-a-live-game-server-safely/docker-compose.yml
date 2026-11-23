@@ -1,0 +1,44 @@
+# Minecraft Java server plus the itzg/mc-backup sidecar (restic method).
+# The sidecar pauses saves over RCON (save-off, save-all), backs up the
+# live /data directory, then runs save-on. For large worlds on ZFS, use
+# game-backup.sh instead so the pause lasts only as long as the flush plus a snapshot.
+services:
+  mc:
+    image: itzg/minecraft-server
+    environment:
+      EULA: "TRUE"
+      RCON_PASSWORD_FILE: /run/secrets/rcon_pass
+    ports:
+      - "25565:25565"
+    volumes:
+      - ./data:/data
+    secrets:
+      - rcon_pass
+    restart: unless-stopped
+
+  backups:
+    image: itzg/mc-backup
+    hostname: mc-backups   # fixed hostname so restic retention groups stay stable
+    depends_on:
+      - mc
+    environment:
+      RCON_HOST: mc
+      RCON_PASSWORD_FILE: /run/secrets/rcon_pass
+      BACKUP_INTERVAL: "2h"
+      BACKUP_METHOD: restic
+      RESTIC_REPOSITORY: /backups/restic
+      RESTIC_PASSWORD_FILE: /run/secrets/restic_pass
+      PRUNE_RESTIC_RETENTION: "--keep-daily 7 --keep-weekly 4"
+    volumes:
+      - ./data:/data:ro
+      - ./backups:/backups
+    secrets:
+      - rcon_pass
+      - restic_pass
+    restart: unless-stopped
+
+secrets:
+  rcon_pass:
+    file: ./secrets/rcon_pass.txt
+  restic_pass:
+    file: ./secrets/restic_pass.txt
