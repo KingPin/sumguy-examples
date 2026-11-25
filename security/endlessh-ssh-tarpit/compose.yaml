@@ -1,0 +1,24 @@
+# endlessh-go on host port 22. Move the real sshd off port 22 FIRST.
+services:
+  endlessh:
+    image: shizunge/endlessh-go:2026.0730.0
+    container_name: endlessh
+    restart: unless-stopped
+    command:
+      - -logtostderr
+      - -v=1
+      - -healthcheck_enabled
+      - -prometheus_enabled
+      - -prometheus_clean_unseen_seconds=86400
+    ports:
+      - "22:2222"
+      - "127.0.0.1:2112:2112"
+
+  prometheus:
+    image: prom/prometheus:v3.16.0
+    container_name: endlessh-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "127.0.0.1:9090:9090"

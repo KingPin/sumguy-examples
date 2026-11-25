@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 30s
+
+scrape_configs:
+  - job_name: endlessh
+    static_configs:
+      - targets: ["endlessh:2112"]
