@@ -1,0 +1,108 @@
+# Example only: an OpenWrt MAIN router that trunks VLANs 20 and 30 to the AP on lan4.
+# Untagged traffic on lan4 stays the normal LAN. Adjust names to your hardware.
+# Not tested on hardware. The isolation rules (firewall) live on this router.
+config device
+	option name 'br-lan'
+	option type 'bridge'
+	list ports 'lan1'
+	list ports 'lan2'
+	list ports 'lan3'
+	list ports 'lan4'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '1'
+	list ports 'lan1:u*'
+	list ports 'lan2:u*'
+	list ports 'lan3:u*'
+	list ports 'lan4:u*'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '20'
+	list ports 'lan4:t'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '30'
+	list ports 'lan4:t'
+
+config interface 'lan'
+	option device 'br-lan.1'
+	option proto 'static'
+	list ipaddr '192.168.1.1/24'
+
+config interface 'guest'
+	option device 'br-lan.20'
+	option proto 'static'
+	list ipaddr '10.0.20.1/24'
+
+config interface 'iot'
+	option device 'br-lan.30'
+	option proto 'static'
+	list ipaddr '10.0.30.1/24'
+
+# /etc/config/dhcp on the main router: one pool per extra VLAN.
+config dhcp 'guest'
+	option interface 'guest'
+	option start '100'
+	option limit '150'
+	option leasetime '1h'
+
+config dhcp 'iot'
+	option interface 'iot'
+	option start '100'
+	option limit '150'
+	option leasetime '12h'
+
+# /etc/config/firewall on the main router: guest and IoT can reach the internet
+# and nothing else. An interface with no zone hits the default REJECT policy.
+config zone
+	option name 'guest'
+	list network 'guest'
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+
+config forwarding
+	option src 'guest'
+	option dest 'wan'
+
+config rule
+	option name 'Guest-DHCP-DNS'
+	option src 'guest'
+	option proto 'udp'
+	option dest_port '53 67'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Guest-DNS-TCP'
+	option src 'guest'
+	option proto 'tcp'
+	option dest_port '53'
+	option target 'ACCEPT'
+
+config zone
+	option name 'iot'
+	list network 'iot'
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+
+config forwarding
+	option src 'iot'
+	option dest 'wan'
+
+config rule
+	option name 'IoT-DHCP-DNS'
+	option src 'iot'
+	option proto 'udp'
+	option dest_port '53 67'
+	option target 'ACCEPT'
+
+config rule
+	option name 'IoT-DNS-TCP'
+	option src 'iot'
+	option proto 'tcp'
+	option dest_port '53'
+	option target 'ACCEPT'
