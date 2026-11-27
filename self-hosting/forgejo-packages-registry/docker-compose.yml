@@ -1,0 +1,19 @@
+# Forgejo with the package registry enabled (the default) and per-owner limits.
+# Every FORGEJO__section__KEY variable maps to app.ini [section] KEY.
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:17
+    container_name: forgejo
+    restart: always
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - FORGEJO__packages__LIMIT_TOTAL_OWNER_SIZE=20 GiB
+      - FORGEJO__packages__LIMIT_SIZE_CONTAINER=2 GiB
+      - FORGEJO__packages__LIMIT_SIZE_NPM=100 MB
+    volumes:
+      - ./forgejo:/data
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "222:22"

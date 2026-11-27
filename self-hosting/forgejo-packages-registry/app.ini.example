@@ -1,0 +1,7 @@
+; The same limits as docker-compose.yml, for a non-Docker install.
+; Defaults are -1 (no limit) for every LIMIT_* key.
+[packages]
+ENABLED = true
+LIMIT_TOTAL_OWNER_SIZE = 20 GiB
+LIMIT_SIZE_CONTAINER = 2 GiB
+LIMIT_SIZE_NPM = 100 MB

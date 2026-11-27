@@ -1,0 +1,28 @@
+# Builds and pushes an image to the Forgejo container registry on every push
+# to main. REGISTRY_TOKEN is a repository secret holding a personal access
+# token with the write:package scope. The `ci` label needs an image with both
+# node (for actions/checkout) and the docker CLI; see the
+# devops/forgejo-actions-runners-self-hosted example for one.
+name: Build and push image
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  image:
+    runs-on: ci
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Log in to the Forgejo registry
+        run: |
+          echo "${{ secrets.REGISTRY_TOKEN }}" | \
+            docker login forgejo.example.com -u alice --password-stdin
+
+      - name: Build and push
+        run: |
+          IMAGE=forgejo.example.com/alice/webapp
+          docker build -t "$IMAGE:${{ github.sha }}" -t "$IMAGE:latest" .
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
